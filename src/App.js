@@ -166,7 +166,6 @@ export default class App extends Component {
   }
 
   render() {
-    console.log('Rendering <App />', this.state)
     const availableRooms = _.filter(rooms, room => this.state.guests <= room.maxOccupancy)
 
     const styles = {
