@@ -1,0 +1,42 @@
+// Overriding default styles for react-dates
+// All variable options: https://github.com/airbnb/react-dates/blob/master/css/variables.scss
+
+$react-dates-width-input: 100px !default;
+$react-dates-width-arrow: 18px !default;
+
+$react-dates-color-primary: #00bcd4 !default;
+$react-dates-color-primary-dark: #0097a7 !default;
+$react-dates-color-primary-shade-1: #26c6da !default;
+$react-dates-color-primary-shade-2: #4dd0e1 !default;
+$react-dates-color-primary-shade-3: #80deea !default;
+$react-dates-color-primary-shade-4: #b2ebf2 !default;
+$react-dates-color-focus: #b2ebf2 !default;
+
+$react-dates-font-size: 15px !default;
+$react-dates-line-height: 32px !default;
+
+@import '../node_modules/react-dates/css/variables.scss';
+@import '../node_modules/react-dates/css/styles.scss';
+
+.DateInput {
+  // font
+  font-weight: inherit;
+  font-size: $react-dates-font-size;
+  line-height: $react-dates-line-height;
+  color: $react-dates-color-placeholder-text;
+  margin: 0;
+  padding: 8px;
+
+  background: inherit;
+  position: relative;
+  display: inline-block;
+  width: $react-dates-width-input;
+  vertical-align: middle;
+}
+
+.DateRangePickerInput {
+  background-color: inherit;
+  border: 0px;
+  display: inline-block;
+}
+
