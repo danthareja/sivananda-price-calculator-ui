@@ -1,3 +1,8 @@
+// Stay focused....
+//   1. Allow past dates
+//   2. Add custom seasons
+//   3. Price per guest in the tab
+
 import _ from 'lodash'
 import React, { Component } from 'react'
 import moment from 'moment'
@@ -63,13 +68,13 @@ export default class App extends Component {
       .value()
 
     if (!_.isEmpty(invalidRooms)) {
-      error.message = `${_.join(invalidRooms, ', and ')} cannot have more than ${this.state.guests} guests. Please change the room type or delete the stay before increasing guest count.`
+      error.message = `${_.join(invalidRooms, ', and ')} cannot have more than ${this.state.guests} guests. Please change the room type or remove the stay before increasing guest count.`
       error.show = true
       guests = this.state.guests
     }
 
     if (!_.isEmpty(this.state.courses)) {
-      error.message = 'Courses can only be added for a reservation with one guest. Please delete the courses before increasing guest count.'
+      error.message = 'Courses can only be added for a reservation with one guest. Please remove the courses before increasing guest count.'
       error.show = true
       guests = this.state.guests
     }
@@ -218,7 +223,7 @@ export default class App extends Component {
             index={i}
             stay={stay}
             availableRooms={availableRooms}
-            isOutsideRange={(date) => i === 0 ? date.isBefore(today) : date.isBefore(stays[i - 1].checkOutDate)}
+            isOutsideRange={(date) => i === 0 ? false : date.isBefore(stays[i - 1].checkOutDate)}
             onStayChange={this.updateStay}
           />
         )}
