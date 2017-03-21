@@ -1,11 +1,10 @@
 // Stay focused....
-//   1. Allow past dates
-//   2. Add custom seasons
+//   1. Add custom seasons
+//   2. Add TTC
 //   3. Price per guest in the tab
 
 import _ from 'lodash'
 import React, { Component } from 'react'
-import moment from 'moment'
 
 import Toggle from 'material-ui/Toggle'
 import Snackbar from 'material-ui/Snackbar'
@@ -21,7 +20,8 @@ import { DateRangePicker } from 'react-dates'
 import { START_DATE, END_DATE } from 'react-dates/constants'
 import './react-dates.css'
 
-import rooms from './data/rooms'
+import moment from './lib/moment'
+import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
 import calculator from './calculator'
 import { ROOM_ID } from './data/constants'
 
@@ -61,7 +61,7 @@ export default class App extends Component {
     let guests = _.max([1, parseInt(e.target.value, 10)])
     
     let invalidRooms = _(this.state.stays)
-      .map(stay => _.find(rooms, _.matchesProperty('id', stay.roomId)))
+      .map(stay => getRoomById(stay.roomId))
       .filter(room => guests > room.maxOccupancy)
       .map(_.property('label'))
       .uniq()
@@ -171,8 +171,6 @@ export default class App extends Component {
   }
 
   render() {
-    const availableRooms = _.filter(rooms, room => this.state.guests <= room.maxOccupancy)
-
     const styles = {
       snackbar: {
         container: { width: '100%'},
@@ -222,7 +220,7 @@ export default class App extends Component {
             key={i}
             index={i}
             stay={stay}
-            availableRooms={availableRooms}
+            availableRooms={filterRoomsByOccupancy(this.state.guests)}
             isOutsideRange={(date) => i === 0 ? false : date.isBefore(stays[i - 1].checkOutDate)}
             onStayChange={this.updateStay}
           />
@@ -255,6 +253,7 @@ class StayInput extends Component {
 
   render() {
     const { index, stay, availableRooms, isOutsideRange, onStayChange } = this.props
+    console.log('availableRooms', availableRooms)
 
     const styles = {
       toolbar: {
@@ -371,9 +370,7 @@ class PriceTable extends Component {
   }
 
   render() {
-    const season = 'winter' // Hardcoded for now
-    const {guests, stays, courses } = this.props
-    const calculated = calculator({ guests, stays, courses, season })
+    const calculated = calculator(this.props)
     const rates = this.state.includeVAT ? calculated.ratesWithVAT : calculated.rates
     return (
       <Card>

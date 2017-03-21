@@ -1,11 +1,10 @@
-import moment from 'moment'
-import calculator from './calculator'
+import moment from './lib/moment'
 import { ROOM_ID } from './data/constants'
+import calculator from './calculator'
 
-test('during the winter, two friends staying 5 nights in a beachfront deluxe', function() {
+it('two friends staying 5 nights in a beachfront deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 2,
     stays: [{
       roomId: ROOM_ID.BEACHFRONT,
@@ -13,16 +12,16 @@ test('during the winter, two friends staying 5 nights in a beachfront deluxe', f
       checkOutDate: checkInDate.clone().add(5, 'days')
     }]
   })
+
   expect(rates.room).toEqual(1590)
   expect(rates.yvp).toEqual(320)
   expect(rates.total).toEqual(1910)
   expect(ratesWithVAT.total).toEqual(2053.25)
 })
 
-test('during the winter, one person staying 4 nights in a garden room single', function() {
+it('one person staying 4 nights in a garden room single during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.GARDEN_SINGLE,
@@ -36,10 +35,9 @@ test('during the winter, one person staying 4 nights in a garden room single', f
   expect(ratesWithVAT.total).toEqual(709.50)
 })
 
-test('during the winter, one person staying 3 nights in a ocean view deluxe', function() {
+it('one person staying 3 nights in a ocean view deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.OCEAN_VIEW,
@@ -53,16 +51,15 @@ test('during the winter, one person staying 3 nights in a ocean view deluxe', fu
   expect(ratesWithVAT.total).toEqual(1051.35)
 })
 
-test('during the winter, one person staying 8 nights in a garden room double bed', function() {
+it('one person staying 8 nights in a garden room double bed during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.GARDEN_DOUBLE,
       checkInDate: checkInDate.clone(),
       checkOutDate: checkInDate.clone().add(8, 'days')
-    }]        
+    }]
   })
   expect(rates.room).toEqual(1040)
   expect(rates.yvp).toEqual(256)
@@ -70,10 +67,9 @@ test('during the winter, one person staying 8 nights in a garden room double bed
   expect(ratesWithVAT.total).toEqual(1393.20)
 })
 
-test('during the winter, a couple staying 15 nights in a garden room double bed', function() {
+it('a couple staying 15 nights in a garden room double bed during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 2,
     stays: [{
       roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -87,10 +83,9 @@ test('during the winter, a couple staying 15 nights in a garden room double bed'
   expect(ratesWithVAT.total).toEqual(4289.25)
 })
 
-test('during the winter, one person staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250', function() {
+it('one person staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.BEACHFRONT,
@@ -110,10 +105,9 @@ test('during the winter, one person staying 10 nights in a beachfront deluxe, re
   expect(ratesWithVAT.total).toEqual(3588.35)
 })
 
-test('during the winter, one person staying 12 nights, alone in beachfront deluxe', function() {
+it('one person staying 12 nights, alone in beachfront deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.BEACHFRONT,
@@ -125,10 +119,9 @@ test('during the winter, one person staying 12 nights, alone in beachfront delux
   expect(ratesWithVAT.total).toEqual(4231.20)
 })
 
-test('during the winter, one person staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe', function() {
+it('one person staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -144,10 +137,9 @@ test('during the winter, one person staying 2 nights alone in a garden room doub
   expect(ratesWithVAT.total).toEqual(1416.85)
 })
 
-test('during the winter, one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe', function() {
+it('one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -163,10 +155,9 @@ test('during the winter, one person staying 4 nights alone in a garden room doub
   expect(ratesWithVAT.total).toEqual(2341.35)
 })
 
-test('during the winter, one person staying 4 nights sharing a garden room and 5 nights alone in a oceanview deluxe', function() {
+it('one person staying 4 nights sharing a garden room and 5 nights alone in a oceanview deluxe during the winter', function() {
   const checkInDate = moment()
   const { rates, ratesWithVAT } = calculator({
-    season: 'winter',
     guests: 1,
     stays: [{
       roomId: ROOM_ID.GARDEN_SHARED_SHARING,

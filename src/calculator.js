@@ -1,24 +1,59 @@
 import _ from 'lodash'
-import Moment from 'moment'
-import { extendMoment } from 'moment-range'
 
-import roomData from './data/rooms'
-import { YVP, VAT } from './data/constants'
+import moment from './lib/moment'
+import { getSeasonByDate } from './data/seasons'
+import { addVAT, getYVPRate, getRoomRate } from './data/rates'
 
-const moment = extendMoment(Moment)
+const EMPTY_RESULT = {
+  rates: {
+    perGuest: {
+      perDay: [],
+      room: 0,
+      yvp: 0,
+      course: 0,
+      total: 0
+    },
+    perDay: [],
+    room: 0,
+    yvp: 0,
+    course: 0,
+    total: 0
+  },
+  ratesWithVAT: {
+    perGuest: {
+      perDay: [],
+      room: 0,
+      yvp: 0,
+      course: 0,
+      total: 0
+    },
+    perDay: [],
+    room: 0,
+    yvp: 0,
+    course: 0,
+    total: 0
+  }
+}
 
-export default function calculator({ guests = 1, season = 'winter', stays = [], courses = [] }) {
-  // ASSUMPTION: Dates of stays are one continous range
+export default function calculator({ guests = 1, stays = [], courses = [] }) {
+  const checkInDate = _.first(stays).checkInDate
+  const checkOutDate = _.last(stays).checkOutDate
+
+  if (!moment.isMoment(checkInDate) || !moment.isMoment(checkOutDate)) {
+    return EMPTY_RESULT
+  }
+
+  // TODO: Validate that dates of stay are one continuous range
   const datesThatMustBePaidFor = moment.range(
-    _.first(stays).checkInDate.clone(),
-    _.last(stays).checkOutDate.clone().subtract(1, 'days')
+    checkInDate.clone(),
+    checkOutDate.clone().subtract(1, 'days')
   )
 
   const perGuest = {
     perDay: _.map(Array.from(datesThatMustBePaidFor.by('days'), date => ({
       date: date,
-      room: calculateDailyRoomRate(date, stays, season, guests),
-      yvp: calculateDailyYVPRate(date, courses)
+      room: getDailyRoomRate(date, stays, guests),
+      yvp: getDailyYVPRate(date, courses)
     })))
   }
   perGuest.room = _.sumBy(perGuest.perDay, 'room')
@@ -51,18 +86,9 @@ export default function calculator({ guests = 1, season = 'winter', stays = [], 
   return { rates, ratesWithVAT } 
 }
 
-function calculateDailyRoomRate(date, stays, season, guests) {
-  var rateIndex
-  
-  // Daily rates differ based on the total number of nights stayed
+function getDailyRoomRate(date, stays, guests) {
   var nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
-
-  if (nights >= 21) { rateIndex = 3 }
-  if (nights < 21) { rateIndex = 2 }
-  if (nights < 14) { rateIndex = 1 }
-  if (nights < 7) { rateIndex = 0 }
-
-  if (!_.isNumber(rateIndex)) { throw new Error('No rateIndex found.') }
+  var season = getSeasonByDate(date)
 
   var stay = _.find(stays, stay => date.within(
     moment.range(
@@ -72,12 +98,13 @@ function calculateDailyRoomRate(date, stays, season, guests) {
   ))
 
   if (!_.isObject(stay)) { throw new Error('No stay found.') }
-  
 
-  return _.find(roomData, _.matchesProperty('id', stay.roomId)).baseRateByOccupancy[season][guests][rateIndex]
+  return getRoomRate(stay.roomId, season, guests, nights)
 }
 
-function calculateDailyYVPRate(date, courses) {
+function getDailyYVPRate(date, courses) {
+  var season = getSeasonByDate(date)
+
   // YVP is not included duing the course and one night before
   var isDuringCourse = _.some(courses, course => date.within(
     moment.range(
@@ -86,13 +113,7 @@ function calculateDailyYVPRate(date, courses) {
     )
   ))
 
-  return isDuringCourse ? 0 : YVP
+  return isDuringCourse ? 0 : getYVPRate(season)
 }
 
-function addVAT (price) {
-  if (!_.isNumber(price)) {
-    return price
-  }
-  return price + (price * VAT)
-}
 
