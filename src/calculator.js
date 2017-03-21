@@ -4,35 +4,11 @@ import moment from './lib/moment'
 import { getSeasonByDate } from './data/seasons'
 import { addVAT, getYVPRate, getRoomRate } from './data/rates'
 
-const EMPTY_RESULT = {
-  rates: {
-    perGuest: {
-      perDay: [],
-      room: 0,
-      yvp: 0,
-      course: 0,
-      total: 0
-    },
-    perDay: [],
-    room: 0,
-    yvp: 0,
-    course: 0,
-    total: 0
-  },
-  ratesWithVAT: {
-    perGuest: {
-      perDay: [],
-      room: 0,
-      yvp: 0,
-      course: 0,
-      total: 0
-    },
-    perDay: [],
-    room: 0,
-    yvp: 0,
-    course: 0,
-    total: 0
-  }
+const EMPTY_RATES = {
+  withoutVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
+  withVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
+  perGuestWithoutVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
+  perGuestWithVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 }
 }
 
 export default function calculator({ guests = 1, stays = [], courses = [] }) {
@@ -40,50 +16,31 @@ export default function calculator({ guests = 1, stays = [], courses = [] }) {
   const checkOutDate = _.last(stays).checkOutDate
 
   if (!moment.isMoment(checkInDate) || !moment.isMoment(checkOutDate)) {
-    return EMPTY_RESULT
+    return EMPTY_RATES
   }
 
   // TODO: Validate that dates of stay are one continuous range
-  const datesThatMustBePaidFor = moment.range(
+  const daysThatMustBePaidFor = Array.from(moment.range(
     checkInDate.clone(),
     checkOutDate.clone().subtract(1, 'days')
-  )
+  ).by('days'))
 
-  const perGuest = {
-    perDay: _.map(Array.from(datesThatMustBePaidFor.by('days'), date => ({
-      date: date,
-      room: getDailyRoomRate(date, stays, guests),
-      yvp: getDailyYVPRate(date, courses)
-    })))
-  }
-  perGuest.room = _.sumBy(perGuest.perDay, 'room')
-  perGuest.yvp = _.sumBy(perGuest.perDay, 'yvp')
-  perGuest.course = _.sumBy(courses, 'tuition')
-  perGuest.total = _.sum([perGuest.room, perGuest.yvp, perGuest.course])
+  const perGuestWithoutVAT = {}
+  perGuestWithoutVAT.perDay = _.map(daysThatMustBePaidFor, date => ({
+    date: date,
+    room: getDailyRoomRate(date, stays, guests),
+    yvp: getDailyYVPRate(date, courses)
+  }))
+  perGuestWithoutVAT.room = _.sumBy(perGuestWithoutVAT.perDay, 'room')
+  perGuestWithoutVAT.yvp = _.sumBy(perGuestWithoutVAT.perDay, 'yvp')
+  perGuestWithoutVAT.course = _.sumBy(courses, 'tuition')
+  perGuestWithoutVAT.total = _.sum([perGuestWithoutVAT.room, perGuestWithoutVAT.yvp, perGuestWithoutVAT.course])
 
-  const rates = {
-    perGuest: perGuest,
-    perDay: perGuest.perDay.map(day => ({
-      date: day.date,
-      room: day.room * guests,
-      yvp: day.yvp * guests
-    })),
-    room: perGuest.room * guests,
-    yvp: perGuest.yvp * guests,
-    course: perGuest.course * guests,
-    total: perGuest.total * guests
-  }
+  const perGuestWithVAT = modifyRates(perGuestWithoutVAT, addVAT)
+  const withoutVAT = modifyRates(perGuestWithoutVAT, rate => rate * guests)
+  const withVAT = modifyRates(withoutVAT, addVAT)
 
-  const ratesWithVAT =  _.cloneDeepWith(rates, value => {
-    if (moment.isMoment(value)) {
-      return value.clone()
-    }
-    if (_.isNumber(value)) {
-      return addVAT(value)
-    }
-  })
-
-  return { rates, ratesWithVAT } 
+  return { withVAT, withoutVAT, perGuestWithVAT, perGuestWithoutVAT } 
 }
 
 function getDailyRoomRate(date, stays, guests) {
@@ -97,7 +54,7 @@ function getDailyRoomRate(date, stays, guests) {
     )
   ))
 
-  if (!_.isObject(stay)) { throw new Error('No stay found.') }
+  if (!_.isObject(stay)) { throw new Error('No stay found. Is the stay range continuous?') }
 
   return getRoomRate(stay.roomId, season, guests, nights)
 }
@@ -116,4 +73,14 @@ function getDailyYVPRate(date, courses) {
   return isDuringCourse ? 0 : getYVPRate(season)
 }
 
+function modifyRates(rates, modifier) {
+  return _.cloneDeepWith(rates, value => {
+    if (moment.isMoment(value)) {
+      return value.clone()
+    }
+    if (_.isNumber(value)) {
+      return modifier(value)
+    }
+  })
+}
 

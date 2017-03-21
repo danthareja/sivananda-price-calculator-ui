@@ -6,13 +6,13 @@
 import _ from 'lodash'
 import React, { Component } from 'react'
 
-import Toggle from 'material-ui/Toggle'
 import Snackbar from 'material-ui/Snackbar'
 import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
 import RaisedButton from 'material-ui/RaisedButton'
 import { Card, CardHeader, CardText } from 'material-ui/Card'
+import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
 import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
@@ -365,13 +365,28 @@ class PriceTable extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      includeVAT: false
+      rateOption: 'withoutVAT'
     }
   }
 
   render() {
-    const calculated = calculator(this.props)
-    const rates = this.state.includeVAT ? calculated.ratesWithVAT : calculated.rates
+    const rates = calculator(this.props)[this.state.rateOption]
+    
+    const styles = {
+      radioButtonGroup: {
+        display: 'inline-block',
+        width: '250px',
+        float: 'right'
+      },
+      ratesContainer: {
+        display: 'inline-block',
+        width: '250px',
+      },
+      rateEntry: {
+        margin: '5px 0px'
+      }
+    }
+    
     return (
       <Card>
         <CardHeader
@@ -380,18 +395,36 @@ class PriceTable extends Component {
           showExpandableButton={true}
         />
         <CardText>
-          <Toggle
-            label="Include VAT"
-            labelPosition="right"
-            toggled={this.state.includeVAT}
-            onToggle={(e, isChecked) => this.setState({ includeVAT: isChecked })}
-          />
-        </CardText>
-        <CardText>
-          <p>Room: ${rates.room.toFixed(2)}</p>
-          <p>YVP: ${rates.yvp.toFixed(2)}</p>
-          <p>Course: ${rates.course.toFixed(2)}</p>
-          <p>Total: ${rates.total.toFixed(2)}</p>
+          <div style={styles.ratesContainer}>
+            <div style={styles.rateEntry}>Room: ${rates.room.toFixed(2)}</div>
+            <div style={styles.rateEntry}>YVP: ${rates.yvp.toFixed(2)}</div>
+            <div style={styles.rateEntry}>Course: ${rates.course.toFixed(2)}</div>
+            <div style={styles.rateEntry}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
+          </div>
+          <RadioButtonGroup
+            name="rateOption"
+            onChange={(e, rateOption) => this.setState({ rateOption })}
+            defaultSelected="withoutVAT"
+            labelPosition="left"
+            style={styles.radioButtonGroup}
+          >
+            <RadioButton
+              value="withoutVAT"
+              label="Total"
+            />
+            <RadioButton
+              value="withVAT"
+              label="Total +VAT"
+            />
+            <RadioButton
+              value="perGuestWithoutVAT"
+              label="Total per guest"
+            />
+            <RadioButton
+              value="perGuestWithVAT"
+              label="Total per guest +VAT"
+            />
+          </RadioButtonGroup>
         </CardText>
         <CardText expandable={true}>
           <Table>
