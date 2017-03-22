@@ -53,7 +53,7 @@ const rooms = [
     maxOccupancy: 1
   },
   {
-    id: ROOM_ID.GARDEN_SHARED,
+    id: ROOM_ID.GARDEN_SHARED_ALONE,
     label: 'Garden Room Shared (alone)',
     maxOccupancy: 4
   },
