@@ -44,9 +44,8 @@ export default function calculator({ guests = 1, stays = [], courses = [] }) {
 }
 
 function getDailyRoomRate(date, stays, guests) {
-  var nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
   var season = getSeasonByDate(date)
-
+  var nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
   var stay = _.find(stays, stay => date.within(
     moment.range(
       stay.checkInDate.clone(),

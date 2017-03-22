@@ -22,6 +22,7 @@ import './react-dates.css'
 
 import moment from './lib/moment'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
+import { isWithinSeasonRange } from './data/seasons'
 import calculator from './calculator'
 import { ROOM_ID } from './data/constants'
 
@@ -221,7 +222,7 @@ export default class App extends Component {
             index={i}
             stay={stay}
             availableRooms={filterRoomsByOccupancy(this.state.guests)}
-            isOutsideRange={(date) => i === 0 ? false : date.isBefore(stays[i - 1].checkOutDate)}
+            isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
             onStayChange={this.updateStay}
           />
         )}
@@ -230,6 +231,7 @@ export default class App extends Component {
             key={i}
             index={i}
             course={course}
+            isOutsideRange={(date) => !isWithinSeasonRange(date)}
             onCourseChange={this.updateCourse}
           />
         )}
@@ -322,7 +324,7 @@ class CourseInput extends Component {
   }
 
   render() {
-    const { index, course, onCourseChange } = this.props
+    const { index, course, isOutsideRange, onCourseChange } = this.props
     const styles = {
       toolbar: {
         height: '40px'
@@ -345,6 +347,7 @@ class CourseInput extends Component {
             startDatePlaceholderText={'Course start'}
             endDatePlaceholderText={'Course end'}
             focusedInput={this.state.focused}
+            isOutsideRange={isOutsideRange}
             onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
             onFocusChange={( focused ) => { this.setState({ focused }) }}
           />

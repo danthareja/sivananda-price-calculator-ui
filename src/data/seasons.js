@@ -7,22 +7,51 @@ import { SEASON } from './constants'
 // type: one of the seasons defined in ./constants
 // startDate: inclsive moment of season's start date
 // endDate: inclusive moment of season's end date
-// NOTE: seasons can be included in any order, but should never overlap
+// NOTE: seasons should be listed in chronologcal order from oldest to newest.
+//       seasons[n].startDate should be the day after seasons[n-1].endDate
 
 const seasons = [
   {
     type: SEASON.WINTER,
-    startDate: moment('2016-11-20'),
-    endDate: moment('2017-06-30')
+    startDate: createMoment('2016-11-20'),
+    endDate: createMoment('2017-06-30')
   },
   {
     type: SEASON.SUMMER,
-    startDate: moment('2016-07-01'),
-    endDate: moment('2017-10-31')
+    startDate: createMoment('2017-07-01'),
+    endDate: createMoment('2017-10-31')
   }
 ]
 
-// TODO: Validate season ranges
+const range = createRange(seasons)
+
+function createMoment(date) {
+  // react-dates uses this format, yay consistency
+  return moment(date).startOf('day').hour(12)
+}
+
+function createRange(seasons) {
+  // validate adjacency
+  _.each(seasons, (season, i, seasons) => {
+    let nextSeason = seasons[i + 1]
+    if (_.isUndefined(nextSeason)) { return }
+
+    let daysBetweenSeasons = nextSeason.startDate.diff(season.endDate, 'days')
+    if (daysBetweenSeasons > 1) {
+      throw new Error(`Expected seasons to be days between seasons to equal 1. There are ${daysBetweenSeasons} days between seasons[${i}] and seasons[${i + 1}]`)
+    }
+  })
+
+  return moment.range(
+    _.first(seasons).startDate,
+    _.last(seasons).endDate
+  )
+}
+
+
+export function isWithinSeasonRange (date) {
+  return date.within(range)
+}
 
 export function getSeasonByDate (date) {
   if (!moment.isMoment(date)) {
