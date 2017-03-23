@@ -24,7 +24,7 @@ const rooms = [
   },
   {
     id: ROOM_ID.BEACH_HUT,
-    label: 'Beach Hut',
+    label: 'Beach Hut (whole)',
     maxOccupancy: 4
   },
   {
@@ -34,7 +34,7 @@ const rooms = [
   },
   {
     id: ROOM_ID.GARDEN_BATH,
-    label: 'Garden Room with Bath',
+    label: 'Garden Room with Bath (whole)',
     maxOccupancy: 4
   },
   {
@@ -53,8 +53,8 @@ const rooms = [
     maxOccupancy: 1
   },
   {
-    id: ROOM_ID.GARDEN_SHARED_ALONE,
-    label: 'Garden Room Shared (alone)',
+    id: ROOM_ID.GARDEN_SHARED,
+    label: 'Garden Room Shared (whole)',
     maxOccupancy: 4
   },
   {

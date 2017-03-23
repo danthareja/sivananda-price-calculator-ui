@@ -114,7 +114,7 @@ const ROOMS = {
       1: [116, 108, 103, 99]
     }
   },
-  [ROOM_ID.GARDEN_SHARED_ALONE]: {
+  [ROOM_ID.GARDEN_SHARED]: {
     [SEASON.WINTER]: {
       1: [224, 212, 202, 194],
       2: [112, 106, 101, 97],
