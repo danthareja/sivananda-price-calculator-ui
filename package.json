@@ -12,6 +12,7 @@
     "react-addons-shallow-compare": "^15.4.2",
     "react-dates": "^8.2.1",
     "react-dom": "^15.4.2",
+    "react-flexbox-grid": "^1.0.2",
     "react-tap-event-plugin": "^2.0.1"
   },
   "devDependencies": {

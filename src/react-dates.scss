@@ -1,8 +1,8 @@
 // Overriding default styles for react-dates
 // All variable options: https://github.com/airbnb/react-dates/blob/master/css/variables.scss
 
-$react-dates-width-input: 100px !default;
-$react-dates-width-arrow: 18px !default;
+$react-dates-width-input: 90px !default;
+$react-dates-width-arrow: 14px !default;
 
 $react-dates-color-primary: #00bcd4 !default;
 $react-dates-color-primary-dark: #0097a7 !default;
@@ -12,8 +12,8 @@ $react-dates-color-primary-shade-3: #80deea !default;
 $react-dates-color-primary-shade-4: #b2ebf2 !default;
 $react-dates-color-focus: #b2ebf2 !default;
 
-$react-dates-font-size: 15px !default;
-$react-dates-line-height: 32px !default;
+$react-dates-font-size: 14px !default;
+$react-dates-line-height: 24px !default;
 
 @import '../node_modules/react-dates/css/variables.scss';
 @import '../node_modules/react-dates/css/styles.scss';

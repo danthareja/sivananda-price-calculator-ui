@@ -1,19 +1,20 @@
 // Stay focused....
-//   1. Add custom seasons
-//   2. Add TTC
-//   3. Price per guest in the tab
+//   1. Add TTC
+//   2. Add discounts
 
 import _ from 'lodash'
 import React, { Component } from 'react'
 
+import { Grid, Row, Col } from 'react-flexbox-grid'
+
+import Paper from 'material-ui/Paper'
 import Snackbar from 'material-ui/Snackbar'
 import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
-import RaisedButton from 'material-ui/RaisedButton'
+import FlatButton from 'material-ui/FlatButton'
 import { Card, CardHeader, CardText } from 'material-ui/Card'
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
-import { Toolbar, ToolbarGroup, ToolbarTitle } from 'material-ui/Toolbar'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { DateRangePicker } from 'react-dates'
@@ -179,7 +180,7 @@ export default class App extends Component {
         content: { textAlign: 'center' }
       },
       guests: {
-        container: { height: '40px' },
+        container: {},
         title: { fontSize: '16px' },
         textField: { fontSize: '14px' }
       }
@@ -187,59 +188,101 @@ export default class App extends Component {
 
     return (
       <div>
-        <Snackbar
-          open={this.state.error.show}
-          message={this.state.error.message}
-          autoHideDuration={4000}
-          onRequestClose={() => { this.setState({ error: { message: '', show: false } }) } }
-          style={styles.snackbar.container}
-          bodyStyle={styles.snackbar.body}
-          contentStyle={styles.snackbar.content}
-        />
-        <Toolbar>
-          <ToolbarGroup>
-            <RaisedButton label="Add stay" onClick={this.addStay} primary={true}/>
-            <RaisedButton label="Remove stay" onClick={this.removeStay} disabled={_.size(this.state.stays) <= 1} primary={true}/>
-            <RaisedButton label="Add course" onClick={this.addCourse} disabled={this.state.guests > 1} secondary={true}/>
-            <RaisedButton label="Remove course" onClick={this.removeCourse} disabled={_.isEmpty(this.state.courses)} secondary={true}/>
-          </ToolbarGroup>
-        </Toolbar>
-        <Toolbar style={styles.guests.container}>
-          <ToolbarGroup>
-            <ToolbarTitle text="Guests" style={styles.guests.title}/>
+      <Paper>
+      <Grid fluid>
+        <Row>
+          <Col xs={12}>
             <TextField
-              style={styles.guests.textField}
               id="guests"
+              style={styles.guests.textField}
+              floatingLabelText="Number of guests"
               type="Number"
               value={this.state.guests}
               onChange={this.updateGuests}
+              fullWidth={true}
             />
-          </ToolbarGroup>
-        </Toolbar>
-        {this.state.stays.map((stay, i, stays) =>
-          <StayInput
-            key={i}
-            index={i}
-            stay={stay}
-            availableRooms={filterRoomsByOccupancy(this.state.guests)}
-            isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
-            onStayChange={this.updateStay}
-          />
-        )}
-        {this.state.courses.map((course, i) =>
-          <CourseInput
-            key={i}
-            index={i}
-            course={course}
-            isOutsideRange={(date) => !isWithinSeasonRange(date)}
-            onCourseChange={this.updateCourse}
-          />
-        )}
-        <PriceTable
-          guests={this.state.guests}
-          stays={this.state.stays}
-          courses={this.state.courses}
-        />
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={7}>
+            {this.state.stays.map((stay, i, stays) =>
+              <StayInput
+                key={i}
+                index={i}
+                stay={stay}
+                availableRooms={filterRoomsByOccupancy(this.state.guests)}
+                isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
+                onStayChange={this.updateStay}
+              />
+            )}
+            <Row>
+              <Col xs={6}>
+                <FlatButton
+                  label="Add Stay"
+                  onClick={this.addStay}
+                  primary={true}
+                  fullWidth={true}
+                />
+              </Col>
+              <Col xs={6}>
+                <FlatButton
+                  label="Remove Stay"
+                  onClick={this.removeStay}
+                  disabled={_.size(this.state.stays) <= 1}
+                  secondary={true}
+                  fullWidth={true}
+                />
+              </Col>
+            </Row>
+          </Col>
+          <Col xs={5}>
+            {this.state.courses.map((course, i) =>
+              <CourseInput
+                key={i}
+                index={i}
+                course={course}
+                isOutsideRange={(date) => !isWithinSeasonRange(date)}
+                onCourseChange={this.updateCourse}
+              />
+            )}
+            <Row>
+              <Col xs={6}>
+                <FlatButton
+                  label="Add Course"
+                  onClick={this.addCourse}
+                  disabled={_.size(this.state.guests) > 1}
+                  primary={true}
+                  fullWidth={true}
+                />
+              </Col>
+              <Col xs={6}>
+                <FlatButton
+                  label="Remove Course"
+                  onClick={this.removeCourse}
+                  disabled={_.isEmpty(this.state.courses)}
+                  secondary={true}
+                  fullWidth={true}
+                />
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Grid>
+      </Paper>
+      <PriceTable
+        guests={this.state.guests}
+        stays={this.state.stays}
+        courses={this.state.courses}
+      />
+      <Snackbar
+        open={this.state.error.show}
+        message={this.state.error.message}
+        autoHideDuration={4000}
+        onRequestClose={() => { this.setState({ error: { message: '', show: false } }) } }
+        style={styles.snackbar.container}
+        bodyStyle={styles.snackbar.body}
+        contentStyle={styles.snackbar.content}
+      />
       </div>
     )
   }
@@ -255,15 +298,8 @@ class StayInput extends Component {
 
   render() {
     const { index, stay, availableRooms, isOutsideRange, onStayChange } = this.props
-    console.log('availableRooms', availableRooms)
 
     const styles = {
-      toolbar: {
-        height: '40px'
-      },
-      title: {
-        fontSize: '16px'
-      },
       selectField: {
         fontSize: '14px'
       }
@@ -289,9 +325,8 @@ class StayInput extends Component {
     }
 
     return (
-      <Toolbar style={styles.toolbar}>
-        <ToolbarGroup>
-          <ToolbarTitle text="Stay" style={styles.title} />
+      <Row>
+        <Col xs={6}>
           <DateRangePicker
             startDate={stay.checkInDate}
             endDate={stay.checkOutDate}
@@ -302,15 +337,19 @@ class StayInput extends Component {
             onDatesChange={({ startDate, endDate }) => onStayChange(index, { checkInDate: startDate, checkOutDate: endDate })}
             onFocusChange={onFocusChange}
           />
+        </Col>
+        <Col xs={6}>
           <SelectField
             value={stay.roomId}
             style={styles.selectField}
+            underlineShow={false}
+            fullWidth={true}
             onChange={(e, i, value) => onStayChange(index, { roomId: value })}
           >
           {_.map(availableRooms, (room) => <MenuItem key={room.id} value={room.id} primaryText={room.label} />)}
           </SelectField>
-        </ToolbarGroup>
-      </Toolbar>
+        </Col>
+      </Row>
     )
   }
 }
@@ -326,40 +365,38 @@ class CourseInput extends Component {
   render() {
     const { index, course, isOutsideRange, onCourseChange } = this.props
     const styles = {
-      toolbar: {
-        height: '40px'
-      },
-      title: {
-        fontSize: '16px'
-      },
       textField: {
-        fontSize: '14px'
+        fontSize: '14px',
+        width: '100px'
+      },
+      dollarSign: {
+        fontSize: '14px',
+        lineHeight: '24px',
+        margin: 'auto'
       }
     }
 
     return (
-      <Toolbar style={styles.toolbar}>
-        <ToolbarGroup>
-          <ToolbarTitle text="Course" style={styles.title}/>
-          <DateRangePicker
-            startDate={course.startDate}
-            endDate={course.endDate}
-            startDatePlaceholderText={'Course start'}
-            endDatePlaceholderText={'Course end'}
-            focusedInput={this.state.focused}
-            isOutsideRange={isOutsideRange}
-            onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
-            onFocusChange={( focused ) => { this.setState({ focused }) }}
-          />
-          $<TextField
-            id={"course_tuition_" + index}
-            type="Number"
-            value={course.tuition}
-            style={styles.textField}
-            onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
-          />
-        </ToolbarGroup>
-      </Toolbar>
+      <Row>
+      <DateRangePicker
+        startDate={course.startDate}
+        endDate={course.endDate}
+        startDatePlaceholderText={'Course start'}
+        endDatePlaceholderText={'Course end'}
+        focusedInput={this.state.focused}
+        isOutsideRange={isOutsideRange}
+        onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
+        onFocusChange={( focused ) => { this.setState({ focused }) }}
+      />
+      <div style={styles.dollarSign}>$</div><TextField
+        id={"course_tuition_" + index}
+        type="Number"
+        value={course.tuition}
+        style={styles.textField}
+        underlineShow={false}
+        onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
+      />
+    </Row>
     )
   }
 }
@@ -376,16 +413,7 @@ class PriceTable extends Component {
     const rates = calculator(this.props)[this.state.rateOption]
     
     const styles = {
-      radioButtonGroup: {
-        display: 'inline-block',
-        width: '250px',
-        float: 'right'
-      },
-      ratesContainer: {
-        display: 'inline-block',
-        width: '250px',
-      },
-      rateEntry: {
+      rate: {
         margin: '5px 0px'
       }
     }
@@ -398,36 +426,43 @@ class PriceTable extends Component {
           showExpandableButton={true}
         />
         <CardText>
-          <div style={styles.ratesContainer}>
-            <div style={styles.rateEntry}>Room: ${rates.room.toFixed(2)}</div>
-            <div style={styles.rateEntry}>YVP: ${rates.yvp.toFixed(2)}</div>
-            <div style={styles.rateEntry}>Course: ${rates.course.toFixed(2)}</div>
-            <div style={styles.rateEntry}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
-          </div>
-          <RadioButtonGroup
-            name="rateOption"
-            onChange={(e, rateOption) => this.setState({ rateOption })}
-            defaultSelected="withoutVAT"
-            labelPosition="left"
-            style={styles.radioButtonGroup}
-          >
-            <RadioButton
-              value="withoutVAT"
-              label="Total"
-            />
-            <RadioButton
-              value="withVAT"
-              label="Total +VAT"
-            />
-            <RadioButton
-              value="perGuestWithoutVAT"
-              label="Total per guest"
-            />
-            <RadioButton
-              value="perGuestWithVAT"
-              label="Total per guest +VAT"
-            />
-          </RadioButtonGroup>
+          <Grid fluid>
+          <Row>
+          <Col xs>
+            <div>
+              <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
+              <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
+              <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
+              <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
+            </div>
+          </Col>
+          <Col xs>
+            <RadioButtonGroup
+              name="rateOption"
+              onChange={(e, rateOption) => this.setState({ rateOption })}
+              defaultSelected="withoutVAT"
+              labelPosition="left"
+            >
+              <RadioButton
+                value="withoutVAT"
+                label="Total"
+              />
+              <RadioButton
+                value="withVAT"
+                label="Total +VAT"
+              />
+              <RadioButton
+                value="perGuestWithoutVAT"
+                label="Total per guest"
+              />
+              <RadioButton
+                value="perGuestWithVAT"
+                label="Total per guest +VAT"
+              />
+            </RadioButtonGroup>
+          </Col>
+          </Row>
+          </Grid>
         </CardText>
         <CardText expandable={true}>
           <Table>
