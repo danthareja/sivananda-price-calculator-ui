@@ -76,6 +76,11 @@ const rooms = [
     id: ROOM_ID.TENT_SPACE,
     label: 'Tent Space',
     maxOccupancy: 1
+  },
+  {
+    id: ROOM_ID.NULL_ROOM,
+    label: 'No Room (only yvp)',
+    maxOccupancy: 4
   }
 ]
 
