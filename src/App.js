@@ -8,11 +8,12 @@ import React, { Component } from 'react'
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
 import Paper from 'material-ui/Paper'
+import Popover from 'material-ui/Popover'
 import Snackbar from 'material-ui/Snackbar'
 import MenuItem from 'material-ui/MenuItem'
 import TextField from 'material-ui/TextField'
 import SelectField from 'material-ui/SelectField'
-import FlatButton from 'material-ui/FlatButton'
+import RaisedButton from 'material-ui/RaisedButton'
 import { Card, CardHeader, CardText } from 'material-ui/Card'
 import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
@@ -25,7 +26,7 @@ import moment from './lib/moment'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
 import { isWithinSeasonRange } from './data/seasons'
 import calculator from './calculator'
-import { ROOM_ID } from './data/constants'
+import { ROOM_ID, DISCOUNT } from './data/constants'
 
 // react-dates formats all dates as noon and consistency is good
 const today = moment().startOf('day').hour(12)
@@ -42,7 +43,11 @@ export default class App extends Component {
       stays: [{
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: today.clone(),
-        checkOutDate: today.clone().add(1, 'days')
+        checkOutDate: today.clone().add(1, 'days'),
+        discount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        }
       }],
       courses: []
     }
@@ -90,53 +95,61 @@ export default class App extends Component {
       stays: _.concat(this.state.stays, {
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: latestCheckOutDate.clone(),
-        checkOutDate: latestCheckOutDate.clone().add(1, 'days')
+        checkOutDate: latestCheckOutDate.clone().add(1, 'days'),
+        discount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        }
       })
     })
   }
 
   updateStay(index, diff) {
-    if (!_.isNil(diff.roomId)) {
+    // Updating any stay state that does not include a change in dates
+    if (_.isNil(diff.checkInDate)) {
       let stays = [
         ...this.state.stays.slice(0, index),
         _.assign({}, this.state.stays[index], diff),
         ...this.state.stays.slice(index + 1)
       ]
       
-      return this.setState({ stays })
+      this.setState({ stays })
+      return
     }
 
-    if (!_.isNil(diff.checkInDate)) {
-      let stays = _.reduce(this.state.stays, (newStays, oldStay, i) => {
-        // Do nothing for dates before the one being updated
-        if (i < index) {
-          return newStays.concat(_.clone(oldStay))
-        }
+    // Updating a stay's dates is kind of tricky
+    // because we want to keep all the dates continuous
+    let stays = _.reduce(this.state.stays, (newStays, oldStay, i) => {
+      // Do nothing for dates before the one being updated
+      if (i < index) {
+        return newStays.concat(_.clone(oldStay))
+      }
 
-        // Update the modified stay, checking for errors
-        if (i === index) {
-          return newStays.concat({
-            roomId: oldStay.roomId,
-            checkInDate: diff.checkInDate,
-            checkOutDate: diff.checkOutDate
-          })  
-        }
+      // Update the modified stay, checking for errors
+      if (i === index) {
+        return newStays.concat({
+          roomId: oldStay.roomId,
+          discount: oldStay.discount,
+          checkInDate: diff.checkInDate,
+          checkOutDate: diff.checkOutDate,
+        })  
+      }
 
-        // Modify all future stays depending on what was updated
-        if (i > index) {
-          let oldCheckOutDate = oldStay.checkOutDate
-          let oldStayLength = oldCheckOutDate ? oldCheckOutDate.diff(oldStay.checkInDate, 'days') : 1
-          let newCheckInDate = newStays[i - 1].checkOutDate
-          return newStays.concat({
-            roomId: oldStay.roomId,
-            checkInDate: newCheckInDate ? newCheckInDate.clone() : null,
-            checkOutDate: newCheckInDate ? newCheckInDate.clone().add(oldStayLength, 'days') : null
-          })
-        }
-      }, [])
+      // Modify all future stays depending on what was updated
+      if (i > index) {
+        let oldCheckOutDate = oldStay.checkOutDate
+        let oldStayLength = oldCheckOutDate ? oldCheckOutDate.diff(oldStay.checkInDate, 'days') : 1
+        let newCheckInDate = newStays[i - 1].checkOutDate
+        return newStays.concat({
+          roomId: oldStay.roomId,
+          discount: oldStay.discount,
+          checkInDate: newCheckInDate ? newCheckInDate.clone() : null,
+          checkOutDate: newCheckInDate ? newCheckInDate.clone().add(oldStayLength, 'days') : null
+        })
+      }
+    }, [])
 
-      return this.setState({ stays })
-    }
+    this.setState({ stays })
   }
 
   removeStay(index) {
@@ -151,7 +164,11 @@ export default class App extends Component {
       courses: _.concat(this.state.courses, {
         tuition: 0,
         startDate: checkInDate.clone(),
-        endDate: checkInDate.clone().add(1, 'days')
+        endDate: checkInDate.clone().add(1, 'days'),
+        discount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        }
       })
     })
   }
@@ -190,7 +207,7 @@ export default class App extends Component {
       <div>
       <Paper>
       <Grid fluid>
-        <Row>
+        <Row middle="xs">
           <Col xs={12}>
             <TextField
               id="guests"
@@ -203,8 +220,8 @@ export default class App extends Component {
             />
           </Col>
         </Row>
-        <Row>
-          <Col xs={7}>
+        <Row middle="xs">
+          <Col xs={12}>
             {this.state.stays.map((stay, i, stays) =>
               <StayInput
                 key={i}
@@ -215,9 +232,9 @@ export default class App extends Component {
                 onStayChange={this.updateStay}
               />
             )}
-            <Row>
+            <Row middle="xs">
               <Col xs={6}>
-                <FlatButton
+                <RaisedButton
                   label="Add Stay"
                   onClick={this.addStay}
                   primary={true}
@@ -225,7 +242,7 @@ export default class App extends Component {
                 />
               </Col>
               <Col xs={6}>
-                <FlatButton
+                <RaisedButton
                   label="Remove Stay"
                   onClick={this.removeStay}
                   disabled={_.size(this.state.stays) <= 1}
@@ -235,7 +252,9 @@ export default class App extends Component {
               </Col>
             </Row>
           </Col>
-          <Col xs={5}>
+        </Row>
+        <Row middle="xs">
+          <Col xs={12}>
             {this.state.courses.map((course, i) =>
               <CourseInput
                 key={i}
@@ -245,9 +264,9 @@ export default class App extends Component {
                 onCourseChange={this.updateCourse}
               />
             )}
-            <Row>
+            <Row middle="xs">
               <Col xs={6}>
-                <FlatButton
+                <RaisedButton
                   label="Add Course"
                   onClick={this.addCourse}
                   disabled={_.size(this.state.guests) > 1}
@@ -256,7 +275,7 @@ export default class App extends Component {
                 />
               </Col>
               <Col xs={6}>
-                <FlatButton
+                <RaisedButton
                   label="Remove Course"
                   onClick={this.removeCourse}
                   disabled={_.isEmpty(this.state.courses)}
@@ -325,8 +344,8 @@ class StayInput extends Component {
     }
 
     return (
-      <Row>
-        <Col xs={6}>
+      <Row middle="xs">
+        <Col xs={4}>
           <DateRangePicker
             startDate={stay.checkInDate}
             endDate={stay.checkOutDate}
@@ -338,7 +357,7 @@ class StayInput extends Component {
             onFocusChange={onFocusChange}
           />
         </Col>
-        <Col xs={6}>
+        <Col xs={4}>
           <SelectField
             value={stay.roomId}
             style={styles.selectField}
@@ -348,6 +367,12 @@ class StayInput extends Component {
           >
           {_.map(availableRooms, (room) => <MenuItem key={room.id} value={room.id} primaryText={room.label} />)}
           </SelectField>
+        </Col>
+        <Col xs={4}>
+          <DiscountInput
+            discount={stay.discount}
+            onChange={discount => onStayChange(index, { discount })}
+          />
         </Col>
       </Row>
     )
@@ -369,7 +394,7 @@ class CourseInput extends Component {
         fontSize: '14px',
         width: '100px'
       },
-      dollarSign: {
+      textSpan: {
         fontSize: '14px',
         lineHeight: '24px',
         margin: 'auto'
@@ -377,27 +402,134 @@ class CourseInput extends Component {
     }
 
     return (
-      <Row>
-      <DateRangePicker
-        startDate={course.startDate}
-        endDate={course.endDate}
-        startDatePlaceholderText={'Course start'}
-        endDatePlaceholderText={'Course end'}
-        focusedInput={this.state.focused}
-        isOutsideRange={isOutsideRange}
-        onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
-        onFocusChange={( focused ) => { this.setState({ focused }) }}
-      />
-      <div style={styles.dollarSign}>$</div><TextField
-        id={"course_tuition_" + index}
-        type="Number"
-        value={course.tuition}
-        style={styles.textField}
-        underlineShow={false}
-        onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
-      />
-    </Row>
+      <Row middle="xs">
+        <Col xs={4}>
+          <DateRangePicker
+            startDate={course.startDate}
+            endDate={course.endDate}
+            startDatePlaceholderText={'Course start'}
+            endDatePlaceholderText={'Course end'}
+            focusedInput={this.state.focused}
+            isOutsideRange={isOutsideRange}
+            onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
+            onFocusChange={( focused ) => { this.setState({ focused }) }}
+          />
+        </Col>
+        <Col xs={4}>
+          <span style={styles.textSpan}>$</span>
+          <TextField
+            id={"course_tuition_" + index}
+            type="Number"
+            value={course.tuition}
+            style={styles.textField}
+            underlineShow={false}
+            onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
+          />
+        </Col>
+        <Col xs={4}>
+          <DiscountInput
+            discount={course.discount}
+            onChange={discount => onCourseChange(index, { discount })}
+          />
+        </Col>
+      </Row>
     )
+  }
+}
+
+class DiscountInput extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      open: false,
+    }
+  }
+
+  handleTouchTap = (event) => {
+    // This prevents ghost click.
+    event.preventDefault()
+
+    this.setState({
+      open: true,
+      anchorEl: event.currentTarget,
+    })
+  }
+
+  handleRequestClose = () => {
+    this.setState({
+      open: false,
+    })
+  }
+
+  handleTextFieldChange = (e) => {
+    let value = _.max([0, parseInt(e.target.value, 10)])
+    let type = this.props.discount.type
+    this.props.onChange({ value, type })
+  }
+
+  handleRadioButtonChange = (e, type) => {
+    let value = this.props.discount.value
+    this.props.onChange({ value, type })    
+  }
+
+  render() {
+    let label = _.join([
+      this.props.buttonText ? this.props.buttonText : 'Discount',
+      ' (',
+      this.props.discount.type === DISCOUNT.FIXED ? '$' : null,
+      this.props.discount.value,
+      this.props.discount.type === DISCOUNT.PERCENT ? '%' : null,
+      ')'
+    ], '')
+
+    return (
+      <div>
+        <RaisedButton
+          onTouchTap={this.handleTouchTap}
+          label={label}
+          fullWidth={true}
+        />
+        <Popover
+          open={this.state.open}
+          anchorEl={this.state.anchorEl}
+          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+          targetOrigin={{horizontal: 'left', vertical: 'top'}}
+          onRequestClose={this.handleRequestClose}
+        >
+          <Grid fluid>
+            <Row>
+              <Col xs={6}>
+                <TextField
+                  id={"discount"}
+                  type="Number"
+                  value={this.props.discount.value}
+                  onChange={this.handleTextFieldChange}
+                  fullWidth={true}
+                  underlineShow={true}
+                />
+              </Col>
+              <Col xs={6}>
+                <RadioButtonGroup
+                  name="discountType"
+                  onChange={this.handleRadioButtonChange}
+                  defaultSelected={this.props.discount.type}
+                  labelPosition="left"
+                >
+                  <RadioButton
+                    value={DISCOUNT.PERCENT}
+                    label="Percent"
+                  />
+                  <RadioButton
+                    value={DISCOUNT.FIXED}
+                    label="Fixed"
+                  />
+                </RadioButtonGroup>
+              </Col>
+            </Row>
+          </Grid>
+        </Popover>
+      </div>
+    );
   }
 }
 

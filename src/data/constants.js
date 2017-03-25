@@ -1,3 +1,8 @@
+export const DISCOUNT = {
+  PERCENT: 'percent',
+  FIXED: 'fixed'
+}
+
 export const SEASON = {
   WINTER: 'winter',
   SUMMER: 'summer'

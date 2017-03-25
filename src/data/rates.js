@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { ROOM_ID, SEASON } from './constants'
+import { ROOM_ID, SEASON, DISCOUNT } from './constants'
 
 // Bahamas' Value Added Tax rate
 
@@ -170,15 +170,25 @@ const ROOMS = {
   }
 }
 
-export function getVATRate() {
-  return VAT
-}
-
 export function addVAT (price) {
   if (!_.isNumber(price)) {
     return price
   }
-  return price + (price * getVATRate())
+  return price + ( price * VAT )
+}
+
+export function addDiscount(price, discount = { type: DISCOUNT.PERCENT, value: 0 }) {
+  if (!_.isObject(discount)) {
+    return price
+  }
+
+  if (discount.type === DISCOUNT.PERCENT) {
+    return price - ( price * ( discount.value / 100) )
+  }
+
+  if (discount.type === DISCOUNT.FIXED) {
+    return price - discount.value
+  }
 }
 
 export function getYVPRate(season) {
