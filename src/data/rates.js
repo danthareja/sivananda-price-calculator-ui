@@ -177,15 +177,13 @@ export function addVAT (price) {
   return price + ( price * VAT )
 }
 
-export function addDiscount(price, discount = { type: DISCOUNT.PERCENT, value: 0 }) {
+export function applyDiscount(price, discount) {
   if (!_.isObject(discount)) {
     return price
   }
-
   if (discount.type === DISCOUNT.PERCENT) {
     return price - ( price * ( discount.value / 100) )
   }
-
   if (discount.type === DISCOUNT.FIXED) {
     return price - discount.value
   }

@@ -2,7 +2,7 @@ import _ from 'lodash'
 
 import moment from './lib/moment'
 import { getSeasonByDate } from './data/seasons'
-import { addVAT, getYVPRate, getRoomRate, addDiscount } from './data/rates'
+import { addVAT, getYVPRate, getRoomRate, applyDiscount } from './data/rates'
 
 const EMPTY_RATES = {
   withoutVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
@@ -11,7 +11,7 @@ const EMPTY_RATES = {
   perGuestWithVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 }
 }
 
-export default function calculator({ guests = 1, stays = [], courses = [] }) {
+export default function calculator({ guests = 1, stays = [], courses = [], discount }) {
   const checkInDate = _.first(stays).checkInDate
   const checkOutDate = _.last(stays).checkOutDate
 
@@ -19,11 +19,12 @@ export default function calculator({ guests = 1, stays = [], courses = [] }) {
     return EMPTY_RATES
   }
 
-  // TODO: Validate that dates of stay are one continuous range
+ // TODO: Validate that dates of stay are one continuous range
   const daysThatMustBePaidFor = Array.from(moment.range(
     checkInDate.clone(),
     checkOutDate.clone().subtract(1, 'days')
   ).by('days'))
+
 
   const perGuestWithoutVAT = {}
   perGuestWithoutVAT.perDay = _.map(daysThatMustBePaidFor, date => ({
@@ -33,8 +34,10 @@ export default function calculator({ guests = 1, stays = [], courses = [] }) {
   }))
   perGuestWithoutVAT.room = _.sumBy(perGuestWithoutVAT.perDay, 'room')
   perGuestWithoutVAT.yvp = _.sumBy(perGuestWithoutVAT.perDay, 'yvp')
-  perGuestWithoutVAT.course = _.sumBy(courses, course => addDiscount(course.tuition, course.discount))
-  perGuestWithoutVAT.total = _.sum([perGuestWithoutVAT.room, perGuestWithoutVAT.yvp, perGuestWithoutVAT.course])
+  perGuestWithoutVAT.course = _.sumBy(courses, course => applyDiscount(course.tuition, course.discount))
+  perGuestWithoutVAT.subtotal = _.sum([perGuestWithoutVAT.room, perGuestWithoutVAT.yvp, perGuestWithoutVAT.course])
+  perGuestWithoutVAT.total = applyDiscount(perGuestWithoutVAT.subtotal, discount)
+  perGuestWithoutVAT.discount = perGuestWithoutVAT.subtotal - perGuestWithoutVAT.total
 
   const perGuestWithVAT = modifyRates(perGuestWithoutVAT, addVAT)
   const withoutVAT = modifyRates(perGuestWithoutVAT, rate => rate * guests)
@@ -46,6 +49,7 @@ export default function calculator({ guests = 1, stays = [], courses = [] }) {
 function getDailyRoomRate(date, stays, guests) {
   var season = getSeasonByDate(date)
   var nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
+
   var stay = _.find(stays, stay => date.within(
     moment.range(
       stay.checkInDate.clone(),
@@ -55,7 +59,7 @@ function getDailyRoomRate(date, stays, guests) {
 
   if (!_.isObject(stay)) { throw new Error('No stay found. Is the stay range continuous?') }
 
-  return addDiscount(getRoomRate(stay.roomId, season, guests, nights), stay.discount)
+  return applyDiscount(getRoomRate(stay.roomId, season, guests, nights), stay.discount)
 }
 
 function getDailyYVPRate(date, courses) {

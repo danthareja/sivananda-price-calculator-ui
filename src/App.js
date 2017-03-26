@@ -41,6 +41,10 @@ export default class App extends Component {
         show: false
       },
       guests: 1,
+      discount: {
+        type: DISCOUNT.PERCENT,
+        value: 0
+      },
       stays: [{
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: today.clone(),
@@ -198,8 +202,6 @@ export default class App extends Component {
         content: { textAlign: 'center' }
       },
       guests: {
-        container: {},
-        title: { fontSize: '16px' },
         textField: { fontSize: '14px' }
       }
     }
@@ -249,7 +251,7 @@ export default class App extends Component {
           </Col>
         </Row>
         <Row middle="xs">
-          <Col xs={12}>
+          <Col xs={6}>
             <TextField
               id="guests"
               style={styles.guests.textField}
@@ -258,6 +260,13 @@ export default class App extends Component {
               value={this.state.guests}
               onChange={this.updateGuests}
               fullWidth={true}
+            />
+          </Col>
+          <Col xs={6}>
+            <DiscountInput
+              buttonText="Gross Discount"
+              discount={this.state.discount}
+              onChange={discount => this.setState({ discount })}
             />
           </Col>
         </Row>
@@ -294,6 +303,7 @@ export default class App extends Component {
         guests={this.state.guests}
         stays={this.state.stays}
         courses={this.state.courses}
+        discount={this.state.discount}
       />
       <Snackbar
         open={this.state.error.show}
@@ -558,6 +568,7 @@ class PriceTable extends Component {
       <Card>
         <CardHeader
           title={'Price Breakdown'}
+          subtitle={'(daily rates do not include gross discount)'}
           actAsExpander={true}
           showExpandableButton={true}
         />
@@ -569,6 +580,8 @@ class PriceTable extends Component {
               <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
               <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
               <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
+              <div style={styles.rate}><i>Subtotal: ${rates.subtotal.toFixed(2)}</i></div>
+              <div style={styles.rate}>Discount: -${rates.discount.toFixed(2)}</div>
               <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
             </div>
           </Col>
