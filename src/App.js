@@ -1,6 +1,7 @@
 // Stay focused....
-//   1. Add TTC
-//   2. Add discounts
+//   1. Add discounts
+//   2. Add TTC
+//   3. Write tests
 
 import _ from 'lodash'
 import React, { Component } from 'react'
@@ -586,10 +587,12 @@ class PriceTable extends Component {
               <RadioButton
                 value="perGuestWithoutVAT"
                 label="Total per guest"
+                disabled={this.props.guests === 1}
               />
               <RadioButton
                 value="perGuestWithVAT"
                 label="Total per guest +VAT"
+                disabled={this.props.guests === 1}
               />
             </RadioButtonGroup>
           </Col>
