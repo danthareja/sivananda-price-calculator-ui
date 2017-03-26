@@ -11,6 +11,7 @@ $react-dates-color-primary-shade-2: #4dd0e1 !default;
 $react-dates-color-primary-shade-3: #80deea !default;
 $react-dates-color-primary-shade-4: #b2ebf2 !default;
 $react-dates-color-focus: #b2ebf2 !default;
+$react-dates-color-gray-lighter: #e0e0e0 !default;
 
 $react-dates-font-size: 14px !default;
 $react-dates-line-height: 24px !default;
@@ -36,7 +37,8 @@ $react-dates-line-height: 24px !default;
 
 .DateRangePickerInput {
   background-color: inherit;
-  border: 0px;
+  border: 0px solid $react-dates-color-gray-lighter;
+  border-bottom: 1px solid $react-dates-color-gray-lighter;
   display: inline-block;
 }
 

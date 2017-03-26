@@ -208,6 +208,46 @@ export default class App extends Component {
       <div>
       <Paper>
       <Grid fluid>
+        <Row>
+          <div style={{marginTop: '14px'}}></div>
+        </Row>
+        <Row middle="xs">
+          <Col xs={3}>
+            <RaisedButton
+              label="Add Stay"
+              onClick={this.addStay}
+              primary={true}
+              fullWidth={true}
+            />
+          </Col>
+          <Col xs={3}>
+            <RaisedButton
+              label="Remove Stay"
+              onClick={this.removeStay}
+              disabled={_.size(this.state.stays) <= 1}
+              secondary={true}
+              fullWidth={true}
+            />
+          </Col>
+          <Col xs={3}>
+            <RaisedButton
+              label="Add Course"
+              onClick={this.addCourse}
+              disabled={_.size(this.state.guests) > 1}
+              primary={true}
+              fullWidth={true}
+            />
+          </Col>
+          <Col xs={3}>
+            <RaisedButton
+              label="Remove Course"
+              onClick={this.removeCourse}
+              disabled={_.isEmpty(this.state.courses)}
+              secondary={true}
+              fullWidth={true}
+            />
+          </Col>
+        </Row>
         <Row middle="xs">
           <Col xs={12}>
             <TextField
@@ -233,25 +273,6 @@ export default class App extends Component {
                 onStayChange={this.updateStay}
               />
             )}
-            <Row middle="xs">
-              <Col xs={6}>
-                <RaisedButton
-                  label="Add Stay"
-                  onClick={this.addStay}
-                  primary={true}
-                  fullWidth={true}
-                />
-              </Col>
-              <Col xs={6}>
-                <RaisedButton
-                  label="Remove Stay"
-                  onClick={this.removeStay}
-                  disabled={_.size(this.state.stays) <= 1}
-                  secondary={true}
-                  fullWidth={true}
-                />
-              </Col>
-            </Row>
           </Col>
         </Row>
         <Row middle="xs">
@@ -265,26 +286,6 @@ export default class App extends Component {
                 onCourseChange={this.updateCourse}
               />
             )}
-            <Row middle="xs">
-              <Col xs={6}>
-                <RaisedButton
-                  label="Add Course"
-                  onClick={this.addCourse}
-                  disabled={_.size(this.state.guests) > 1}
-                  primary={true}
-                  fullWidth={true}
-                />
-              </Col>
-              <Col xs={6}>
-                <RaisedButton
-                  label="Remove Course"
-                  onClick={this.removeCourse}
-                  disabled={_.isEmpty(this.state.courses)}
-                  secondary={true}
-                  fullWidth={true}
-                />
-              </Col>
-            </Row>
           </Col>
         </Row>
       </Grid>
@@ -362,7 +363,8 @@ class StayInput extends Component {
           <SelectField
             value={stay.roomId}
             style={styles.selectField}
-            underlineShow={false}
+            floatingLabelText="Room"
+            underlineShow={true}
             fullWidth={true}
             onChange={(e, i, value) => onStayChange(index, { roomId: value })}
           >
@@ -421,9 +423,10 @@ class CourseInput extends Component {
           <TextField
             id={"course_tuition_" + index}
             type="Number"
+            floatingLabelText="Tuition"
             value={course.tuition}
             style={styles.textField}
-            underlineShow={false}
+            underlineShow={true}
             onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
           />
         </Col>
