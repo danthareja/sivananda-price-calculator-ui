@@ -267,6 +267,7 @@ export default class App extends Component {
               buttonText="Gross Discount"
               discount={this.state.discount}
               onChange={discount => this.setState({ discount })}
+              allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
             />
           </Col>
         </Row>
@@ -385,6 +386,7 @@ class StayInput extends Component {
           <DiscountInput
             discount={stay.discount}
             onChange={discount => onStayChange(index, { discount })}
+            allowedTypes={[DISCOUNT.PERCENT]}
           />
         </Col>
       </Row>
@@ -444,6 +446,7 @@ class CourseInput extends Component {
           <DiscountInput
             discount={course.discount}
             onChange={discount => onCourseChange(index, { discount })}
+            allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
           />
         </Col>
       </Row>
@@ -529,14 +532,14 @@ class DiscountInput extends Component {
                   defaultSelected={this.props.discount.type}
                   labelPosition="left"
                 >
-                  <RadioButton
-                    value={DISCOUNT.PERCENT}
-                    label="Percent"
-                  />
-                  <RadioButton
-                    value={DISCOUNT.FIXED}
-                    label="Fixed"
-                  />
+                  {_.map(this.props.allowedTypes, (type, i) => 
+                    <RadioButton
+                      key={i}
+                      value={type}
+                      label={_.toLower(type)}
+                    />
+                  )}
+
                 </RadioButtonGroup>
               </Col>
             </Row>
