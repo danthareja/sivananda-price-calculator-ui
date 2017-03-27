@@ -19,7 +19,7 @@ export default function calculator({ guests = 1, stays = [], courses = [], disco
     return EMPTY_RATES
   }
 
- // TODO: Validate that dates of stay are one continuous range
+ // BAD ASSUMPTION: stays are one continuous range
   const daysThatMustBePaidFor = Array.from(moment.range(
     checkInDate.clone(),
     checkOutDate.clone().subtract(1, 'days')
@@ -27,11 +27,7 @@ export default function calculator({ guests = 1, stays = [], courses = [], disco
 
 
   const perGuestWithoutVAT = {}
-  perGuestWithoutVAT.perDay = _.map(daysThatMustBePaidFor, date => ({
-    date: date,
-    room: getDailyRoomRate(date, stays, guests),
-    yvp: getDailyYVPRate(date, courses)
-  }))
+  perGuestWithoutVAT.perDay = _.map(daysThatMustBePaidFor, date => getDailyStayRate(date, guests, stays, courses))
   perGuestWithoutVAT.room = _.sumBy(perGuestWithoutVAT.perDay, 'room')
   perGuestWithoutVAT.yvp = _.sumBy(perGuestWithoutVAT.perDay, 'yvp')
   perGuestWithoutVAT.course = _.sumBy(courses, course => applyDiscount(course.tuition, course.discount))
@@ -46,24 +42,20 @@ export default function calculator({ guests = 1, stays = [], courses = [], disco
   return { withVAT, withoutVAT, perGuestWithVAT, perGuestWithoutVAT } 
 }
 
-function getDailyRoomRate(date, stays, guests) {
-  var season = getSeasonByDate(date)
-  var nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
+function getDailyStayRate(date, guests, stays, courses) {
+  const nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
+  const season = getSeasonByDate(date)
 
-  var stay = _.find(stays, stay => date.within(
+  const stay = _.find(stays, stay => date.within(
     moment.range(
       stay.checkInDate.clone(),
       stay.checkOutDate.clone().subtract(1, 'days')
     )
   ))
 
-  if (!_.isObject(stay)) { throw new Error('No stay found. Is the stay range continuous?') }
-
-  return applyDiscount(getRoomRate(stay.roomId, season, guests, nights), stay.discount)
-}
-
-function getDailyYVPRate(date, courses) {
-  var season = getSeasonByDate(date)
+  if (!_.isObject(stay)) {
+    throw new Error(`No stay found for ${date.format('YYYY-MM-DD')}. Are stays continuous?`)
+  }
 
   // YVP is not included duing the course and one night before
   var isDuringCourse = _.some(courses, course => date.within(
@@ -73,7 +65,11 @@ function getDailyYVPRate(date, courses) {
     )
   ))
 
-  return isDuringCourse ? 0 : getYVPRate(season)
+  return {
+    date: date,
+    room: applyDiscount(getRoomRate(stay.roomId, season, guests, nights), stay.roomDiscount),
+    yvp: isDuringCourse ? 0 : applyDiscount(getYVPRate(season), stay.yvpDiscount)
+  }
 }
 
 function modifyRates(rates, modifier) {

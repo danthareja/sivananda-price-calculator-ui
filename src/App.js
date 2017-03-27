@@ -49,7 +49,11 @@ export default class App extends Component {
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: today.clone(),
         checkOutDate: today.clone().add(1, 'days'),
-        discount: {
+        roomDiscount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        },
+        yvpDiscount: {
           type: DISCOUNT.PERCENT,
           value: 0
         }
@@ -101,7 +105,11 @@ export default class App extends Component {
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: latestCheckOutDate.clone(),
         checkOutDate: latestCheckOutDate.clone().add(1, 'days'),
-        discount: {
+        roomDiscount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        },
+        yvpDiscount: {
           type: DISCOUNT.PERCENT,
           value: 0
         }
@@ -134,9 +142,10 @@ export default class App extends Component {
       if (i === index) {
         return newStays.concat({
           roomId: oldStay.roomId,
-          discount: oldStay.discount,
           checkInDate: diff.checkInDate,
           checkOutDate: diff.checkOutDate,
+          roomDiscount: oldStay.roomDiscount,
+          yvpDiscount: oldStay.yvpDiscount,
         })  
       }
 
@@ -147,9 +156,10 @@ export default class App extends Component {
         let newCheckInDate = newStays[i - 1].checkOutDate
         return newStays.concat({
           roomId: oldStay.roomId,
-          discount: oldStay.discount,
           checkInDate: newCheckInDate ? newCheckInDate.clone() : null,
-          checkOutDate: newCheckInDate ? newCheckInDate.clone().add(oldStayLength, 'days') : null
+          checkOutDate: newCheckInDate ? newCheckInDate.clone().add(oldStayLength, 'days') : null,
+          roomDiscount: oldStay.roomDiscount,
+          yvpDiscount: oldStay.yvpDiscount
         })
       }
     }, [])
@@ -264,7 +274,7 @@ export default class App extends Component {
           </Col>
           <Col xs={6}>
             <DiscountInput
-              buttonText="Gross Discount"
+              buttonText="Discount Subtotal"
               discount={this.state.discount}
               onChange={discount => this.setState({ discount })}
               allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
@@ -358,7 +368,7 @@ class StayInput extends Component {
 
     return (
       <Row middle="xs">
-        <Col xs={4}>
+        <Col xs={3}>
           <DateRangePicker
             startDate={stay.checkInDate}
             endDate={stay.checkOutDate}
@@ -370,7 +380,7 @@ class StayInput extends Component {
             onFocusChange={onFocusChange}
           />
         </Col>
-        <Col xs={4}>
+        <Col xs={3}>
           <SelectField
             value={stay.roomId}
             style={styles.selectField}
@@ -382,10 +392,19 @@ class StayInput extends Component {
           {_.map(availableRooms, (room) => <MenuItem key={room.id} value={room.id} primaryText={room.label} />)}
           </SelectField>
         </Col>
-        <Col xs={4}>
+        <Col xs={3}>
           <DiscountInput
-            discount={stay.discount}
-            onChange={discount => onStayChange(index, { discount })}
+            buttonText="Discount Room"
+            discount={stay.roomDiscount}
+            onChange={roomDiscount => onStayChange(index, { roomDiscount })}
+            allowedTypes={[DISCOUNT.PERCENT]}
+          />
+        </Col>
+        <Col xs={3}>
+          <DiscountInput
+            buttonText="Discount YVP"
+            discount={stay.yvpDiscount}
+            onChange={yvpDiscount => onStayChange(index, { yvpDiscount })}
             allowedTypes={[DISCOUNT.PERCENT]}
           />
         </Col>
@@ -418,7 +437,7 @@ class CourseInput extends Component {
 
     return (
       <Row middle="xs">
-        <Col xs={4}>
+        <Col xs={3}>
           <DateRangePicker
             startDate={course.startDate}
             endDate={course.endDate}
@@ -430,7 +449,7 @@ class CourseInput extends Component {
             onFocusChange={( focused ) => { this.setState({ focused }) }}
           />
         </Col>
-        <Col xs={4}>
+        <Col xs={3}>
           <span style={styles.textSpan}>$</span>
           <TextField
             id={"course_tuition_" + index}
@@ -442,8 +461,9 @@ class CourseInput extends Component {
             onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
           />
         </Col>
-        <Col xs={4}>
+        <Col xs={6}>
           <DiscountInput
+            buttonText="Discount Course"
             discount={course.discount}
             onChange={discount => onCourseChange(index, { discount })}
             allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
@@ -571,7 +591,7 @@ class PriceTable extends Component {
       <Card>
         <CardHeader
           title={'Price Breakdown'}
-          subtitle={'(daily rates do not include gross discount)'}
+          subtitle={'(daily rates do not include subtotal discount)'}
           actAsExpander={true}
           showExpandableButton={true}
         />
@@ -583,8 +603,8 @@ class PriceTable extends Component {
               <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
               <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
               <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
-              <div style={styles.rate}><i>Subtotal: ${rates.subtotal.toFixed(2)}</i></div>
-              <div style={styles.rate}>Discount: -${rates.discount.toFixed(2)}</div>
+              <div style={styles.rate}>Subtotal: ${rates.subtotal.toFixed(2)}</div>
+              <div style={styles.rate}><i>Discount: -${rates.discount.toFixed(2)}</i></div>
               <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
             </div>
           </Col>
