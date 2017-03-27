@@ -14,13 +14,23 @@ import { ROOM_ID } from './constants'
 const rooms = [
   {
     id: ROOM_ID.BEACHFRONT,
-    label: 'Beachfront Deluxe Suite',
+    label: 'Beachfront Deluxe Suite (whole)',
     maxOccupancy: 4
   },
   {
+    id: ROOM_ID.BEACHFRONT_SHARING,
+    label: 'Beachfront Deluxe Suite (sharing)',
+    maxOccupancy: 1
+  },
+  {
     id: ROOM_ID.OCEAN_VIEW,
-    label: 'Ocean View Deluxe',
+    label: 'Ocean View Deluxe (whole)',
     maxOccupancy: 4
+  },
+  {
+    id: ROOM_ID.OCEAN_VIEW_SHARING,
+    label: 'Ocean View Deluxe (sharing)',
+    maxOccupancy: 1
   },
   {
     id: ROOM_ID.BEACH_HUT,

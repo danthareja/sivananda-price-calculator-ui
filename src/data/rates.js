@@ -34,6 +34,14 @@ const ROOMS = {
       4: [136, 128, 121, 116]
     }
   },
+  [ROOM_ID.BEACHFRONT_SHARING]: {
+    [SEASON.WINTER]: {
+      1: [159, 148, 141, 136]
+    },
+    [SEASON.SUMMER]: {
+      1: [136, 128, 121, 116]
+    }
+  },
   [ROOM_ID.OCEAN_VIEW]: {
     [SEASON.WINTER]: {
       1: [294, 274, 260, 250],
@@ -46,6 +54,14 @@ const ROOMS = {
       2: [136, 128, 121, 116],
       3: [136, 128, 121, 116],
       4: [136, 128, 121, 116]
+    }
+  },
+  [ROOM_ID.OCEAN_VIEW_SHARING]: {
+    [SEASON.WINTER]: {
+      1: [147, 137, 130, 125]
+    },
+    [SEASON.SUMMER]: {
+      1: [136, 128, 121, 116]
     }
   },
   [ROOM_ID.BEACH_HUT]: {
