@@ -22,187 +22,168 @@ const YVP = {
 const ROOMS = {
   [ROOM_ID.BEACHFRONT]: {
     [SEASON.WINTER]: {
-      1: [318, 296, 282, 272],
-      2: [159, 148, 141, 136],
-      3: [159, 148, 141, 136],
-      4: [159, 148, 141, 136]
+      alone: [318, 296, 282, 272],
+      sharing: [159, 148, 141, 136],
     },
     [SEASON.SUMMER]: {
-      1: [272, 256, 242, 232],
-      2: [136, 128, 121, 116],
-      3: [136, 128, 121, 116],
-      4: [136, 128, 121, 116]
+      alone: [272, 256, 242, 232],
+      sharing: [136, 128, 121, 116],
     }
   },
   [ROOM_ID.BEACHFRONT_SHARING]: {
     [SEASON.WINTER]: {
-      1: [159, 148, 141, 136]
+      alone: [159, 148, 141, 136]
     },
     [SEASON.SUMMER]: {
-      1: [136, 128, 121, 116]
+      alone: [136, 128, 121, 116]
     }
   },
   [ROOM_ID.OCEAN_VIEW]: {
     [SEASON.WINTER]: {
-      1: [294, 274, 260, 250],
-      2: [147, 137, 130, 125],
-      3: [147, 137, 130, 125],
-      4: [147, 137, 130, 125]
+      alone: [294, 274, 260, 250],
+      sharing: [147, 137, 130, 125],
     },
     [SEASON.SUMMER]: {
-      1: [258, 242, 228, 218],
-      2: [129, 121, 114, 109],
-      3: [129, 121, 114, 109],
-      4: [129, 121, 114, 109]
+      alone: [258, 242, 228, 218],
+      sharing: [129, 121, 114, 109],
     }
   },
   [ROOM_ID.OCEAN_VIEW_SHARING]: {
     [SEASON.WINTER]: {
-      1: [147, 137, 130, 125]
+      alone: [147, 137, 130, 125]
     },
     [SEASON.SUMMER]: {
-      1: [129, 121, 114, 109]
+      alone: [129, 121, 114, 109]
     }
   },
   [ROOM_ID.BEACH_HUT]: {
     [SEASON.WINTER]: {
-      1: [254, 238, 224, 216],
-      2: [127, 119, 112, 108],
-      3: [127, 119, 112, 108],
-      4: [127, 119, 112, 108]
+      alone: [254, 238, 224, 216],
+      sharing: [127, 119, 112, 108],
     },
     [SEASON.SUMMER]: {
-      1: [218, 204, 194, 186],
-      2: [109, 102, 97, 93],
-      3: [109, 102, 97, 93],
-      4: [109, 102, 97, 93]
+      alone: [218, 204, 194, 186],
+      sharing: [109, 102, 97, 93],
     }
   },
   [ROOM_ID.BEACH_HUT_SHARING]:{
     [SEASON.WINTER]: {
-      1: [127, 119, 112, 108]
+      alone: [127, 119, 112, 108]
     },
     [SEASON.SUMMER]: {
-      1: [109, 102, 97, 93]
+      alone: [109, 102, 97, 93]
     }
   },
   [ROOM_ID.GARDEN_BATH]: {
     [SEASON.WINTER]: {
-      1: [276, 258, 244, 234],
-      2: [138, 129, 122, 117],
-      3: [138, 129, 122, 117],
-      4: [138, 129, 122, 117]
+      alone: [276, 258, 244, 234],
+      sharing: [138, 129, 122, 117],
     },
     [SEASON.SUMMER]: {
-      1: [242, 226, 214, 206],
-      2: [121, 113, 107, 103],
-      3: [121, 113, 107, 103],
-      4: [121, 113, 107, 103]
+      alone: [242, 226, 214, 206],
+      sharing: [121, 113, 107, 103],
     }
   },
   [ROOM_ID.GARDEN_BATH_SHARING]: {
     [SEASON.WINTER]: {
-      1: [138, 129, 122, 117]
+      alone: [138, 129, 122, 117]
     },
     [SEASON.SUMMER]: {
-      1: [121, 113, 107, 103]
+      alone: [121, 113, 107, 103]
     }
   },
   [ROOM_ID.GARDEN_DOUBLE]: {
     [SEASON.WINTER]: {
-      1: [138, 130, 124, 118],
-      2: [112, 106, 101, 97],
-      3: [112, 106, 101, 97],
-      4: [112, 106, 101, 97]
+      alone: [138, 130, 124, 118],
+      sharing: [112, 106, 101, 97],
     },
     [SEASON.SUMMER]: {
-      1: [116, 108, 103, 99],
-      2: [99, 93, 88, 84],
-      3: [99, 93, 88, 84],
-      4: [99, 93, 88, 84]
+      alone: [116, 108, 103, 99],
+      sharing: [99, 93, 88, 84],
     }
   },
   [ROOM_ID.GARDEN_SINGLE]:  {
     [SEASON.WINTER]: {
-      1: [133, 125, 119, 113]
+      alone: [133, 125, 119, 113]
     },
     [SEASON.SUMMER]: {
-      1: [116, 108, 103, 99]
+      alone: [116, 108, 103, 99]
     }
   },
   [ROOM_ID.GARDEN_SHARED]: {
     [SEASON.WINTER]: {
-      1: [224, 212, 202, 194],
-      2: [112, 106, 101, 97],
-      3: [112, 106, 101, 97],
-      4: [112, 106, 101, 97]
+      alone: [224, 212, 202, 194],
+      sharing: [112, 106, 101, 97],
     },
     [SEASON.SUMMER]: {
-      1: [198, 186, 176, 168],
-      2: [99, 93, 88, 84],
-      3: [99, 93, 88, 84],
-      4: [99, 93, 88, 84]
+      alone: [198, 186, 176, 168],
+      sharing: [99, 93, 88, 84],
     }
   },
   [ROOM_ID.GARDEN_SHARED_SHARING]: {
     [SEASON.WINTER]: {
-      1: [112, 106, 101, 97]
+      alone: [112, 106, 101, 97]
     },
     [SEASON.SUMMER]: {
-      1: [99, 93, 88, 84]
+      alone: [99, 93, 88, 84]
     }
   },
   [ROOM_ID.BED_IN_DORMITORY]: {
     [SEASON.WINTER]: {
-      1: [80, 75, 71, 69]
+      alone: [80, 75, 71, 69]
     },
     [SEASON.SUMMER]: {
-      1: [83, 77, 73, 70]
+      alone: [83, 77, 73, 70]
     }
   },
   [ROOM_ID.TENT_HUT]: {
     [SEASON.WINTER]: {
-      1: [82, 77, 73, 70]
+      alone: [82, 77, 73, 70]
     }
   },
   [ROOM_ID.TENT_SPACE]: {
     [SEASON.WINTER]: {
-      1: [69, 64, 61, 58]
+      alone: [69, 64, 61, 58]
     }
   },
   [ROOM_ID.NULL_ROOM]: {
     [SEASON.WINTER]: {
-      1: [0, 0, 0, 0],
-      2: [0, 0, 0, 0],
-      3: [0, 0, 0, 0],
-      4: [0, 0, 0, 0]
+      alone: [0, 0, 0, 0],
+      sharing: [0, 0, 0, 0],
     },
     [SEASON.SUMMER]: {
-      1: [0, 0, 0, 0],
-      2: [0, 0, 0, 0],
-      3: [0, 0, 0, 0],
-      4: [0, 0, 0, 0]
+      alone: [0, 0, 0, 0],
+      sharing: [0, 0, 0, 0],
     }
   }
 }
 
 export function addVAT (price) {
   if (!_.isNumber(price)) {
-    return price
+    throw new Error(`Expected "${price}" to be a number`)
   }
   return price + ( price * VAT )
+}
+
+export function calculateDiscount(price, discount) {
+  if (!_.isObject(discount)) {
+    return 0
+  }
+  switch (discount.type) {
+    case DISCOUNT.PERCENT:
+      return price * (discount.value / 100)
+    case DISCOUNT.FIXED:
+      return discount.value
+    default:
+      return 0
+  }
 }
 
 export function applyDiscount(price, discount) {
   if (!_.isObject(discount)) {
     return price
   }
-  if (discount.type === DISCOUNT.PERCENT) {
-    return price - ( price * ( discount.value / 100) )
-  }
-  if (discount.type === DISCOUNT.FIXED) {
-    return price - discount.value
-  }
+  return price - calculateDiscount(price, discount)
 }
 
 export function getYVPRate(season) {
@@ -212,7 +193,7 @@ export function getYVPRate(season) {
   return YVP[season]
 }
 
-export function getRoomRate(id, season, occupancy, nights) {
+export function getRoomRate(id, season, isAloneInRoom, nights) {
   if (!_.has(ROOMS, id)) {
     throw new Error(`No rates for roomId: "${id}". Valid roomIds are ${_.join(_.keys(ROOMS), ', ')}`)
   }
@@ -221,16 +202,12 @@ export function getRoomRate(id, season, occupancy, nights) {
     throw new Error(`roomId "${id}" does not have a rate for season: "${season}". Valid seasons are ${_.join(_.keys(ROOMS[id]), ', ')}`)
   }
 
-  if (!_.has(ROOMS[id][season], occupancy)) {
-    throw new Error(`roomId "${id}" cannot handle an occupancy of: "${occupancy}". Valid occupancies are ${_.join(_.keys(ROOMS[id][season]), ', ')}`)
-  }
-
   if (!_.gt(nights, 0)) {
     throw new Error(`Number of nights must be an integer greater than 0`)
   }
 
-  if (nights <= 6) { return ROOMS[id][season][occupancy][0] }
-  if (nights <= 13) { return ROOMS[id][season][occupancy][1] }
-  if (nights <= 20) { return ROOMS[id][season][occupancy][2] }
-  if (nights >= 21) { return ROOMS[id][season][occupancy][3] }
+  if (nights <= 6) { return ROOMS[id][season][isAloneInRoom ? 'alone' : 'sharing'][0] }
+  if (nights <= 13) { return ROOMS[id][season][isAloneInRoom ? 'alone' : 'sharing'][1] }
+  if (nights <= 20) { return ROOMS[id][season][isAloneInRoom ? 'alone' : 'sharing'][2] }
+  if (nights >= 21) { return ROOMS[id][season][isAloneInRoom ? 'alone' : 'sharing'][3] }
 }

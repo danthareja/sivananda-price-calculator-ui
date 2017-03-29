@@ -2,16 +2,19 @@ import _ from 'lodash'
 
 import moment from './lib/moment'
 import { getSeasonByDate } from './data/seasons'
-import { addVAT, getYVPRate, getRoomRate, applyDiscount } from './data/rates'
+import { getYVPRate, getRoomRate, applyDiscount, calculateDiscount } from './data/rates'
 
 const EMPTY_RATES = {
-  withoutVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
-  withVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
-  perGuestWithoutVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 },
-  perGuestWithVAT: { perDay: [], room: 0, yvp: 0, course: 0, total: 0 }
+  dailyRoomYVP: [],
+  room: 0,
+  yvp: 0,
+  course: 0,
+  subtotal: 0,
+  discount: 0,
+  total: 0
 }
 
-export default function calculator({ guests = 1, stays = [], courses = [], discount }) {
+export default function calculator({ adults = 0, children = 0, stays = [], courses = [], grossDiscount }) {
   const checkInDate = _.first(stays).checkInDate
   const checkOutDate = _.last(stays).checkOutDate
 
@@ -19,67 +22,53 @@ export default function calculator({ guests = 1, stays = [], courses = [], disco
     return EMPTY_RATES
   }
 
- // BAD ASSUMPTION: stays are one continuous range
+  // IMPORTANT ASSUMPTION: stays are one continuous range
   const daysThatMustBePaidFor = Array.from(moment.range(
     checkInDate.clone(),
     checkOutDate.clone().subtract(1, 'days')
   ).by('days'))
 
+  var dailyRoomYVP = _.map(daysThatMustBePaidFor, date => getDailyRoomYVPRate(date, adults, children, stays, courses))
+  var room = _.sumBy(dailyRoomYVP, 'room')
+  var yvp = _.sumBy(dailyRoomYVP, 'yvp')
+  var course = _.sumBy(courses, course => applyDiscount(course.tuition, course.discount))
+  var subtotal = _.sum([room, yvp, course])
+  var discount = calculateDiscount(subtotal, grossDiscount)
+  var total = subtotal - discount
 
-  const perGuestWithoutVAT = {}
-  perGuestWithoutVAT.perDay = _.map(daysThatMustBePaidFor, date => getDailyStayRate(date, guests, stays, courses))
-  perGuestWithoutVAT.room = _.sumBy(perGuestWithoutVAT.perDay, 'room')
-  perGuestWithoutVAT.yvp = _.sumBy(perGuestWithoutVAT.perDay, 'yvp')
-  perGuestWithoutVAT.course = _.sumBy(courses, course => applyDiscount(course.tuition, course.discount))
-  perGuestWithoutVAT.subtotal = _.sum([perGuestWithoutVAT.room, perGuestWithoutVAT.yvp, perGuestWithoutVAT.course])
-  perGuestWithoutVAT.total = applyDiscount(perGuestWithoutVAT.subtotal, discount)
-  perGuestWithoutVAT.discount = perGuestWithoutVAT.subtotal - perGuestWithoutVAT.total
-
-  const perGuestWithVAT = modifyRates(perGuestWithoutVAT, addVAT)
-  const withoutVAT = modifyRates(perGuestWithoutVAT, rate => rate * guests)
-  const withVAT = modifyRates(withoutVAT, addVAT)
-
-  return { withVAT, withoutVAT, perGuestWithVAT, perGuestWithoutVAT } 
+  return { dailyRoomYVP, room, yvp, course, subtotal, total, discount } 
 }
 
-function getDailyStayRate(date, guests, stays, courses) {
+function getDailyRoomYVPRate(date, adults, children, stays, courses) {
   const nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
   const season = getSeasonByDate(date)
 
-  const stay = _.find(stays, stay => date.within(
+  const theStayForThisDate = _.find(stays, stay => date.within(
     moment.range(
       stay.checkInDate.clone(),
-      stay.checkOutDate.clone().subtract(1, 'days')
+      stay.checkOutDate.clone().subtract(1, 'days') // The night of the checkout date is not paid for
     )
   ))
 
-  if (!_.isObject(stay)) {
+  if (!_.isObject(theStayForThisDate)) {
     throw new Error(`No stay found for ${date.format('YYYY-MM-DD')}. Are stays continuous?`)
   }
 
-  // YVP is not included duing the course and one night before
   var isDuringCourse = _.some(courses, course => date.within(
     moment.range(
-      course.startDate.clone().subtract(1, 'days'),
+      course.startDate.clone().subtract(1, 'days'), // YVP is not included duing the course and one night before
       course.endDate.clone()
     )
   ))
+ 
+  var isAloneInRoom = adults === 1; // Children do not affect the "single occupancy" or "double occupancy" base rate
+
+  var roomRate = getRoomRate(theStayForThisDate.roomId, season, isAloneInRoom, nights) * (adults + children / 2);
+  var yvpRate = isDuringCourse ? 0 : getYVPRate(season) * adults;
 
   return {
     date: date,
-    room: applyDiscount(getRoomRate(stay.roomId, season, guests, nights), stay.roomDiscount),
-    yvp: isDuringCourse ? 0 : applyDiscount(getYVPRate(season), stay.yvpDiscount)
+    room: applyDiscount(roomRate, theStayForThisDate.roomDiscount),
+    yvp: applyDiscount(yvpRate, theStayForThisDate.yvpDiscount)
   }
 }
-
-function modifyRates(rates, modifier) {
-  return _.cloneDeepWith(rates, value => {
-    if (moment.isMoment(value)) {
-      return value.clone()
-    }
-    if (_.isNumber(value)) {
-      return modifier(value)
-    }
-  })
-}
-
