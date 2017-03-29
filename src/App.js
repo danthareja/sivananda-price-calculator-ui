@@ -1,14 +1,10 @@
-// Stay focused....
-//   1. Add discounts
-//   2. Add TTC
-//   3. Write tests
-
 import _ from 'lodash'
 import React, { Component } from 'react'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
 import Paper from 'material-ui/Paper'
+import Toggle from 'material-ui/Toggle'
 import Popover from 'material-ui/Popover'
 import Snackbar from 'material-ui/Snackbar'
 import MenuItem from 'material-ui/MenuItem'
@@ -24,6 +20,7 @@ import { START_DATE, END_DATE } from 'react-dates/constants'
 import './react-dates.css'
 
 import moment from './lib/moment'
+import { addVAT } from './data/rates'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
 import { isWithinSeasonRange } from './data/seasons'
 import calculator from './calculator'
@@ -40,8 +37,9 @@ export default class App extends Component {
         message: '',
         show: false
       },
-      guests: 1,
-      discount: {
+      adults: 1,
+      children: 0,
+      grossDiscount: {
         type: DISCOUNT.PERCENT,
         value: 0
       },
@@ -72,30 +70,32 @@ export default class App extends Component {
     this.removeCourse = this.removeCourse.bind(this)
   }
 
-  updateGuests(e) {
+  updateGuests(adults, children) {
     let error = { message: '', show: false }
-    let guests = _.max([1, parseInt(e.target.value, 10)])
+    let totalGuests = adults + children
     
     let invalidRooms = _(this.state.stays)
       .map(stay => getRoomById(stay.roomId))
-      .filter(room => guests > room.maxOccupancy)
+      .filter(room => totalGuests > room.maxOccupancy)
       .map(_.property('label'))
       .uniq()
       .value()
 
     if (!_.isEmpty(invalidRooms)) {
-      error.message = `${_.join(invalidRooms, ', and ')} cannot have more than ${this.state.guests} guests. Please change the room type or remove the stay before increasing guest count.`
+      error.message = `${_.join(invalidRooms, ', and ')} cannot have more than ${totalGuests - 1} guests. Please change the room type or remove the stay before increasing guest count.`
       error.show = true
-      guests = this.state.guests
+      adults = this.state.adults
+      children = this.state.children
     }
 
     if (!_.isEmpty(this.state.courses)) {
       error.message = 'Courses can only be added for a reservation with one guest. Please remove the courses before increasing guest count.'
       error.show = true
-      guests = this.state.guests
+      adults = this.state.adults
+      children = this.state.children
     }
 
-    this.setState({ error, guests })
+    this.setState({ error, adults, children })
   }
 
   addStay() {
@@ -211,7 +211,10 @@ export default class App extends Component {
         body: { maxWidth: '100%', minWidth: '100%', padding: '0px', backgroundColor: '#d50000' },
         content: { textAlign: 'center' }
       },
-      guests: {
+      adults: {
+        textField: { fontSize: '14px' }
+      },
+      children: {
         textField: { fontSize: '14px' }
       }
     }
@@ -245,7 +248,7 @@ export default class App extends Component {
             <RaisedButton
               label="Add Course"
               onClick={this.addCourse}
-              disabled={_.size(this.state.guests) > 1}
+              disabled={this.state.adults + this.state.children > 1}
               primary={true}
               fullWidth={true}
             />
@@ -261,22 +264,39 @@ export default class App extends Component {
           </Col>
         </Row>
         <Row middle="xs">
-          <Col xs={6}>
+          <Col xs={3}>
             <TextField
-              id="guests"
-              style={styles.guests.textField}
-              floatingLabelText="Number of guests"
+              id="adults"
+              style={styles.adults.textField}
+              floatingLabelText="Number of adults"
               type="Number"
-              value={this.state.guests}
-              onChange={this.updateGuests}
+              value={this.state.adults}
+              onChange={e => this.updateGuests(
+                _.max([1, Number(e.target.value)]),
+                this.state.children
+              )}
+              fullWidth={true}
+            />
+          </Col>
+          <Col xs={3}>
+            <TextField
+              id="children"
+              style={styles.children.textField}
+              floatingLabelText="Number of children"
+              type="Number"
+              value={this.state.children}
+              onChange={e => this.updateGuests(
+                this.state.adults,
+                _.max([0, Number(e.target.value)])
+              )}
               fullWidth={true}
             />
           </Col>
           <Col xs={6}>
             <DiscountInput
               buttonText="Discount Subtotal"
-              discount={this.state.discount}
-              onChange={discount => this.setState({ discount })}
+              discount={this.state.grossDiscount}
+              onChange={grossDiscount => this.setState({ grossDiscount })}
               allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
             />
           </Col>
@@ -288,7 +308,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 stay={stay}
-                availableRooms={filterRoomsByOccupancy(this.state.guests)}
+                availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
                 isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
                 onStayChange={this.updateStay}
               />
@@ -311,10 +331,11 @@ export default class App extends Component {
       </Grid>
       </Paper>
       <PriceTable
-        guests={this.state.guests}
+        adults={this.state.adults}
+        children={this.state.children}
         stays={this.state.stays}
         courses={this.state.courses}
-        discount={this.state.discount}
+        grossDiscount={this.state.grossDiscount}
       />
       <Snackbar
         open={this.state.error.show}
@@ -458,7 +479,7 @@ class CourseInput extends Component {
             value={course.tuition}
             style={styles.textField}
             underlineShow={true}
-            onChange={(e) => onCourseChange(index, { tuition: _.max([0, parseInt(e.target.value, 10)]) })}
+            onChange={(e) => onCourseChange(index, { tuition: _.max([0, Number(e.target.value)]) })}
           />
         </Col>
         <Col xs={6}>
@@ -499,7 +520,7 @@ class DiscountInput extends Component {
   }
 
   handleTextFieldChange = (e) => {
-    let value = _.max([0, parseInt(e.target.value, 10)])
+    let value = _.max([0, Number(e.target.value)])
     let type = this.props.discount.type
     this.props.onChange({ value, type })
   }
@@ -574,13 +595,26 @@ class PriceTable extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      rateOption: 'withoutVAT'
+      includeVAT: false
     }
   }
 
+  maybeIncludeVAT = (rates) => {
+    if (!this.state.includeVAT) {
+      return rates
+    }
+    return _.cloneDeepWith(rates, value => {
+      if (moment.isMoment(value)) {
+        return value.clone()
+      }
+      if (_.isNumber(value)) {
+        return addVAT(value)
+      }
+    })
+  }
+
   render() {
-    const rates = calculator(this.props)[this.state.rateOption]
-    
+    const rates = this.maybeIncludeVAT(calculator(this.props))
     const styles = {
       rate: {
         margin: '5px 0px'
@@ -597,45 +631,24 @@ class PriceTable extends Component {
         />
         <CardText>
           <Grid fluid>
-          <Row>
-          <Col xs>
-            <div>
-              <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
-              <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
-              <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
-              <div style={styles.rate}>Subtotal: ${rates.subtotal.toFixed(2)}</div>
-              <div style={styles.rate}><i>Discount: -${rates.discount.toFixed(2)}</i></div>
-              <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
-            </div>
-          </Col>
-          <Col xs>
-            <RadioButtonGroup
-              name="rateOption"
-              onChange={(e, rateOption) => this.setState({ rateOption })}
-              defaultSelected="withoutVAT"
-              labelPosition="left"
-            >
-              <RadioButton
-                value="withoutVAT"
-                label="Total"
-              />
-              <RadioButton
-                value="withVAT"
-                label="Total +VAT"
-              />
-              <RadioButton
-                value="perGuestWithoutVAT"
-                label="Total per guest"
-                disabled={this.props.guests === 1}
-              />
-              <RadioButton
-                value="perGuestWithVAT"
-                label="Total per guest +VAT"
-                disabled={this.props.guests === 1}
-              />
-            </RadioButtonGroup>
-          </Col>
-          </Row>
+            <Row>
+              <Col xs={12}>
+                <Toggle
+                  label="Include VAT"
+                  labelPosition="right"
+                  defaultToggled={this.state.includeVAT}
+                  onToggle={(e, includeVAT) => this.setState({ includeVAT })}
+                />
+                <div>
+                  <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
+                  <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
+                  <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
+                  <div style={styles.rate}>Subtotal: ${rates.subtotal.toFixed(2)}</div>
+                  <div style={styles.rate}><i>Discount: -${rates.discount.toFixed(2)}</i></div>
+                  <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
+                </div>
+              </Col>
+            </Row>
           </Grid>
         </CardText>
         <CardText expandable={true}>

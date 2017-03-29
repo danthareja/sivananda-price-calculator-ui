@@ -160,21 +160,30 @@ const ROOMS = {
 
 export function addVAT (price) {
   if (!_.isNumber(price)) {
-    return price
+    throw new Error(`Expected "${price}" to be a number`)
   }
   return price + ( price * VAT )
+}
+
+export function calculateDiscount(price, discount) {
+  if (!_.isObject(discount)) {
+    return 0
+  }
+  switch (discount.type) {
+    case DISCOUNT.PERCENT:
+      return price * (discount.value / 100)
+    case DISCOUNT.FIXED:
+      return discount.value
+    default:
+      return 0
+  }
 }
 
 export function applyDiscount(price, discount) {
   if (!_.isObject(discount)) {
     return price
   }
-  if (discount.type === DISCOUNT.PERCENT) {
-    return price - ( price * ( discount.value / 100) )
-  }
-  if (discount.type === DISCOUNT.FIXED) {
-    return price - discount.value
-  }
+  return price - calculateDiscount(price, discount)
 }
 
 export function getYVPRate(season) {
