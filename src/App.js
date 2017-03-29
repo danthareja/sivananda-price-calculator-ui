@@ -661,7 +661,7 @@ class PriceTable extends Component {
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false}>
-              {_.map(rates.perDay, (rate, i) => (
+              {_.map(rates.dailyRoomYVP, (rate, i) => (
                 <TableRow key={i}>
                   <TableRowColumn>{rate.date.format('MM/DD/YYYY')}</TableRowColumn>
                   <TableRowColumn>${rate.room.toFixed(2)}</TableRowColumn>
