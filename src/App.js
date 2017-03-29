@@ -616,6 +616,9 @@ class PriceTable extends Component {
   render() {
     const rates = this.maybeIncludeVAT(calculator(this.props))
     const styles = {
+      toggleContainer: {
+        maxWidth: 250
+      },
       rate: {
         margin: '5px 0px'
       }
@@ -633,12 +636,13 @@ class PriceTable extends Component {
           <Grid fluid>
             <Row>
               <Col xs={12}>
-                <Toggle
-                  label="Include VAT"
-                  labelPosition="right"
-                  defaultToggled={this.state.includeVAT}
-                  onToggle={(e, includeVAT) => this.setState({ includeVAT })}
-                />
+                <div style={styles.toggleContainer}>
+                  <Toggle
+                    label="Include VAT"
+                    defaultToggled={this.state.includeVAT}
+                    onToggle={(e, includeVAT) => this.setState({ includeVAT })}
+                  />
+                </div>
                 <div>
                   <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
                   <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
