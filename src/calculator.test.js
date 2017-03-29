@@ -15,9 +15,9 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(3, 'days')
       }]
     })
-    expect(rates.room).toEqual(882)
-    expect(rates.yvp).toEqual(96)
-    expect(rates.total).toEqual(978)
+    expect(rates).toHaveProperty('room', 882)
+    expect(rates).toHaveProperty('yvp', 96)
+    expect(rates).toHaveProperty('total', 978)
   })
 
 
@@ -30,9 +30,9 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(3, 'days')
       }]
     })
-    expect(rates.room).toEqual(774)
-    expect(rates.yvp).toEqual(60)
-    expect(rates.total).toEqual(834)
+    expect(rates).toHaveProperty('room', 774)
+    expect(rates).toHaveProperty('yvp', 60)
+    expect(rates).toHaveProperty('total', 834)
   })
 
   it('one person staying 4 nights in a garden room single during the winter', function() {
@@ -44,9 +44,9 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(4, 'days')
       }]
     })
-    expect(rates.room).toEqual(532)
-    expect(rates.yvp).toEqual(128)
-    expect(rates.total).toEqual(660)
+    expect(rates).toHaveProperty('room', 532)
+    expect(rates).toHaveProperty('yvp', 128)
+    expect(rates).toHaveProperty('total', 660)
   })
 
 
@@ -59,9 +59,9 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(4, 'days')
       }]
     })
-    expect(rates.room).toEqual(464)
-    expect(rates.yvp).toEqual(80)
-    expect(rates.total).toEqual(544)
+    expect(rates).toHaveProperty('room', 464)
+    expect(rates).toHaveProperty('yvp', 80)
+    expect(rates).toHaveProperty('total', 544)
   })
 
   it('one person staying 8 nights in a garden room double bed during the winter', function() {
@@ -73,9 +73,9 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(8, 'days')
       }]
     })
-    expect(rates.room).toEqual(1040)
-    expect(rates.yvp).toEqual(256)
-    expect(rates.total).toEqual(1296)
+    expect(rates).toHaveProperty('room', 1040)
+    expect(rates).toHaveProperty('yvp', 256)
+    expect(rates).toHaveProperty('total', 1296)
   })
 
   it('one person staying 8 nights in a garden room double bed during the summer', function() {
@@ -87,9 +87,9 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(8, 'days')
       }]
     })
-    expect(rates.room).toEqual(864)
-    expect(rates.yvp).toEqual(160)
-    expect(rates.total).toEqual(1024)
+    expect(rates).toHaveProperty('room', 864)
+    expect(rates).toHaveProperty('yvp', 160)
+    expect(rates).toHaveProperty('total', 1024)
   })
 
   it('one person staying 12 nights in beachfront deluxe during the winter', function() {
@@ -101,9 +101,9 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(12, 'days')
       }]
     })
-    expect(rates.room).toEqual(3552)
-    expect(rates.yvp).toEqual(384)
-    expect(rates.total).toEqual(3936)
+    expect(rates).toHaveProperty('room', 3552)
+    expect(rates).toHaveProperty('yvp', 384)
+    expect(rates).toHaveProperty('total', 3936)
   })
 
   it('one person staying 12 nights in beachfront deluxe during the summer', function() {
@@ -115,9 +115,9 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(12, 'days')
       }]
     })
-    expect(rates.room).toEqual(3072)
-    expect(rates.yvp).toEqual(240)
-    expect(rates.total).toEqual(3312)
+    expect(rates).toHaveProperty('room', 3072)
+    expect(rates).toHaveProperty('yvp', 240)
+    expect(rates).toHaveProperty('total', 3312)
   })
 })
 
@@ -132,9 +132,9 @@ describe('stays with multiple people', function() {
       }]
     })
 
-    expect(rates.room).toEqual(1590)
-    expect(rates.yvp).toEqual(320)
-    expect(rates.total).toEqual(1910)
+    expect(rates).toHaveProperty('room', 1590)
+    expect(rates).toHaveProperty('yvp', 320)
+    expect(rates).toHaveProperty('total', 1910)
   })
 
   it('two friends staying 5 nights in a beachfront deluxe during the summer', function() {
@@ -147,9 +147,9 @@ describe('stays with multiple people', function() {
       }]
     })
 
-    expect(rates.room).toEqual(680 * 2)
-    expect(rates.yvp).toEqual(100 * 2)
-    expect(rates.total).toEqual(1560)
+    expect(rates).toHaveProperty('room', 680 * 2)
+    expect(rates).toHaveProperty('yvp', 100 * 2)
+    expect(rates).toHaveProperty('total', 1560)
   })
 
   it('a couple staying 15 nights in a garden room double bed during the winter', function() {
@@ -161,9 +161,9 @@ describe('stays with multiple people', function() {
         checkOutDate: winter.clone().add(15, 'days')
       }]
     })
-    expect(rates.room).toEqual(3030)
-    expect(rates.yvp).toEqual(960)
-    expect(rates.total).toEqual(3990)
+    expect(rates).toHaveProperty('room', 3030)
+    expect(rates).toHaveProperty('yvp', 960)
+    expect(rates).toHaveProperty('total', 3990)
   })
 
   it('a couple staying 15 nights in a garden room double bed during the summer', function() {
@@ -175,9 +175,9 @@ describe('stays with multiple people', function() {
         checkOutDate: summer.clone().add(15, 'days')
       }]
     })
-    expect(rates.room).toEqual(2640)
-    expect(rates.yvp).toEqual(600)
-    expect(rates.total).toEqual(3240)
+    expect(rates).toHaveProperty('room', 2640)
+    expect(rates).toHaveProperty('yvp', 600)
+    expect(rates).toHaveProperty('total', 3240)
   })
 })
 
@@ -196,10 +196,10 @@ describe('stays with courses', function() {
         endDate: winter.clone().add(7, 'days')
       }]
     })
-    expect(rates.room).toEqual(2960)
-    expect(rates.yvp).toEqual(128)
-    expect(rates.course).toEqual(250)
-    expect(rates.total).toEqual(3338)
+    expect(rates).toHaveProperty('room', 2960)
+    expect(rates).toHaveProperty('yvp', 128)
+    expect(rates).toHaveProperty('course', 250)
+    expect(rates).toHaveProperty('total', 3338)
   })
 
   it('one person staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the summer', function() {
@@ -216,10 +216,10 @@ describe('stays with courses', function() {
         endDate: summer.clone().add(7, 'days')
       }]
     })
-    expect(rates.room).toEqual(2560)
-    expect(rates.yvp).toEqual(80)
-    expect(rates.course).toEqual(250)
-    expect(rates.total).toEqual(2890)
+    expect(rates).toHaveProperty('room', 2560)
+    expect(rates).toHaveProperty('yvp', 80)
+    expect(rates).toHaveProperty('course', 250)
+    expect(rates).toHaveProperty('total', 2890)
   })
 
   // Two best friends decide to ditch Atlantis because they hear about our Thai yoga Massage Workshop...THE Kam Thye Chow?!?
@@ -239,7 +239,7 @@ describe('stays with courses', function() {
         endDate: winter.clone().add(2, 'days')
       }]
     })
-    expect(rates.total).toEqual(1326)
+    expect(rates).toHaveProperty('total', 1326)
   })
 })
 
@@ -253,9 +253,9 @@ describe('stays with room sharing', function() {
         checkOutDate: winter.clone().add(12, 'days')
       }]
     })
-    expect(rates.room).toEqual(1776)
-    expect(rates.yvp).toEqual(384)
-    expect(rates.total).toEqual(2160)
+    expect(rates).toHaveProperty('room', 1776)
+    expect(rates).toHaveProperty('yvp', 384)
+    expect(rates).toHaveProperty('total', 2160)
   })
 
   it('one person staying 12 nights sharing in beachfront deluxe during the summer', function() {
@@ -267,9 +267,9 @@ describe('stays with room sharing', function() {
         checkOutDate: summer.clone().add(12, 'days')
       }]
     })
-    expect(rates.room).toEqual(1536)
-    expect(rates.yvp).toEqual(240)
-    expect(rates.total).toEqual(1776)
+    expect(rates).toHaveProperty('room', 1536)
+    expect(rates).toHaveProperty('yvp', 240)
+    expect(rates).toHaveProperty('total', 1776)
   })
 })
 
@@ -287,9 +287,9 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(5, 'days')
       }]
     })
-    expect(rates.room).toEqual(1158)
-    expect(rates.yvp).toEqual(160)
-    expect(rates.total).toEqual(1318)
+    expect(rates).toHaveProperty('room', 1158)
+    expect(rates).toHaveProperty('yvp', 160)
+    expect(rates).toHaveProperty('total', 1318)
   })
 
   it('one person staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
@@ -305,9 +305,9 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(5, 'days')
       }]
     })
-    expect(rates.room).toEqual(1006)
-    expect(rates.yvp).toEqual(100)
-    expect(rates.total).toEqual(1106)
+    expect(rates).toHaveProperty('room', 1006)
+    expect(rates).toHaveProperty('yvp', 100)
+    expect(rates).toHaveProperty('total', 1106)
   })
 
   it('one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -323,9 +323,9 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(9, 'days')
       }]
     })
-    expect(rates.room).toEqual(1890)
-    expect(rates.yvp).toEqual(288)
-    expect(rates.total).toEqual(2178)
+    expect(rates).toHaveProperty('room', 1890)
+    expect(rates).toHaveProperty('yvp', 288)
+    expect(rates).toHaveProperty('total', 2178)
   })
 
   it('one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -341,9 +341,9 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(9, 'days')
       }]
     })
-    expect(rates.room).toEqual(1642)
-    expect(rates.yvp).toEqual(180)
-    expect(rates.total).toEqual(1822)
+    expect(rates).toHaveProperty('room', 1642)
+    expect(rates).toHaveProperty('yvp', 180)
+    expect(rates).toHaveProperty('total', 1822)
   })
 
   it('one person staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -359,9 +359,9 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(9, 'days')
       }]
     })
-    expect(rates.room).toEqual(1794)
-    expect(rates.yvp).toEqual(288)
-    expect(rates.total).toEqual(2082)
+    expect(rates).toHaveProperty('room', 1794)
+    expect(rates).toHaveProperty('yvp', 288)
+    expect(rates).toHaveProperty('total', 2082)
   })
 
   it('one person staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -377,9 +377,9 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(9, 'days')
       }]
     })
-    expect(rates.room).toEqual(1582)
-    expect(rates.yvp).toEqual(180)
-    expect(rates.total).toEqual(1762)
+    expect(rates).toHaveProperty('room', 1582)
+    expect(rates).toHaveProperty('yvp', 180)
+    expect(rates).toHaveProperty('total', 1762)
   })
 })
 
@@ -406,7 +406,7 @@ describe('stays with discounts', function() {
         value: 10
       }
     })
-    expect(rates.total).toEqual(1935.9)
+    expect(rates).toHaveProperty('total', 1935.9)
   })
 
   // A burnt out Wall Street worker has decided to vacay on "da islands".
@@ -444,7 +444,7 @@ describe('stays with discounts', function() {
         }
       }]
     })
-    expect(rates.total).toEqual(3552.50)
+    expect(rates).toHaveProperty('total', 3552.50)
   })
 
   // A young hippy is looking for a chance to learn some new things.
@@ -487,7 +487,7 @@ describe('stays with discounts', function() {
         }
       }]
     })
-    expect(rates.total).toEqual(2539)
+    expect(rates).toHaveProperty('total', 2539)
   })
 })
 
@@ -511,9 +511,9 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       }]
     })
-    expect(rates.room).toEqual(1323)
-    expect(rates.yvp).toEqual(96)
-    expect(rates.total).toEqual(1419)
+    expect(rates).toHaveProperty('room', 1323)
+    expect(rates).toHaveProperty('yvp', 96)
+    expect(rates).toHaveProperty('total', 1419)
   })
 
   it('two adults and one child staying in an oceanview room for three nights in winter', function() {
@@ -526,9 +526,9 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       }]
     })
-    expect(rates.room).toEqual(1102.5)
-    expect(rates.yvp).toEqual(192)
-    expect(rates.total).toEqual(1294.5)
+    expect(rates).toHaveProperty('room', 1102.5)
+    expect(rates).toHaveProperty('yvp', 192)
+    expect(rates).toHaveProperty('total', 1294.5)
   })
   it('two adults and two children staying in a beachfront deluxe suite for three nights in winter', function() {
     const rates = calculator({
@@ -540,8 +540,8 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       }]
     })
-    expect(rates.room).toEqual(1431)
-    expect(rates.yvp).toEqual(192)
-    expect(rates.total).toEqual(1623)
+    expect(rates).toHaveProperty('room', 1431)
+    expect(rates).toHaveProperty('yvp', 192)
+    expect(rates).toHaveProperty('total', 1623)
   })
 })
