@@ -129,8 +129,8 @@ export default class App extends Component {
       stays: _.concat(this.state.stays, {
         type: 'RoomStay',
         roomId: ROOM_ID.BEACHFRONT,
-        checkInDate: latestCheckOutDate.clone(),
-        checkOutDate: latestCheckOutDate.clone().add(1, 'days'),
+        checkInDate: previousCheckOutDate.clone(),
+        checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
         roomDiscount: {
           type: DISCOUNT.PERCENT,
           value: 0
@@ -160,12 +160,15 @@ export default class App extends Component {
   }
 
   addCourse() {
-    const checkInDate = _.first(this.state.stays).checkInDate
+    let firstCheckInDate = _.size(this.state.stays) > 0
+      ? _.first(this.state.stays).checkInDate
+      : moment().startOf('day').hour(12)
+
     this.setState({
       courses: _.concat(this.state.courses, {
         tuition: 0,
-        startDate: checkInDate.clone(),
-        endDate: checkInDate.clone().add(1, 'days'),
+        startDate: firstCheckInDate.clone(),
+        endDate: firstCheckInDate.clone().add(1, 'days'),
         discount: {
           type: DISCOUNT.PERCENT,
           value: 0
