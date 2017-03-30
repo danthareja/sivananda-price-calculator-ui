@@ -14,61 +14,118 @@ const EMPTY_RATES = {
   total: 0
 }
 
-export default function calculator({ adults = 0, children = 0, stays = [], courses = [], grossDiscount }) {
-  const checkInDate = _.first(stays).checkInDate
-  const checkOutDate = _.last(stays).checkOutDate
-
-  if (!moment.isMoment(checkInDate) || !moment.isMoment(checkOutDate)) {
-    return EMPTY_RATES
+export class Course {
+  constructor({ startDate, endDate, tuition, discount = {} }) {
+    this._startDate = startDate
+    this._endDate = endDate
+    this.tuition = tuition
+    this.discount = discount
   }
 
-  // IMPORTANT ASSUMPTION: stays are one continuous range
-  const daysThatMustBePaidFor = Array.from(moment.range(
-    checkInDate.clone(),
-    checkOutDate.clone().subtract(1, 'days')
-  ).by('days'))
+  endDate() {
+    return this._endDate.clone()
+  }
 
-  var dailyRoomYVP = _.map(daysThatMustBePaidFor, date => getDailyRoomYVPRate(date, adults, children, stays, courses))
-  var room = _.sumBy(dailyRoomYVP, 'room')
-  var yvp = _.sumBy(dailyRoomYVP, 'yvp')
-  var course = _.sumBy(courses, course => applyDiscount(course.tuition, course.discount))
-  var subtotal = _.sum([room, yvp, course])
-  var discount = calculateDiscount(subtotal, grossDiscount)
-  var total = subtotal - discount
+  startDate() {
+    return this._startDate.clone()
+  }
 
-  return { dailyRoomYVP, room, yvp, course, subtotal, total, discount } 
+  // YVP is not included duing the duration of the course and one night before
+  doesYVPApply(date) {
+    return date.within(moment.range(this.startDate().subtract(1, 'days'), this.endDate()))
+  }
+
+  calculateDiscount() {
+    if (this.discount.type === 'percent') {
+      return this.tuition * ( this.discount.value / 100 )
+    }
+    if (this.discount.type === 'fixed') {
+      return this.discount.value
+    }
+    return 0
+  }
+
+  howMuch() {
+    return this.tuition - this.calculateDiscount()
+  }
 }
 
-function getDailyRoomYVPRate(date, adults, children, stays, courses) {
-  const nights =  _.last(stays).checkOutDate.diff(_.first(stays).checkInDate, 'days')
-  const season = getSeasonByDate(date)
-
-  const theStayForThisDate = _.find(stays, stay => date.within(
-    moment.range(
-      stay.checkInDate.clone(),
-      stay.checkOutDate.clone().subtract(1, 'days') // The night of the checkout date is not paid for
-    )
-  ))
-
-  if (!_.isObject(theStayForThisDate)) {
-    throw new Error(`No stay found for ${date.format('YYYY-MM-DD')}. Are stays continuous?`)
+export class RoomStay {
+  constructor({ roomId, checkInDate, checkOutDate, roomDiscount, yvpDiscount }) {
+    this.roomId = roomId
+    this._checkInDate = checkInDate
+    this._checkOutDate = checkOutDate
+    this.roomDiscount = roomDiscount
+    this.yvpDiscount = yvpDiscount
   }
 
-  var isDuringCourse = _.some(courses, course => date.within(
-    moment.range(
-      course.startDate.clone().subtract(1, 'days'), // YVP is not included duing the course and one night before
-      course.endDate.clone()
-    )
-  ))
- 
-  var isAloneInRoom = adults === 1; // Children do not affect the "single occupancy" or "double occupancy" base rate
+  checkInDate() {
+    return this._checkInDate.clone()
+  }
 
-  var roomRate = getRoomRate(theStayForThisDate.roomId, season, isAloneInRoom, nights) * (adults + children / 2);
-  var yvpRate = isDuringCourse ? 0 : getYVPRate(season) * adults;
+  checkOutDate() {
+    return this._checkOutDate.clone()
+  }
 
-  return {
-    date: date,
-    room: applyDiscount(roomRate, theStayForThisDate.roomDiscount),
-    yvp: applyDiscount(yvpRate, theStayForThisDate.yvpDiscount)
+  getDailyRoomYVPRate() {
+    var globals = new Singleton()
+    var nights = globals.checkOutDate.diff(globals.checkInDate, 'days')
+    var dates = _.map(Array.from(moment.range(
+      this.checkInDate(),
+      this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
+    ).by('days')))
+
+    var isAloneInRoom = globals.adults === 1; // Children do not affect the "single occupancy" or "double occupancy" base rate
+
+    return _.map(dates, date => {
+      var season = getSeasonByDate(date)
+      var isDuringCourse = _.some(globals.courses, course => course.doesYVPApply(date))
+      var roomRate = getRoomRate(this.roomId, season, isAloneInRoom, nights) * (globals.adults + globals.children / 2)
+      var yvpRate = isDuringCourse ? 0 : getYVPRate(season) * globals.adults;
+
+      return {
+        date: date,
+        room: applyDiscount(roomRate, this.roomDiscount),
+        yvp: applyDiscount(yvpRate, this.yvpDiscount)
+      }
+    })
+  }
+}
+
+let instance = null
+
+class Singleton {
+  constructor() {
+    if (!instance) {
+      instance = this
+    }
+    this.time = new Date()
+    return instance
+  }
+}
+
+export default class ReservationCalculator {
+  constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount }) {
+    let globals = new Singleton()
+    globals.adults = adults
+    globals.children = children
+    globals.courses = courses
+    globals.checkInDate = _.first(stays).checkInDate()
+    globals.checkOutDate = _.last(stays).checkOutDate()
+
+    if (!moment.isMoment(globals.checkInDate) || !moment.isMoment(globals.checkOutDate)) {
+      return EMPTY_RATES
+    }
+
+    // IMPORTANT ASSUMPTION: stays are one continuous range
+    var dailyRoomYVP = _.flatMap(stays, stay => stay.getDailyRoomYVPRate())
+    var room = _.sumBy(dailyRoomYVP, 'room')
+    var yvp = _.sumBy(dailyRoomYVP, 'yvp')
+    var course = _.sumBy(courses, course => course.howMuch())
+    var subtotal = _.sum([room, yvp, course])
+    var discount = calculateDiscount(subtotal, grossDiscount)
+    var total = subtotal - discount
+
+    return { dailyRoomYVP, room, yvp, course, subtotal, total, discount } 
   }
 }
