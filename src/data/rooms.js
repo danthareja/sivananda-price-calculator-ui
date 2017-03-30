@@ -52,8 +52,13 @@ const rooms = [
   },
   {
     id: ROOM_ID.GARDEN_DOUBLE,
-    label: 'Garden Room Double Bed',
+    label: 'Garden Room Double Bed (whole)',
     maxOccupancy: 4
+  },
+  {
+    id: ROOM_ID.GARDEN_DOUBLE_SHARING,
+    label: 'Garden Room Double Bed (sharing)',
+    maxOccupancy: 1
   },
   {
     id: ROOM_ID.GARDEN_SINGLE,
