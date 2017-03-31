@@ -1,6 +1,6 @@
 import moment from './lib/moment'
 import { ROOM_ID, DISCOUNT } from './data/constants'
-import ReservationCalculator, { Course, RoomStay } from './calculator'
+import ReservationCalculator, { Course, RoomStay, TTCStay } from './calculator'
 
 const winter = moment('2016-11-20').startOf('day').hour(12)
 const summer = moment('2017-07-01').startOf('day').hour(12)
@@ -513,6 +513,19 @@ describe('stays with TTC', function() {
         checkOutDate: moment('2017-05-03', 'YYYY-MM-DD'),
       })]
     })
+    expect(calculator.getGrandTotal()).toEqual(2400)
+  })
+
+  it('one adult comes for TTC starting April 4th and ending May 1st in a Tent Hut', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new TTCStay({
+        roomId: ROOM_ID.TENT_HUT,
+        checkInDate: moment('2017-04-03', 'YYYY-MM-DD'),
+        checkOutDate: moment('2017-05-03', 'YYYY-MM-DD'),
+      })]
+    })
+    expect(calculator.getGrandTotal()).toEqual(3490)
   })
 
   // A guest arrives on April 26th and is planning on departing May 3rd, staying in a beloved north tent hut.

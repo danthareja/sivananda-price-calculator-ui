@@ -228,6 +228,24 @@ export class RoomStay {
   }
 }
 
+export class TTCStay extends RoomStay {
+  getDailyRoomYVPRate() {
+    let packagePrice = 0
+    if (this.roomCategory.constructor.name === 'TentHutRoomCategory') {
+      packagePrice = 3490
+    } else if (this.roomCategory.constructor.name === 'TentSpaceRoomCategory') {
+      packagePrice = 2400
+    } else if (this.roomCategory.constructor.name === 'DormitoryRoomCategory') {
+      packagePrice = 3255
+    }
+    return {
+      date: this.checkInDate(),
+      room: packagePrice,
+      yvp: 0
+    }
+  }
+}
+
 class RoomCategoryFactory {
   createRoomCategory(roomId) {
     switch (roomId) {
