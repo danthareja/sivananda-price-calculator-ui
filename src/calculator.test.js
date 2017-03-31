@@ -504,10 +504,21 @@ describe('stays with discounts', function() {
 })
 
 describe('stays with TTC', function() {
-  // A guest arrives on March 23rd and is planning on departing March 30th, staying in a beloved north tent hut.
+  it('one adult comes for TTC starting April 4th and ending May 1st in a Tent Space', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new TTCStay({
+        roomId: ROOM_ID.TENT_SPACE,
+        checkInDate: moment('2017-04-03', 'YYYY-MM-DD'),
+        checkOutDate: moment('2017-05-03', 'YYYY-MM-DD'),
+      })]
+    })
+  })
+
+  // A guest arrives on April 26th and is planning on departing May 3rd, staying in a beloved north tent hut.
   // While at the ashram, for obvious reasons, they fall in love with Sivananda yoga
   // and feel it is their duty to become a teacher to share this energy with others (WOW 😮)!!
-  // They would like to join the TTC beginning March 31 and ending April 30.
+  // They would like to join the TTC beginning May 4 and ending May 31.
   // How much will their total be? - Anne's calculation: $4,519.30
 
 })
