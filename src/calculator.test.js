@@ -5,9 +5,9 @@ import ReservationCalculator, { Course, RoomStay } from './calculator'
 const winter = moment('2016-11-20').startOf('day').hour(12)
 const summer = moment('2017-07-01').startOf('day').hour(12)
 
-describe('stays with one person', function() {
-  it('one person staying 3 nights in a ocean view deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+describe('stays with one adult', function() {
+  it('one adult staying 3 nights in a ocean view deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.OCEAN_VIEW,
@@ -15,14 +15,14 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(3, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 882)
-    expect(rates).toHaveProperty('yvp', 96)
-    expect(rates).toHaveProperty('total', 978)
+    expect(calculator.getTotalRoom()).toEqual(882)
+    expect(calculator.getTotalYVP()).toEqual(96)
+    expect(calculator.getGrandTotal()).toEqual(978)
   })
 
 
-  it('one person staying 3 nights in a ocean view deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 3 nights in a ocean view deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.OCEAN_VIEW,
@@ -30,13 +30,13 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(3, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 774)
-    expect(rates).toHaveProperty('yvp', 60)
-    expect(rates).toHaveProperty('total', 834)
+    expect(calculator.getTotalRoom()).toEqual(774 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(60)
+    expect(calculator.getGrandTotal()).toEqual(774 * 0.85 + 60)
   })
 
-  it('one person staying 4 nights in a garden room single during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights in a garden room single during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_SINGLE,
@@ -44,14 +44,14 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(4, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 532)
-    expect(rates).toHaveProperty('yvp', 128)
-    expect(rates).toHaveProperty('total', 660)
+    expect(calculator.getTotalRoom()).toEqual(532)
+    expect(calculator.getTotalYVP()).toEqual(128)
+    expect(calculator.getGrandTotal()).toEqual(660)
   })
 
 
-  it('one person staying 4 nights in a garden room single during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights in a garden room single during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_SINGLE,
@@ -59,13 +59,13 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(4, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 464)
-    expect(rates).toHaveProperty('yvp', 80)
-    expect(rates).toHaveProperty('total', 544)
+    expect(calculator.getTotalRoom()).toEqual(464 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(80)
+    expect(calculator.getGrandTotal()).toEqual(464 * 0.85 + 80)
   })
 
-  it('one person staying 8 nights in a garden room double bed during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 8 nights in a garden room double bed during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -73,13 +73,13 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(8, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1040)
-    expect(rates).toHaveProperty('yvp', 256)
-    expect(rates).toHaveProperty('total', 1296)
+    expect(calculator.getTotalRoom()).toEqual(1040)
+    expect(calculator.getTotalYVP()).toEqual(256)
+    expect(calculator.getGrandTotal()).toEqual(1296)
   })
 
-  it('one person staying 8 nights in a garden room double bed during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 8 nights in a garden room double bed during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -87,13 +87,13 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(8, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 864)
-    expect(rates).toHaveProperty('yvp', 160)
-    expect(rates).toHaveProperty('total', 1024)
+    expect(calculator.getTotalRoom()).toEqual(864 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(160)
+    expect(calculator.getGrandTotal()).toEqual(864 * 0.85 + 160)
   })
 
-  it('one person staying 12 nights in beachfront deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 12 nights in beachfront deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -101,13 +101,13 @@ describe('stays with one person', function() {
         checkOutDate: winter.clone().add(12, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 3552)
-    expect(rates).toHaveProperty('yvp', 384)
-    expect(rates).toHaveProperty('total', 3936)
+    expect(calculator.getTotalRoom()).toEqual(3552)
+    expect(calculator.getTotalYVP()).toEqual(384)
+    expect(calculator.getGrandTotal()).toEqual(3936)
   })
 
-  it('one person staying 12 nights in beachfront deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 12 nights in beachfront deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -115,15 +115,15 @@ describe('stays with one person', function() {
         checkOutDate: summer.clone().add(12, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 3072)
-    expect(rates).toHaveProperty('yvp', 240)
-    expect(rates).toHaveProperty('total', 3312)
+    expect(calculator.getTotalRoom()).toEqual(3072 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(240)
+    expect(calculator.getGrandTotal()).toEqual(3072 * 0.85 + 240)
   })
 })
 
 describe('stays with multiple people', function() {
   it('two friends staying 5 nights in a beachfront deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -131,14 +131,13 @@ describe('stays with multiple people', function() {
         checkOutDate: winter.clone().add(5, 'days')
       })]
     })
-
-    expect(rates).toHaveProperty('room', 1590)
-    expect(rates).toHaveProperty('yvp', 320)
-    expect(rates).toHaveProperty('total', 1910)
+    expect(calculator.getTotalRoom()).toEqual(1590)
+    expect(calculator.getTotalYVP()).toEqual(320)
+    expect(calculator.getGrandTotal()).toEqual(1910)
   })
 
   it('two friends staying 5 nights in a beachfront deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -146,14 +145,27 @@ describe('stays with multiple people', function() {
         checkOutDate: summer.clone().add(5, 'days')
       })]
     })
+    expect(calculator.getTotalRoom()).toEqual(1360)
+    expect(calculator.getTotalYVP()).toEqual(200)
+    expect(calculator.getGrandTotal()).toEqual(1560)
+  })
 
-    expect(rates).toHaveProperty('room', 680 * 2)
-    expect(rates).toHaveProperty('yvp', 100 * 2)
-    expect(rates).toHaveProperty('total', 1560)
+  it('one adult staying 5 nights in a beachfront deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.BEACHFRONT,
+        checkInDate: summer.clone(),
+        checkOutDate: summer.clone().add(5, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1156)
+    expect(calculator.getTotalYVP()).toEqual(100)
+    expect(calculator.getGrandTotal()).toEqual(1156 + 100)
   })
 
   it('a couple staying 15 nights in a garden room double bed during the winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -161,13 +173,13 @@ describe('stays with multiple people', function() {
         checkOutDate: winter.clone().add(15, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 3030)
-    expect(rates).toHaveProperty('yvp', 960)
-    expect(rates).toHaveProperty('total', 3990)
+    expect(calculator.getTotalRoom()).toEqual(3030)
+    expect(calculator.getTotalYVP()).toEqual(960)
+    expect(calculator.getGrandTotal()).toEqual(3990)
   })
 
   it('a couple staying 15 nights in a garden room double bed during the summer', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -175,15 +187,15 @@ describe('stays with multiple people', function() {
         checkOutDate: summer.clone().add(15, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 2640)
-    expect(rates).toHaveProperty('yvp', 600)
-    expect(rates).toHaveProperty('total', 3240)
+    expect(calculator.getTotalRoom()).toEqual(2640)
+    expect(calculator.getTotalYVP()).toEqual(600)
+    expect(calculator.getGrandTotal()).toEqual(3240)
   })
 })
 
 describe('stays with courses', function() {
-  it('one person staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -196,14 +208,14 @@ describe('stays with courses', function() {
         endDate: winter.clone().add(7, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 2960)
-    expect(rates).toHaveProperty('yvp', 128)
-    expect(rates).toHaveProperty('course', 250)
-    expect(rates).toHaveProperty('total', 3338)
+    expect(calculator.getTotalRoom()).toEqual(2960)
+    expect(calculator.getTotalYVP()).toEqual(128)
+    expect(calculator.getTotalCourse()).toEqual(250)
+    expect(calculator.getGrandTotal()).toEqual(3338)
   })
 
-  it('one person staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -216,17 +228,17 @@ describe('stays with courses', function() {
         endDate: summer.clone().add(7, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 2560)
-    expect(rates).toHaveProperty('yvp', 80)
-    expect(rates).toHaveProperty('course', 250)
-    expect(rates).toHaveProperty('total', 2890)
+    expect(calculator.getTotalRoom()).toEqual(2560 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(80)
+    expect(calculator.getTotalCourse()).toEqual(250)
+    expect(calculator.getGrandTotal()).toEqual(2560 * 0.85 + 80 + 250)
   })
 
   // Two best friends decide to ditch Atlantis because they hear about our Thai yoga Massage Workshop...THE Kam Thye Chow?!?
   // They are sharing a garden room with bath and staying at the ashram for a total of 7 nights.
   // The workshop is a course that is $295 and 3 days long. No prob ladies!
   it('two friends staying 7 nights sharing a garden room bath taking a 3 day course for $295 starting the day of their arrival during the winter. The system\'s input for this case is individual calculations.', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_BATH_SHARING,
@@ -239,13 +251,13 @@ describe('stays with courses', function() {
         endDate: winter.clone().add(2, 'days')
       })]
     })
-    expect(rates).toHaveProperty('total', 1326)
+    expect(calculator.getGrandTotal()).toEqual(1326)
   })
 })
 
 describe('stays with room sharing', function() {
-  it('one person staying 12 nights sharing a beachfront deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 12 nights sharing a beachfront deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT_SHARING,
@@ -253,13 +265,13 @@ describe('stays with room sharing', function() {
         checkOutDate: winter.clone().add(12, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1776)
-    expect(rates).toHaveProperty('yvp', 384)
-    expect(rates).toHaveProperty('total', 2160)
+    expect(calculator.getTotalRoom()).toEqual(1776)
+    expect(calculator.getTotalYVP()).toEqual(384)
+    expect(calculator.getGrandTotal()).toEqual(2160)
   })
 
-  it('one person staying 12 nights sharing in beachfront deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 12 nights sharing in beachfront deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT_SHARING,
@@ -267,15 +279,15 @@ describe('stays with room sharing', function() {
         checkOutDate: summer.clone().add(12, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1536)
-    expect(rates).toHaveProperty('yvp', 240)
-    expect(rates).toHaveProperty('total', 1776)
+    expect(calculator.getTotalRoom()).toEqual(1536)
+    expect(calculator.getTotalYVP()).toEqual(240)
+    expect(calculator.getGrandTotal()).toEqual(1776)
   })
 })
 
 describe('stays with room moves', function() {
-  it('one person staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -287,13 +299,13 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(5, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1158)
-    expect(rates).toHaveProperty('yvp', 160)
-    expect(rates).toHaveProperty('total', 1318)
+    expect(calculator.getTotalRoom()).toEqual(1158)
+    expect(calculator.getTotalYVP()).toEqual(160)
+    expect(calculator.getGrandTotal()).toEqual(1318)
   })
 
-  it('one person staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -305,13 +317,13 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(5, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1006)
-    expect(rates).toHaveProperty('yvp', 100)
-    expect(rates).toHaveProperty('total', 1106)
+    expect(calculator.getTotalRoom()).toEqual(1006 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(100)
+    expect(calculator.getGrandTotal()).toEqual(1006 * 0.85 + 100)
   })
 
-  it('one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -323,13 +335,13 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(9, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1890)
-    expect(rates).toHaveProperty('yvp', 288)
-    expect(rates).toHaveProperty('total', 2178)
+    expect(calculator.getTotalRoom()).toEqual(1890)
+    expect(calculator.getTotalYVP()).toEqual(288)
+    expect(calculator.getGrandTotal()).toEqual(2178)
   })
 
-  it('one person staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_DOUBLE,
@@ -341,13 +353,13 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(9, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1642)
-    expect(rates).toHaveProperty('yvp', 180)
-    expect(rates).toHaveProperty('total', 1822)
+    expect(calculator.getTotalRoom()).toEqual(1642 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(180)
+    expect(calculator.getGrandTotal()).toEqual(1642 * 0.85 + 180)
   })
 
-  it('one person staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_SHARED_SHARING,
@@ -359,13 +371,13 @@ describe('stays with room moves', function() {
         checkOutDate: winter.clone().add(9, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1794)
-    expect(rates).toHaveProperty('yvp', 288)
-    expect(rates).toHaveProperty('total', 2082)
+    expect(calculator.getTotalRoom()).toEqual(1794)
+    expect(calculator.getTotalYVP()).toEqual(288)
+    expect(calculator.getGrandTotal()).toEqual(2082)
   })
 
-  it('one person staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.GARDEN_SHARED_SHARING,
@@ -377,9 +389,9 @@ describe('stays with room moves', function() {
         checkOutDate: summer.clone().add(9, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1582)
-    expect(rates).toHaveProperty('yvp', 180)
-    expect(rates).toHaveProperty('total', 1762)
+    expect(calculator.getTotalRoom()).toEqual(93 * 4 + 242 * 5 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(180)
+    expect(calculator.getGrandTotal()).toEqual(93 * 4 + 242 * 5 * 0.85 + 180)
   })
 })
 
@@ -389,7 +401,7 @@ describe('stays with discounts', function() {
   // What will their folio balance be?!
   // Note: TTC graduates get 10% off gross.
   it('A TTC graduate staying 14 nights sharing a beach hut taking a 4 day course for $295 during the winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACH_HUT_SHARING,
@@ -406,7 +418,7 @@ describe('stays with discounts', function() {
         value: 10
       }
     })
-    expect(rates).toHaveProperty('total', 1935.9)
+    expect(calculator.getGrandTotal()).toEqual(1935.9)
   })
 
   // A burnt out Wall Street worker has decided to vacay on "da islands".
@@ -418,8 +430,8 @@ describe('stays with discounts', function() {
   // Can this economic guru trade her briefcase for some mala beads?
   // Note: 2 courses signed up for upon arrival and paid are 5% off each.
   // Note: Assuming at least 1 day between courses
-  it('one person staying in a beachfront deluxe for 10 nights, taking a 3 day course for $295 and a 4 day course for $295 during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying in a beachfront deluxe for 10 nights, taking a 3 day course for $295 and a 4 day course for $295 during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACHFRONT,
@@ -444,7 +456,7 @@ describe('stays with discounts', function() {
         }
       })]
     })
-    expect(rates).toHaveProperty('total', 3552.50)
+    expect(calculator.getGrandTotal()).toEqual(3552.50)
   })
 
   // A young hippy is looking for a chance to learn some new things.
@@ -453,8 +465,8 @@ describe('stays with discounts', function() {
   // Essentials 1 is 3 days and $195, Essentials 2 is 4 days and $295, then Essentials 3 is $400 and 6 days.
   // Note: 3 courses signed up for upon arrival and paid for are 10% off each.
   // Note: Assuming at least 1 day between courses
-  it('one person staying in a tent for 25 nights taking a 3 day course for $195, a 4 day course for $295, and a 6 day course for $400 during the winter', function() {
-    const rates = new ReservationCalculator({
+  it('one adult staying in a tent for 25 nights taking a 3 day course for $195, a 4 day course for $295, and a 6 day course for $400 during the winter', function() {
+    const calculator = new ReservationCalculator({
       adults: 1,
       stays: [new RoomStay({
         roomId: ROOM_ID.TENT_SPACE,
@@ -487,7 +499,7 @@ describe('stays with discounts', function() {
         }
       })]
     })
-    expect(rates).toHaveProperty('total', 2539)
+    expect(calculator.getGrandTotal()).toEqual(2539)
   })
 })
 
@@ -502,7 +514,7 @@ describe('stays with TTC', function() {
 
 describe('stays with family', function() {
   it('one adult and one child staying in an oceanview room for three nights in winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 1,
       children: 1,
       stays: [new RoomStay({
@@ -511,13 +523,13 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1323)
-    expect(rates).toHaveProperty('yvp', 96)
-    expect(rates).toHaveProperty('total', 1419)
+    expect(calculator.getTotalRoom()).toEqual(661.5)
+    expect(calculator.getTotalYVP()).toEqual(96)
+    expect(calculator.getGrandTotal()).toEqual(757.5)
   })
 
   it('two adults and one child staying in an oceanview room for three nights in winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       children: 1,
       stays: [new RoomStay({
@@ -526,12 +538,12 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1102.5)
-    expect(rates).toHaveProperty('yvp', 192)
-    expect(rates).toHaveProperty('total', 1294.5)
+    expect(calculator.getTotalRoom()).toEqual(1102.5)
+    expect(calculator.getTotalYVP()).toEqual(192)
+    expect(calculator.getGrandTotal()).toEqual(1294.50)
   })
   it('two adults and two children staying in a beachfront deluxe suite for three nights in winter', function() {
-    const rates = new ReservationCalculator({
+    const calculator = new ReservationCalculator({
       adults: 2,
       children: 2,
       stays: [new RoomStay({
@@ -540,8 +552,8 @@ describe('stays with family', function() {
         checkOutDate: winter.clone().add(3, 'days')
       })]
     })
-    expect(rates).toHaveProperty('room', 1431)
-    expect(rates).toHaveProperty('yvp', 192)
-    expect(rates).toHaveProperty('total', 1623)
+    expect(calculator.getTotalRoom()).toEqual(1431)
+    expect(calculator.getTotalYVP()).toEqual(192)
+    expect(calculator.getGrandTotal()).toEqual(1623)
   })
 })
