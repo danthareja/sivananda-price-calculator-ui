@@ -1,9 +1,51 @@
+/* eslint-disable */
 import _ from 'lodash'
 import moment from './lib/moment'
 
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
-class SeasonPrice {
+class RoomCategory {
+  constructor(isWillingToShare) {
+    this.isWillingToShare = isWillingToShare
+  }
+}
+
+class BeachFrontRoomCategory extends RoomCategory {}
+class OceanViewRoomCategory extends RoomCategory {}
+class BeachHutRoomCategory extends RoomCategory {}
+class GardenBathRoomCategory extends RoomCategory {}
+class GardenDoubleRoomCategory extends RoomCategory {}
+class GardenSharedRoomCategory extends RoomCategory {}
+class GardenSingleRoomCategory extends RoomCategory {}
+class DormitoryRoomCategory extends RoomCategory {}
+class TentHutRoomCategory extends RoomCategory {}
+class TentSpaceRoomCategory extends RoomCategory {}
+
+class RoomCategoryFactory {
+  createRoomCategory(roomId) {
+    switch (roomId) {
+      case ROOM_ID.BEACHFRONT: return new BeachFrontRoomCategory(false)
+      case ROOM_ID.BEACHFRONT_SHARING: return new BeachFrontRoomCategory(true)
+      case ROOM_ID.OCEAN_VIEW: return new OceanViewRoomCategory(false)
+      case ROOM_ID.OCEAN_VIEW_SHARING: return new OceanViewRoomCategory(true)
+      case ROOM_ID.BEACH_HUT: return new BeachHutRoomCategory(false)
+      case ROOM_ID.BEACH_HUT_SHARING: return new BeachHutRoomCategory(true)
+      case ROOM_ID.GARDEN_BATH: return new GardenBathRoomCategory(false)
+      case ROOM_ID.GARDEN_BATH_SHARING: return new GardenBathRoomCategory(true)
+      case ROOM_ID.GARDEN_DOUBLE: return new GardenDoubleRoomCategory(false)
+      case ROOM_ID.GARDEN_DOUBLE_SHARING: return new GardenDoubleRoomCategory(true)
+      case ROOM_ID.GARDEN_SHARED: return new GardenSharedRoomCategory(false)
+      case ROOM_ID.GARDEN_SHARED_SHARING: return new GardenSharedRoomCategory(true)
+      case ROOM_ID.GARDEN_SINGLE: return new GardenSingleRoomCategory(false)
+      case ROOM_ID.BED_IN_DORMITORY: return new DormitoryRoomCategory(false)
+      case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(false)
+      case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(false)
+      default: throw new Error(`Invalid roomId: "${roomId}"`)
+    }
+  }
+}
+
+export class SeasonPrice {
   static seasonList = [
     {
       type: 'winter',
@@ -111,10 +153,14 @@ class SeasonPrice {
     }
   };
 
-  static createSeasonPriceFromDate = (date) => {
-    const season = _.find(SeasonPrice.seasonList, ({ startDate, endDate }) =>
+  static getSeasonFromDate = (date) => {
+    return _.find(SeasonPrice.seasonList, ({ startDate, endDate }) =>
       date.within(moment.range(startDate, endDate))
     )
+  };
+
+  static createSeasonPriceFromDate = (date) => {
+    const season = SeasonPrice.getSeasonFromDate(date)
 
     if (!season) {
       throw new Error(`Could not find season for date: ${date.format('YYYY-MM-DD')}`)
@@ -142,9 +188,8 @@ class SeasonPrice {
   }
 }
 
-class WinterSeasonPrice extends SeasonPrice {}
-
-class SummerSeasonPrice extends SeasonPrice {
+export class WinterSeasonPrice extends SeasonPrice {}
+export class SummerSeasonPrice extends SeasonPrice {
   getRoomBaseRate(roomCategory, isSharing, nights) {
     if (!isSharing) {
       return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
@@ -152,47 +197,6 @@ class SummerSeasonPrice extends SeasonPrice {
     return super.getRoomBaseRate(roomCategory, isSharing, nights)
   }
 }
-
-class RoomCategoryFactory {
-  createRoomCategory(roomId) {
-    switch (roomId) {
-      case ROOM_ID.BEACHFRONT: return new BeachFrontRoomCategory(false)
-      case ROOM_ID.BEACHFRONT_SHARING: return new BeachFrontRoomCategory(true)
-      case ROOM_ID.OCEAN_VIEW: return new OceanViewRoomCategory(false)
-      case ROOM_ID.OCEAN_VIEW_SHARING: return new OceanViewRoomCategory(true)
-      case ROOM_ID.BEACH_HUT: return new BeachHutRoomCategory(false)
-      case ROOM_ID.BEACH_HUT_SHARING: return new BeachHutRoomCategory(true)
-      case ROOM_ID.GARDEN_BATH: return new GardenBathRoomCategory(false)
-      case ROOM_ID.GARDEN_BATH_SHARING: return new GardenBathRoomCategory(true)
-      case ROOM_ID.GARDEN_DOUBLE: return new GardenDoubleRoomCategory(false)
-      case ROOM_ID.GARDEN_DOUBLE_SHARING: return new GardenDoubleRoomCategory(true)
-      case ROOM_ID.GARDEN_SHARED: return new GardenSharedRoomCategory(false)
-      case ROOM_ID.GARDEN_SHARED_SHARING: return new GardenSharedRoomCategory(true)
-      case ROOM_ID.GARDEN_SINGLE: return new GardenSingleRoomCategory(false)
-      case ROOM_ID.BED_IN_DORMITORY: return new DormitoryRoomCategory(false)
-      case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(false)
-      case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(false)
-      default: throw new Error(`Invalid roomId: "${roomId}"`)
-    }
-  }
-}
-
-class RoomCategory {
-  constructor(isWillingToShare) {
-    this.isWillingToShare = isWillingToShare
-  }
-}
-
-class BeachFrontRoomCategory extends RoomCategory {}
-class OceanViewRoomCategory extends RoomCategory {}
-class BeachHutRoomCategory extends RoomCategory {}
-class GardenBathRoomCategory extends RoomCategory {}
-class GardenDoubleRoomCategory extends RoomCategory {}
-class GardenSharedRoomCategory extends RoomCategory {}
-class GardenSingleRoomCategory extends RoomCategory {}
-class DormitoryRoomCategory extends RoomCategory {}
-class TentHutRoomCategory extends RoomCategory {}
-class TentSpaceRoomCategory extends RoomCategory {}
 
 export class Course {
   constructor({ startDate, endDate, tuition, discount = {} }) {
@@ -311,6 +315,8 @@ export class TTCStay extends RoomStay {
 }
 
 export default class ReservationCalculator {
+  static VAT = 0.075
+
   constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount = {} }) {
     // IMPORTANT ASSUMPTION: stays are one continuous range
     ReservationCalculator.adults = adults

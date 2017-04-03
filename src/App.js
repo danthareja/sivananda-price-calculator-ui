@@ -20,10 +20,8 @@ import { START_DATE, END_DATE } from 'react-dates/constants'
 import './react-dates.css'
 
 import moment from './lib/moment'
-import { addVAT } from './data/rates'
+import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPrice } from './calculator'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
-import { isWithinSeasonRange } from './data/seasons'
-import calculator from './calculator'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
 // react-dates formats all dates as noon and consistency is good
@@ -309,7 +307,7 @@ export default class App extends Component {
                 index={i}
                 stay={stay}
                 availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
+                isOutsideRange={(date) => i === 0 ? !SeasonPrice.getSeasonFromDate(date) : date.isBefore(stays[i - 1].checkOutDate)}
                 onStayChange={this.updateStay}
               />
             )}
@@ -322,7 +320,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 course={course}
-                isOutsideRange={(date) => !isWithinSeasonRange(date)}
+                isOutsideRange={(date) => !SeasonPrice.getSeasonFromDate(date)}
                 onCourseChange={this.updateCourse}
               />
             )}
@@ -599,22 +597,30 @@ class PriceTable extends Component {
     }
   }
 
-  maybeIncludeVAT = (rates) => {
-    if (!this.state.includeVAT) {
-      return rates
+  maybeIncludeVAT = (value) => {
+    if (!this.state.includeVAT || !_.isNumber(value)) {
+      return value
     }
-    return _.cloneDeepWith(rates, value => {
-      if (moment.isMoment(value)) {
-        return value.clone()
-      }
-      if (_.isNumber(value)) {
-        return addVAT(value)
-      }
-    })
+    return value + value * ReservationCalculator.VAT
   }
 
   render() {
-    const rates = this.maybeIncludeVAT(calculator(this.props))
+    const calculator = new ReservationCalculator({
+      adults: this.props.adults,
+      children: this.props.children,
+      stays: _.map(this.props.stays, stay => new RoomStay(stay)),
+      courses: _.map(this.props.courses, course => new Course(course)),
+      grossDiscount: this.props.grossDiscount
+    })
+    const rates = {
+      dailyRoomYVP: this.maybeIncludeVAT(calculator.getDailyRoomYVPRate()),
+      room: this.maybeIncludeVAT(calculator.getTotalRoom()),
+      yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
+      course: this.maybeIncludeVAT(calculator.getTotalCourse()),
+      subtotal: this.maybeIncludeVAT(calculator.getSubtotal()),
+      discount: this.maybeIncludeVAT(calculator.getGrossDiscount()),
+      total: this.maybeIncludeVAT(calculator.getGrandTotal())
+    }
     const styles = {
       toggleContainer: {
         maxWidth: 250
