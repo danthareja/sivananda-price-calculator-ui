@@ -49,13 +49,13 @@ export class SeasonPrice {
   static seasonList = [
     {
       type: 'winter',
-      startDate: moment('2016-11-20').startOf('day').hour(12),
-      endDate: moment('2017-06-30').startOf('day').hour(12)
+      startDate: moment('2016-11-20', 'YYYY-MM-DD').startOf('day').hour(12),
+      endDate: moment('2017-06-30', 'YYYY-MM-DD').startOf('day').hour(12)
     },
     {
       type: 'summer',
-      startDate: moment('2017-07-01').startOf('day').hour(12),
-      endDate: moment('2017-10-31').startOf('day').hour(12)
+      startDate: moment('2017-07-01', 'YYYY-MM-DD').startOf('day').hour(12),
+      endDate: moment('2017-10-31', 'YYYY-MM-DD').startOf('day').hour(12)
     }
   ];
 
@@ -267,33 +267,56 @@ export class RoomStay {
     return price - this.calculateDiscount(price, discount)
   }
 
+  getRoomRate(date) {
+    var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
+    var totalNights = ReservationCalculator.checkOutDate.diff(ReservationCalculator.checkInDate, 'days')
+    var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
+    return seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, totalNights) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
+  }
+
+  getYVPRate(date) {
+    var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
+    var isDuringCourse = _.some(ReservationCalculator.courses, course => course.doesYVPApply(date))
+    return isDuringCourse ? 0 : seasonPrice.getYVPRate() * ReservationCalculator.adults;
+  }
+
   getDailyRoomYVPRate() {
-    var nights = ReservationCalculator.checkOutDate.diff(ReservationCalculator.checkInDate, 'days')
-    var dates = _.map(Array.from(moment.range(
+    var dates = Array.from(moment.range(
       this.checkInDate(),
       this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
-    ).by('days')))
+    ).by('days'))
 
-    return _.map(dates, date => {
-      var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
-      var isDuringCourse = _.some(ReservationCalculator.courses, course => course.doesYVPApply(date))
-      var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
-      var roomRate = seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, nights) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
-      var yvpRate = isDuringCourse ? 0 : seasonPrice.getYVPRate() * ReservationCalculator.adults;
-      
-      return {
-        date: date,
-        room: _.round(this.applyDiscount(roomRate, this.roomDiscount), 2),
-        yvp: _.round(this.applyDiscount(yvpRate, this.yvpDiscount), 2)
-      }
-    })
+    return _.map(dates, date => ({
+      date: date,
+      room: _.round(this.applyDiscount(this.getRoomRate(date), this.roomDiscount), 2),
+      yvp: _.round(this.applyDiscount(this.getYVPRate(date), this.yvpDiscount), 2)
+    }))
   }
 }
 
 export class TTCStay extends RoomStay {
-  getDailyRoomYVPRate() {
-    let packagePrice = 0
+  static _roomIds = [
+    ROOM_ID.TENT_SPACE,
+    ROOM_ID.TENT_HUT,
+    ROOM_ID.BED_IN_DORMITORY
+  ];
 
+  // Be sure to include free days
+  static _dates = [{
+    label: 'April 4th - May 1st',
+    checkInDate: moment('2017-04-03', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2017-05-03', 'YYYY-MM-DD').startOf('day').hour(12)
+  }];
+
+  // Combine rooms and dates together
+  static getDates = () => _.flatMap(TTCStay._roomIds, roomId =>
+    _.map(TTCStay._dates, date => {
+      return _.assign({ roomId }, date)
+    })
+  );
+
+  getDailyRoomYVPRate() {
+    let packagePrice;
     switch (this.roomCategory.constructor.name) {
       case 'TentSpaceRoomCategory':
         packagePrice = 2400
@@ -305,7 +328,6 @@ export class TTCStay extends RoomStay {
         packagePrice = 3490
         break
     }
-
     return {
       date: this.checkInDate(),
       room: packagePrice,
