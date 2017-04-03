@@ -9,8 +9,6 @@ import { ROOM_ID } from './constants'
 //   in a room that can be shared between multiple guests
 // maxOccupancy: The maximum number of guests allowed.
 
-// Also see ./rates.js to add the appropriate room rate
-
 const rooms = [
   {
     id: ROOM_ID.BEACHFRONT,

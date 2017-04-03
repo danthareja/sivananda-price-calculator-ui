@@ -1,17 +1,17 @@
 import _ from 'lodash'
 import moment from './lib/moment'
 
-import { ROOM_ID, SEASON, DISCOUNT } from './data/constants'
+import { ROOM_ID, DISCOUNT } from './data/constants'
 
 class SeasonPrice {
   static seasonList = [
     {
-      type: 'summer',
+      type: 'winter',
       startDate: moment('2016-11-20').startOf('day').hour(12),
       endDate: moment('2017-06-30').startOf('day').hour(12)
     },
     {
-      type: 'winter',
+      type: 'summer',
       startDate: moment('2017-07-01').startOf('day').hour(12),
       endDate: moment('2017-10-31').startOf('day').hour(12)
     }
@@ -125,6 +125,8 @@ class SeasonPrice {
         return new SummerSeasonPrice()
       case 'winter':
         return new WinterSeasonPrice()
+      default:
+        throw new Error(`Unexpected season type: "${season.type}"`)
     }
   };
 
@@ -258,8 +260,6 @@ export class RoomStay {
   }
 
   applyDiscount(price, discount) {
-    console.log('price', price)
-    console.log('discount', this.calculateDiscount(price, discount))
     return price - this.calculateDiscount(price, discount)
   }
 
@@ -311,18 +311,19 @@ export class TTCStay extends RoomStay {
 }
 
 export default class ReservationCalculator {
-  constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount }) {
+  constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount = {} }) {
     // IMPORTANT ASSUMPTION: stays are one continuous range
     ReservationCalculator.adults = adults
     ReservationCalculator.children = children
     ReservationCalculator.stays = stays
     ReservationCalculator.courses = courses
-    ReservationCalculator.grossDiscount = grossDiscount
     ReservationCalculator.checkInDate = _.first(stays).checkInDate()
     ReservationCalculator.checkOutDate = _.last(stays).checkOutDate()
     if (!moment.isMoment(ReservationCalculator.checkInDate) || !moment.isMoment(ReservationCalculator.checkOutDate)) {
       throw new Error('checkInDate and checkOutDate must be a moment object')
     }
+
+    this.grossDiscount = grossDiscount
   }
 
   getDailyRoomYVPRate() {
@@ -345,12 +346,19 @@ export default class ReservationCalculator {
     return this.getTotalRoom() + this.getTotalYVP() + this.getTotalCourse()
   }
 
-  getTotalDiscount() {
-    return _.round(calculateDiscount(this.getSubtotal(), ReservationCalculator.grossDiscount), 2)
+  getGrossDiscount() {
+    switch (this.grossDiscount.type) {
+      case DISCOUNT.PERCENT:
+        return this.getSubtotal() * ( this.grossDiscount.value / 100 )
+      case DISCOUNT.FIXED:
+        return this.grossDiscount.value
+      default:
+        return 0
+    }
   }
 
   getGrandTotal() {
-    return  this.getSubtotal() - this.getTotalDiscount()
+    return  this.getSubtotal() - this.getGrossDiscount()
   }
 }
 
