@@ -1,46 +1,133 @@
 import _ from 'lodash'
-
 import moment from './lib/moment'
-import { ROOM_ID, SEASON } from './data/constants'
-import { applyDiscount, calculateDiscount } from './data/rates'
 
-export class Course {
-  constructor({ startDate, endDate, tuition, discount = {} }) {
-    this._startDate = startDate
-    this._endDate = endDate
-    this.tuition = tuition
-    this.discount = discount
-  }
-
-  endDate() {
-    return this._endDate.clone()
-  }
-
-  startDate() {
-    return this._startDate.clone()
-  }
-
-  // YVP is not included duing the duration of the course and one night before
-  doesYVPApply(date) {
-    return date.within(moment.range(this.startDate().subtract(1, 'days'), this.endDate()))
-  }
-
-  calculateDiscount() {
-    if (this.discount.type === 'percent') {
-      return this.tuition * ( this.discount.value / 100 )
-    }
-    if (this.discount.type === 'fixed') {
-      return this.discount.value
-    }
-    return 0
-  }
-
-  totalCost() {
-    return _.round(this.tuition - this.calculateDiscount(), 2)
-  }
-}
+import { ROOM_ID, SEASON, DISCOUNT } from './data/constants'
 
 class SeasonPrice {
+  static seasonList = [
+    {
+      type: 'summer',
+      startDate: moment('2016-11-20').startOf('day').hour(12),
+      endDate: moment('2017-06-30').startOf('day').hour(12)
+    },
+    {
+      type: 'winter',
+      startDate: moment('2017-07-01').startOf('day').hour(12),
+      endDate: moment('2017-10-31').startOf('day').hour(12)
+    }
+  ];
+
+  static yvpRates = {
+    WinterSeasonPrice: 32,
+    SummerSeasonPrice: 20
+  };
+
+  static roomRates = {
+    BeachFrontRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [318, 296, 282, 272],
+        sharing: [159, 148, 141, 136],
+      },
+      SummerSeasonPrice: {
+        alone: [272, 256, 242, 232],
+        sharing: [136, 128, 121, 116],
+      }
+    },
+    OceanViewRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [294, 274, 260, 250],
+        sharing: [147, 137, 130, 125],
+      },
+      SummerSeasonPrice: {
+        alone: [258, 242, 228, 218],
+        sharing: [129, 121, 114, 109],
+      }
+    },
+    BeachHutRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [254, 238, 224, 216],
+        sharing: [127, 119, 112, 108],
+      },
+      SummerSeasonPrice: {
+        alone: [218, 204, 194, 186],
+        sharing: [109, 102, 97, 93],
+      }
+    },
+    GardenBathRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [276, 258, 244, 234],
+        sharing: [138, 129, 122, 117],
+      },
+      SummerSeasonPrice: {
+        alone: [242, 226, 214, 206],
+        sharing: [121, 113, 107, 103],
+      }
+    },
+    GardenDoubleRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [138, 130, 124, 118],
+        sharing: [112, 106, 101, 97],
+      },
+      SummerSeasonPrice: {
+        alone: [116, 108, 103, 99],
+        sharing: [99, 93, 88, 84],
+      }
+    },
+    GardenSharedRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [224, 212, 202, 194],
+        sharing: [112, 106, 101, 97],
+      },
+      SummerSeasonPrice: {
+        alone: [198, 186, 176, 168],
+        sharing: [99, 93, 88, 84],
+      }
+    },
+    GardenSingleRoomCategory:  {
+      WinterSeasonPrice: {
+        alone: [133, 125, 119, 113]
+      },
+      SummerSeasonPrice: {
+        alone: [116, 108, 103, 99]
+      }
+    },
+    DormitoryRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [80, 75, 71, 69]
+      },
+      SummerSeasonPrice: {
+        alone: [83, 77, 73, 70]
+      }
+    },
+    TentHutRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [82, 77, 73, 70]
+      }
+    },
+    TentSpaceRoomCategory: {
+      WinterSeasonPrice: {
+        alone: [69, 64, 61, 58]
+      }
+    }
+  };
+
+  static createSeasonPriceFromDate = (date) => {
+    const season = _.find(SeasonPrice.seasonList, ({ startDate, endDate }) =>
+      date.within(moment.range(startDate, endDate))
+    )
+
+    if (!season) {
+      throw new Error(`Could not find season for date: ${date.format('YYYY-MM-DD')}`)
+    }
+
+    switch (season.type) {
+      case 'summer':
+        return new SummerSeasonPrice()
+      case 'winter':
+        return new WinterSeasonPrice()
+    }
+  };
+
   getRoomBaseRate(roomCategory, isSharing, nights){
     if (nights <= 6) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][0] }
     if (nights <= 13) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][1] }
@@ -52,197 +139,15 @@ class SeasonPrice {
     return SeasonPrice.yvpRates[this.constructor.name]
   }
 }
+
 class WinterSeasonPrice extends SeasonPrice {}
+
 class SummerSeasonPrice extends SeasonPrice {
   getRoomBaseRate(roomCategory, isSharing, nights) {
     if (!isSharing) {
       return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
     }
     return super.getRoomBaseRate(roomCategory, isSharing, nights)
-  }
-}
-
-SeasonPrice.seasonList = [
-  {
-    constructor: WinterSeasonPrice,
-    startDate: moment('2016-11-20').startOf('day').hour(12),
-    endDate: moment('2017-06-30').startOf('day').hour(12)
-  },
-  {
-    constructor: SummerSeasonPrice,
-    startDate: moment('2017-07-01').startOf('day').hour(12),
-    endDate: moment('2017-10-31').startOf('day').hour(12)
-  }
-]
-
-SeasonPrice.yvpRates = {
-  WinterSeasonPrice: 32,
-  SummerSeasonPrice: 20
-}
-
-SeasonPrice.roomRates = {
-  BeachFrontRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [318, 296, 282, 272],
-      sharing: [159, 148, 141, 136],
-    },
-    SummerSeasonPrice: {
-      alone: [272, 256, 242, 232],
-      sharing: [136, 128, 121, 116],
-    }
-  },
-  OceanViewRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [294, 274, 260, 250],
-      sharing: [147, 137, 130, 125],
-    },
-    SummerSeasonPrice: {
-      alone: [258, 242, 228, 218],
-      sharing: [129, 121, 114, 109],
-    }
-  },
-  BeachHutRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [254, 238, 224, 216],
-      sharing: [127, 119, 112, 108],
-    },
-    SummerSeasonPrice: {
-      alone: [218, 204, 194, 186],
-      sharing: [109, 102, 97, 93],
-    }
-  },
-  GardenBathRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [276, 258, 244, 234],
-      sharing: [138, 129, 122, 117],
-    },
-    SummerSeasonPrice: {
-      alone: [242, 226, 214, 206],
-      sharing: [121, 113, 107, 103],
-    }
-  },
-  GardenDoubleRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [138, 130, 124, 118],
-      sharing: [112, 106, 101, 97],
-    },
-    SummerSeasonPrice: {
-      alone: [116, 108, 103, 99],
-      sharing: [99, 93, 88, 84],
-    }
-  },
-  GardenSharedRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [224, 212, 202, 194],
-      sharing: [112, 106, 101, 97],
-    },
-    SummerSeasonPrice: {
-      alone: [198, 186, 176, 168],
-      sharing: [99, 93, 88, 84],
-    }
-  },
-  GardenSingleRoomCategory:  {
-    WinterSeasonPrice: {
-      alone: [133, 125, 119, 113]
-    },
-    SummerSeasonPrice: {
-      alone: [116, 108, 103, 99]
-    }
-  },
-  DormitoryRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [80, 75, 71, 69]
-    },
-    SummerSeasonPrice: {
-      alone: [83, 77, 73, 70]
-    }
-  },
-  TentHutRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [82, 77, 73, 70]
-    }
-  },
-  TentSpaceRoomCategory: {
-    WinterSeasonPrice: {
-      alone: [69, 64, 61, 58]
-    }
-  }
-}
-
-SeasonPrice.getSeasonPriceByDate = (date) => {
-  if (!moment.isMoment(date)) {
-    date = moment(date)
-  }
-
-  const season = _.find(SeasonPrice.seasonList, ({ startDate, endDate }) =>
-    date.within(moment.range(startDate, endDate))
-  )
-
-  if (!season) {
-    throw new Error(`Could not find season for date: ${date.format('YYYY-MM-DD')}`)
-  }
-
-  return new season.constructor()
-}
-
-
-export class RoomStay {
-  constructor({ roomId, checkInDate, checkOutDate, roomDiscount, yvpDiscount }) {
-    this.roomId = roomId
-    this._checkInDate = checkInDate
-    this._checkOutDate = checkOutDate
-    this.roomDiscount = roomDiscount
-    this.yvpDiscount = yvpDiscount
-    this.roomCategory = new RoomCategoryFactory().createRoomCategory(roomId)
-  }
-
-  checkInDate() {
-    return this._checkInDate.clone()
-  }
-
-  checkOutDate() {
-    return this._checkOutDate.clone()
-  }
-
-  getDailyRoomYVPRate() {
-    var nights = ReservationCalculator.checkOutDate.diff(ReservationCalculator.checkInDate, 'days')
-    var dates = _.map(Array.from(moment.range(
-      this.checkInDate(),
-      this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
-    ).by('days')))
-
-    return _.map(dates, date => {
-      var seasonPrice = SeasonPrice.getSeasonPriceByDate(date)
-
-      var isDuringCourse = _.some(ReservationCalculator.courses, course => course.doesYVPApply(date))
-      var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
-      var roomRate = seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, nights) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
-      var yvpRate = isDuringCourse ? 0 : seasonPrice.getYVPRate() * ReservationCalculator.adults;
-
-      return {
-        date: date,
-        room: _.round(applyDiscount(roomRate, this.roomDiscount), 2),
-        yvp: _.round(applyDiscount(yvpRate, this.yvpDiscount), 2)
-      }
-    })
-  }
-}
-
-export class TTCStay extends RoomStay {
-  getDailyRoomYVPRate() {
-    let packagePrice = 0
-    if (this.roomCategory.constructor.name === 'TentHutRoomCategory') {
-      packagePrice = 3490
-    } else if (this.roomCategory.constructor.name === 'TentSpaceRoomCategory') {
-      packagePrice = 2400
-    } else if (this.roomCategory.constructor.name === 'DormitoryRoomCategory') {
-      packagePrice = 3255
-    }
-    return {
-      date: this.checkInDate(),
-      room: packagePrice,
-      yvp: 0
-    }
   }
 }
 
@@ -287,15 +192,132 @@ class DormitoryRoomCategory extends RoomCategory {}
 class TentHutRoomCategory extends RoomCategory {}
 class TentSpaceRoomCategory extends RoomCategory {}
 
+export class Course {
+  constructor({ startDate, endDate, tuition, discount = {} }) {
+    this._startDate = startDate
+    this._endDate = endDate
+    this.tuition = tuition
+    this.discount = discount
+  }
+
+  endDate() {
+    return this._endDate.clone()
+  }
+
+  startDate() {
+    return this._startDate.clone()
+  }
+
+  // YVP is not included duing the duration of the course and one night before
+  doesYVPApply(date) {
+    return date.within(moment.range(this.startDate().subtract(1, 'days'), this.endDate()))
+  }
+
+  calculateDiscount() {
+    if (this.discount.type === DISCOUNT.PERCENT) {
+      return this.tuition * ( this.discount.value / 100 )
+    }
+    if (this.discount.type === DISCOUNT.FIXED) {
+      return this.discount.value
+    }
+    return 0
+  }
+
+  totalCost() {
+    return _.round(this.tuition - this.calculateDiscount(), 2)
+  }
+}
+
+export class RoomStay {
+  constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {} }) {
+    this.roomId = roomId
+    this._checkInDate = checkInDate
+    this._checkOutDate = checkOutDate
+    this.roomDiscount = roomDiscount
+    this.yvpDiscount = yvpDiscount
+    this.roomCategory = new RoomCategoryFactory().createRoomCategory(roomId)
+  }
+
+  checkInDate() {
+    return this._checkInDate.clone()
+  }
+
+  checkOutDate() {
+    return this._checkOutDate.clone()
+  }
+
+  calculateDiscount(price, discount) {
+    switch (discount.type) {
+      case DISCOUNT.PERCENT:
+        return price * ( discount.value / 100 )
+      case DISCOUNT.FIXED:
+        return discount.value
+      default:
+        return 0
+    }
+  }
+
+  applyDiscount(price, discount) {
+    console.log('price', price)
+    console.log('discount', this.calculateDiscount(price, discount))
+    return price - this.calculateDiscount(price, discount)
+  }
+
+  getDailyRoomYVPRate() {
+    var nights = ReservationCalculator.checkOutDate.diff(ReservationCalculator.checkInDate, 'days')
+    var dates = _.map(Array.from(moment.range(
+      this.checkInDate(),
+      this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
+    ).by('days')))
+
+    return _.map(dates, date => {
+      var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
+      var isDuringCourse = _.some(ReservationCalculator.courses, course => course.doesYVPApply(date))
+      var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
+      var roomRate = seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, nights) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
+      var yvpRate = isDuringCourse ? 0 : seasonPrice.getYVPRate() * ReservationCalculator.adults;
+      
+      return {
+        date: date,
+        room: _.round(this.applyDiscount(roomRate, this.roomDiscount), 2),
+        yvp: _.round(this.applyDiscount(yvpRate, this.yvpDiscount), 2)
+      }
+    })
+  }
+}
+
+export class TTCStay extends RoomStay {
+  getDailyRoomYVPRate() {
+    let packagePrice = 0
+
+    switch (this.roomCategory.constructor.name) {
+      case 'TentSpaceRoomCategory':
+        packagePrice = 2400
+        break
+      case 'DormitoryRoomCategory':
+        packagePrice = 3255
+        break
+      case 'TentHutRoomCategory':
+        packagePrice = 3490
+        break
+    }
+
+    return {
+      date: this.checkInDate(),
+      room: packagePrice,
+      yvp: 0
+    }
+  }
+}
 
 export default class ReservationCalculator {
   constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount }) {
+    // IMPORTANT ASSUMPTION: stays are one continuous range
     ReservationCalculator.adults = adults
     ReservationCalculator.children = children
     ReservationCalculator.stays = stays
     ReservationCalculator.courses = courses
     ReservationCalculator.grossDiscount = grossDiscount
-    // IMPORTANT ASSUMPTION: stays are one continuous range
     ReservationCalculator.checkInDate = _.first(stays).checkInDate()
     ReservationCalculator.checkOutDate = _.last(stays).checkOutDate()
     if (!moment.isMoment(ReservationCalculator.checkInDate) || !moment.isMoment(ReservationCalculator.checkOutDate)) {
