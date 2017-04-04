@@ -308,14 +308,58 @@ export class TTCStay extends RoomStay {
 
   // Be sure to include free days
   static _dates = [{
-    label: 'April 4th - May 1st',
+    label: 'April 4 — May 1, 2017',
     checkInDate: moment('2017-04-03', 'YYYY-MM-DD').startOf('day').hour(12),
     checkOutDate: moment('2017-05-03', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'May 4 — 31, 2017',
+    checkInDate: moment('2017-05-03', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2017-06-02', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'June 3 — 30, 2017',
+    checkInDate: moment('2017-06-02', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2017-07-02', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'July 3 — 30, 2017',
+    checkInDate: moment('2017-07-02', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2017-08-01', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'November 4 — December 1, 2017',
+    checkInDate: moment('2017-11-03', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2017-12-03', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'December 4 — 31, 2017',
+    checkInDate: moment('2017-12-03', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-01-03', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'January 4 — 31, 2018',
+    checkInDate: moment('2018-01-03', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-02-02', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'February 3 — March 2, 2018',
+    checkInDate: moment('2018-02-02', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-03-04', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'March 7 — April 3, 2018',
+    checkInDate: moment('2018-03-06', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-04-05', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'May 6 — June 2, 2018',
+    checkInDate: moment('2018-05-05', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-06-04', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'June 5 — July 2, 2018',
+    checkInDate: moment('2018-06-04', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-07-04', 'YYYY-MM-DD').startOf('day').hour(12)
+  }, {
+    label: 'July 5 — August 1, 2018',
+    checkInDate: moment('2018-07-04', 'YYYY-MM-DD').startOf('day').hour(12),
+    checkOutDate: moment('2018-08-03', 'YYYY-MM-DD').startOf('day').hour(12)
   }];
 
   // Combine rooms and dates together
-  static getDates = () => _.flatMap(TTCStay._roomIds, roomId =>
-    _.map(TTCStay._dates, date => {
+  static getDates = () => _.flatMap(TTCStay._dates, date =>
+    _.map(TTCStay._roomIds, roomId => {
       return _.assign({ roomId }, date)
     })
   );
