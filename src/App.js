@@ -663,7 +663,10 @@ class PriceTable extends Component {
       grossDiscount: this.props.grossDiscount
     })
     const rates = {
-      dailyRoomYVP: this.maybeIncludeVAT(calculator.getDailyRoomYVP()),
+      dailyRoomYVP: _.mapValues(calculator.getDailyRoomYVP(), dailyRate => ({
+        room: this.maybeIncludeVAT(dailyRate.room),
+        yvp: this.maybeIncludeVAT(dailyRate.yvp),
+      })),
       room: this.maybeIncludeVAT(calculator.getTotalRoom()),
       yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
       course: this.maybeIncludeVAT(calculator.getTotalCourse()),
