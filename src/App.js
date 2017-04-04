@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
+import Menu from 'material-ui/Menu'
 import Paper from 'material-ui/Paper'
 import Toggle from 'material-ui/Toggle'
 import Popover from 'material-ui/Popover'
@@ -25,6 +26,7 @@ import { ROOM_ID, DISCOUNT } from './data/constants'
 
 // react-dates formats all dates as noon and consistency is good
 const today = moment().startOf('day').hour(12)
+const TTC_DATES = TTCStay.getDates()
 
 export default class App extends Component {
   constructor(props) {
@@ -98,8 +100,8 @@ export default class App extends Component {
     this.setState({ error, adults, children })
   }
 
-  addTTC() {
-    const stay = TTCStay.getDates()[0]
+  addTTC(index) {
+    const stay = TTC_DATES[index]
     this.setState({
       stays: _.concat(this.state.stays, {
         type: 'TTCStay',
@@ -203,6 +205,7 @@ export default class App extends Component {
       }
     }
 
+
     return (
       <div>
       <Paper>
@@ -212,12 +215,10 @@ export default class App extends Component {
         </Row>
         <Row middle="xs">
           <Col xs={2}>
-            <RaisedButton
+            <TTCStayButton
               label="Add TTC Stay"
-              onClick={this.addTTC}
-              primary={true}
-              fullWidth={true}
-            />
+              dates={TTC_DATES}
+              onSubmit={this.addTTC} />
           </Col>
           <Col xs={2}>
             <RaisedButton
@@ -481,7 +482,6 @@ class DiscountInput extends Component {
   }
 
   handleTouchTap = (event) => {
-    // This prevents ghost click.
     event.preventDefault()
 
     this.setState({
@@ -563,6 +563,69 @@ class DiscountInput extends Component {
               </Col>
             </Row>
           </Grid>
+        </Popover>
+      </div>
+    );
+  }
+}
+
+class TTCStayButton extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      dateIndex: null
+    };
+  }
+
+  handleTouchTap = (event) => {
+    event.preventDefault();
+    this.setState({
+      open: true,
+      anchorEl: event.currentTarget,
+    });
+  };
+
+  handleRequestClose = () => {
+    this.setState({
+      open: false,
+    });
+  };
+
+  handleItemTouchTap = (event, item, index) => {
+    this.props.onSubmit(index)
+    this.handleRequestClose()
+  }
+
+  render() {
+    const styles = {
+      menuItem: {
+        fontSize: '14px'
+      }
+    }
+    return (
+      <div>
+        <RaisedButton
+          onTouchTap={this.handleTouchTap}
+          label={this.props.label}
+          primary={true}
+          fullWidth={true}
+        />
+        <Popover
+          open={this.state.open}
+          anchorEl={this.state.anchorEl}
+          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+          targetOrigin={{horizontal: 'left', vertical: 'top'}}
+          onRequestClose={this.handleRequestClose}
+        >
+          <Menu onItemTouchTap={this.handleItemTouchTap}>
+            {_.map(this.props.dates, (date, index) =>
+              <MenuItem
+                key={index}
+                primaryText={`${date.label} - ${getRoomById(date.roomId).label}`}
+              />
+            )}
+          </Menu>
         </Popover>
       </div>
     );
