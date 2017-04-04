@@ -520,9 +520,9 @@ describe('stays with duplicate dates', function() {
       })]
     })
     expect(calculator.getDailyRoomYVP()).toEqual({
-      '2016-11-20': { room: 138 + 294, yvp: 32 * 2 },
-      '2016-11-21': { room: 138 + 294, yvp: 32 * 2 },
-      '2016-11-22': { room: 294, yvp: 32 }
+      '11/20/2016': { room: 138 + 294, yvp: 32 * 2 },
+      '11/21/2016': { room: 138 + 294, yvp: 32 * 2 },
+      '11/22/2016': { room: 294, yvp: 32 }
     })
     expect(calculator.getTotalRoom()).toEqual(1158)
     expect(calculator.getTotalYVP()).toEqual(160)

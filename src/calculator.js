@@ -375,7 +375,7 @@ export default class ReservationCalculator {
     // Because stays could be overlapping, we should merge room rate objects together
     return _.reduce(ReservationCalculator.stays, (obj, stay) => {
       _.each(stay.getDailyRoomYVPRate(), rate => {
-        let key = rate.date.format('YYYY-MM-DD');
+        let key = rate.date.format('MM/DD/YYYY');
 
         if (!obj[key]) { obj[key] = {}}
         if (!obj[key].room) { obj[key].room = 0 }
