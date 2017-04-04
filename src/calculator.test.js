@@ -395,6 +395,141 @@ describe('stays with room moves', function() {
   })
 })
 
+describe('stays with non-continuous room moves', function() {
+  it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_DOUBLE,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(2, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: winter.clone().add(5, 'days'),
+        checkOutDate: winter.clone().add(8, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1158)
+    expect(calculator.getTotalYVP()).toEqual(160)
+    expect(calculator.getGrandTotal()).toEqual(1318)
+  })
+
+  it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_DOUBLE,
+        checkInDate: summer.clone(),
+        checkOutDate: summer.clone().add(2, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: summer.clone().add(5, 'days'),
+        checkOutDate: summer.clone().add(8, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1006 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(100)
+    expect(calculator.getGrandTotal()).toEqual(1006 * 0.85 + 100)
+  })
+
+  it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_DOUBLE,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(4, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: winter.clone().add(15, 'days'),
+        checkOutDate: winter.clone().add(20, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1890)
+    expect(calculator.getTotalYVP()).toEqual(288)
+    expect(calculator.getGrandTotal()).toEqual(2178)
+  })
+
+  it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_DOUBLE,
+        checkInDate: summer.clone(),
+        checkOutDate: summer.clone().add(4, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: summer.clone().add(15, 'days'),
+        checkOutDate: summer.clone().add(20, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1642 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(180)
+    expect(calculator.getGrandTotal()).toEqual(1642 * 0.85 + 180)
+  })
+
+  it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_SHARED_SHARING,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(4, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: winter.clone().add(20, 'days'),
+        checkOutDate: winter.clone().add(25, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1794)
+    expect(calculator.getTotalYVP()).toEqual(288)
+    expect(calculator.getGrandTotal()).toEqual(2082)
+  })
+
+  it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_SHARED_SHARING,
+        checkInDate: summer.clone(),
+        checkOutDate: summer.clone().add(4, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: summer.clone().add(20, 'days'),
+        checkOutDate: summer.clone().add(25, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(93 * 4 + 242 * 5 * 0.85)
+    expect(calculator.getTotalYVP()).toEqual(180)
+    expect(calculator.getGrandTotal()).toEqual(93 * 4 + 242 * 5 * 0.85 + 180)
+  })
+})
+
+describe('stays with duplicate dates', function() {
+  it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.GARDEN_DOUBLE,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(2, 'days')
+      }), new RoomStay({
+        roomId: ROOM_ID.OCEAN_VIEW,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(3, 'days')
+      })]
+    })
+    expect(calculator.getDailyRoomYVP()).toEqual({
+      '2016-11-20': { room: 138 + 294, yvp: 32 * 2 },
+      '2016-11-21': { room: 138 + 294, yvp: 32 * 2 },
+      '2016-11-22': { room: 294, yvp: 32 }
+    })
+    expect(calculator.getTotalRoom()).toEqual(1158)
+    expect(calculator.getTotalYVP()).toEqual(160)
+    expect(calculator.getGrandTotal()).toEqual(1318)
+  })
+})
+
 describe('stays with discounts', function() {
   // A TTC graduate stays for 14 nights in a beach hut that they would like to share with another guest (stranger).
   // This graduate is taking Brahmaswaroop's "Dual path of yoga practice and Code writing" yoga course, which is 295 and 5 days long.

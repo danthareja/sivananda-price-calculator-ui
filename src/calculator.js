@@ -252,6 +252,17 @@ export class RoomStay {
     return this._checkOutDate.clone()
   }
 
+  getDateRange() {
+    return Array.from(moment.range(
+      this.checkInDate(),
+      this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
+    ).by('days'))
+  }
+
+  getNumberOfNights() {
+    return this._checkOutDate.diff(this._checkInDate, 'days')
+  }
+
   calculateDiscount(price, discount) {
     switch (discount.type) {
       case DISCOUNT.PERCENT:
@@ -269,9 +280,8 @@ export class RoomStay {
 
   getRoomRate(date) {
     var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
-    var totalNights = ReservationCalculator.checkOutDate.diff(ReservationCalculator.checkInDate, 'days')
     var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
-    return seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, totalNights) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
+    return seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, ReservationCalculator.getTotalNumberOfNights()) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
   }
 
   getYVPRate(date) {
@@ -281,12 +291,7 @@ export class RoomStay {
   }
 
   getDailyRoomYVPRate() {
-    var dates = Array.from(moment.range(
-      this.checkInDate(),
-      this.checkOutDate().subtract(1, 'days') // checkOutDay is not paid for
-    ).by('days'))
-
-    return _.map(dates, date => ({
+    return _.map(this.getDateRange(), date => ({
       date: date,
       room: _.round(this.applyDiscount(this.getRoomRate(date), this.roomDiscount), 2),
       yvp: _.round(this.applyDiscount(this.getYVPRate(date), this.yvpDiscount), 2)
@@ -328,25 +333,37 @@ export class TTCStay extends RoomStay {
         packagePrice = 3490
         break
     }
-    return {
+    return [{
       date: this.checkInDate(),
       room: packagePrice,
       yvp: 0
-    }
+    }]
   }
 }
 
 export default class ReservationCalculator {
-  static VAT = 0.075
+  static VAT = 0.075;
+
+  // Default "globals" (blehhhhh)
+  static adults = 0;
+  static children = 0;
+  static stays = [];
+  static courses = [];
+  static checkInDate = null;
+  static checkOutDate = null;
+
+  static getTotalNumberOfNights = () => {
+    return _.sumBy(ReservationCalculator.stays, stay => stay.getNumberOfNights())
+  };
 
   constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount = {} }) {
-    // IMPORTANT ASSUMPTION: stays are one continuous range
     ReservationCalculator.adults = adults
     ReservationCalculator.children = children
     ReservationCalculator.stays = stays
     ReservationCalculator.courses = courses
     ReservationCalculator.checkInDate = _.first(stays).checkInDate()
     ReservationCalculator.checkOutDate = _.last(stays).checkOutDate()
+
     if (!moment.isMoment(ReservationCalculator.checkInDate) || !moment.isMoment(ReservationCalculator.checkOutDate)) {
       throw new Error('checkInDate and checkOutDate must be a moment object')
     }
@@ -354,16 +371,29 @@ export default class ReservationCalculator {
     this.grossDiscount = grossDiscount
   }
 
-  getDailyRoomYVPRate() {
-    return _.flatMap(ReservationCalculator.stays, stay => stay.getDailyRoomYVPRate())
+  getDailyRoomYVP() {
+    // Because stays could be overlapping, we should merge room rate objects together
+    return _.reduce(ReservationCalculator.stays, (obj, stay) => {
+      _.each(stay.getDailyRoomYVPRate(), rate => {
+        let key = rate.date.format('YYYY-MM-DD');
+
+        if (!obj[key]) { obj[key] = {}}
+        if (!obj[key].room) { obj[key].room = 0 }
+        if (!obj[key].yvp) { obj[key].yvp = 0 }
+
+        obj[key].room += rate.room
+        obj[key].yvp += rate.yvp
+      })
+      return obj
+    }, {})
   }
 
   getTotalRoom() {
-    return _.round(_.sumBy(this.getDailyRoomYVPRate(), 'room'), 2)
+    return _.round(_.sumBy(_.values(this.getDailyRoomYVP()), 'room'), 2)
   }
 
   getTotalYVP() {
-    return _.round(_.sumBy(this.getDailyRoomYVPRate(), 'yvp'), 2)
+    return _.round(_.sumBy(_.values(this.getDailyRoomYVP()), 'yvp'), 2)
   }
 
   getTotalCourse() {
