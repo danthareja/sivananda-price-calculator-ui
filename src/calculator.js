@@ -405,8 +405,8 @@ export default class ReservationCalculator {
     ReservationCalculator.children = children
     ReservationCalculator.stays = stays
     ReservationCalculator.courses = courses
-    ReservationCalculator.checkInDate = _.first(stays).checkInDate()
-    ReservationCalculator.checkOutDate = _.last(stays).checkOutDate()
+    ReservationCalculator.checkInDate = _.size(stays) > 0 ? _.first(stays).checkInDate() : moment()
+    ReservationCalculator.checkOutDate = _.size(stays) > 0 ? _.last(stays).checkOutDate() : moment()
 
     if (!moment.isMoment(ReservationCalculator.checkInDate) || !moment.isMoment(ReservationCalculator.checkOutDate)) {
       throw new Error('checkInDate and checkOutDate must be a moment object')

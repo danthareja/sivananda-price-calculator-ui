@@ -121,7 +121,7 @@ export default class App extends Component {
   }
 
   addStay() {
-    const latestCheckOutDate = _.size(this.state.stays) > 0
+    const previousCheckOutDate = _.size(this.state.stays) > 0
       ? _.last(this.state.stays).checkOutDate
       : today
 
@@ -244,7 +244,7 @@ export default class App extends Component {
             <RaisedButton
               label="Add Course"
               onClick={this.addCourse}
-              disabled={this.state.adults + this.state.children > 1 || _.isEmpty(this.state.stays)}
+              disabled={this.state.adults + this.state.children > 1}
               primary={true}
               fullWidth={true}
             />
