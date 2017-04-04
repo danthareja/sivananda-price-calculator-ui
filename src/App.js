@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
+import Menu from 'material-ui/Menu'
 import Paper from 'material-ui/Paper'
 import Toggle from 'material-ui/Toggle'
 import Popover from 'material-ui/Popover'
@@ -16,18 +17,16 @@ import { RadioButton, RadioButtonGroup } from 'material-ui/RadioButton'
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table'
 
 import { DateRangePicker } from 'react-dates'
-import { START_DATE, END_DATE } from 'react-dates/constants'
 import './react-dates.css'
 
 import moment from './lib/moment'
-import { addVAT } from './data/rates'
+import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPrice } from './calculator'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
-import { isWithinSeasonRange } from './data/seasons'
-import calculator from './calculator'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
 // react-dates formats all dates as noon and consistency is good
 const today = moment().startOf('day').hour(12)
+const TTC_DATES = TTCStay.getDates()
 
 export default class App extends Component {
   constructor(props) {
@@ -44,6 +43,7 @@ export default class App extends Component {
         value: 0
       },
       stays: [{
+        type: 'RoomStay',
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: today.clone(),
         checkOutDate: today.clone().add(1, 'days'),
@@ -60,6 +60,8 @@ export default class App extends Component {
     }
 
     this.updateGuests = this.updateGuests.bind(this)
+
+    this.addTTC = this.addTTC.bind(this)
 
     this.addStay = this.addStay.bind(this)
     this.updateStay = this.updateStay.bind(this)
@@ -98,10 +100,34 @@ export default class App extends Component {
     this.setState({ error, adults, children })
   }
 
-  addStay() {
-    const latestCheckOutDate = _.last(this.state.stays).checkOutDate
+  addTTC(index) {
+    const stay = TTC_DATES[index]
     this.setState({
       stays: _.concat(this.state.stays, {
+        type: 'TTCStay',
+        roomId: stay.roomId,
+        checkInDate: stay.checkInDate,
+        checkOutDate: stay.checkOutDate,
+        roomDiscount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        },
+        yvpDiscount: {
+          type: DISCOUNT.PERCENT,
+          value: 0
+        }
+      })
+    })
+  }
+
+  addStay() {
+    const latestCheckOutDate = _.size(this.state.stays) > 0
+      ? _.last(this.state.stays).checkOutDate
+      : today
+
+    this.setState({
+      stays: _.concat(this.state.stays, {
+        type: 'RoomStay',
         roomId: ROOM_ID.BEACHFRONT,
         checkInDate: latestCheckOutDate.clone(),
         checkOutDate: latestCheckOutDate.clone().add(1, 'days'),
@@ -118,52 +144,12 @@ export default class App extends Component {
   }
 
   updateStay(index, diff) {
-    // Updating any stay state that does not include a change in dates
-    if (_.isNil(diff.checkInDate)) {
-      let stays = [
-        ...this.state.stays.slice(0, index),
-        _.assign({}, this.state.stays[index], diff),
-        ...this.state.stays.slice(index + 1)
-      ]
-      
-      this.setState({ stays })
-      return
-    }
-
-    // Updating a stay's dates is kind of tricky
-    // because we want to keep all the dates continuous
-    let stays = _.reduce(this.state.stays, (newStays, oldStay, i) => {
-      // Do nothing for dates before the one being updated
-      if (i < index) {
-        return newStays.concat(_.clone(oldStay))
-      }
-
-      // Update the modified stay, checking for errors
-      if (i === index) {
-        return newStays.concat({
-          roomId: oldStay.roomId,
-          checkInDate: diff.checkInDate,
-          checkOutDate: diff.checkOutDate,
-          roomDiscount: oldStay.roomDiscount,
-          yvpDiscount: oldStay.yvpDiscount,
-        })  
-      }
-
-      // Modify all future stays depending on what was updated
-      if (i > index) {
-        let oldCheckOutDate = oldStay.checkOutDate
-        let oldStayLength = oldCheckOutDate ? oldCheckOutDate.diff(oldStay.checkInDate, 'days') : 1
-        let newCheckInDate = newStays[i - 1].checkOutDate
-        return newStays.concat({
-          roomId: oldStay.roomId,
-          checkInDate: newCheckInDate ? newCheckInDate.clone() : null,
-          checkOutDate: newCheckInDate ? newCheckInDate.clone().add(oldStayLength, 'days') : null,
-          roomDiscount: oldStay.roomDiscount,
-          yvpDiscount: oldStay.yvpDiscount
-        })
-      }
-    }, [])
-
+    let stays = [
+      ...this.state.stays.slice(0, index),
+      _.assign({}, this.state.stays[index], diff),
+      ...this.state.stays.slice(index + 1)
+    ]
+    
     this.setState({ stays })
   }
 
@@ -219,6 +205,7 @@ export default class App extends Component {
       }
     }
 
+
     return (
       <div>
       <Paper>
@@ -227,19 +214,25 @@ export default class App extends Component {
           <div style={{marginTop: '14px'}}></div>
         </Row>
         <Row middle="xs">
-          <Col xs={3}>
+          <Col xs={2}>
+            <TTCStayButton
+              label="Add TTC Stay"
+              dates={TTC_DATES}
+              onSubmit={this.addTTC} />
+          </Col>
+          <Col xs={2}>
             <RaisedButton
-              label="Add Stay"
+              label="Add YVP Stay"
               onClick={this.addStay}
               primary={true}
               fullWidth={true}
             />
           </Col>
-          <Col xs={3}>
+          <Col xs={2}>
             <RaisedButton
               label="Remove Stay"
               onClick={this.removeStay}
-              disabled={_.size(this.state.stays) <= 1}
+              disabled={_.isEmpty(this.state.stays)}
               secondary={true}
               fullWidth={true}
             />
@@ -248,7 +241,7 @@ export default class App extends Component {
             <RaisedButton
               label="Add Course"
               onClick={this.addCourse}
-              disabled={this.state.adults + this.state.children > 1}
+              disabled={this.state.adults + this.state.children > 1 || _.isEmpty(this.state.stays)}
               primary={true}
               fullWidth={true}
             />
@@ -309,7 +302,7 @@ export default class App extends Component {
                 index={i}
                 stay={stay}
                 availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                isOutsideRange={(date) => i === 0 ? !isWithinSeasonRange(date) : date.isBefore(stays[i - 1].checkOutDate)}
+                isOutsideRange={(date) => !SeasonPrice.getSeasonFromDate(date)}
                 onStayChange={this.updateStay}
               />
             )}
@@ -322,7 +315,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 course={course}
-                isOutsideRange={(date) => !isWithinSeasonRange(date)}
+                isOutsideRange={(date) => !SeasonPrice.getSeasonFromDate(date)}
                 onCourseChange={this.updateCourse}
               />
             )}
@@ -368,29 +361,11 @@ class StayInput extends Component {
       }
     }
 
-    const onFocusChange = (focused) => {
-      // For the first date, let users change whatever
-      if (index === 0) {
-        return this.setState({ focused })
-      }
-
-      // For other dates, only let them change the end date
-      // Avoiding changes to the start date makes enforcing continuous easier
-      if (_.isNull(stay.checkInDate)) {
-        return this.setState({ focused })
-      }
-
-      if (focused === START_DATE || focused === END_DATE) {
-        return this.setState({ focused: END_DATE }) 
-      }
-
-      return this.setState({ focused })
-    }
-
     return (
       <Row middle="xs">
         <Col xs={3}>
           <DateRangePicker
+            disabled={stay.type==='TTCStay'}
             startDate={stay.checkInDate}
             endDate={stay.checkOutDate}
             startDatePlaceholderText="Check in"
@@ -398,11 +373,12 @@ class StayInput extends Component {
             focusedInput={this.state.focused}
             isOutsideRange={isOutsideRange}
             onDatesChange={({ startDate, endDate }) => onStayChange(index, { checkInDate: startDate, checkOutDate: endDate })}
-            onFocusChange={onFocusChange}
+            onFocusChange={focused => this.setState({ focused })}
           />
         </Col>
         <Col xs={3}>
           <SelectField
+            disabled={stay.type==='TTCStay'}
             value={stay.roomId}
             style={styles.selectField}
             floatingLabelText="Room"
@@ -415,6 +391,7 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
+            disabled={stay.type==='TTCStay'}
             buttonText="Discount Room"
             discount={stay.roomDiscount}
             onChange={roomDiscount => onStayChange(index, { roomDiscount })}
@@ -423,6 +400,7 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
+            disabled={stay.type==='TTCStay'}
             buttonText="Discount YVP"
             discount={stay.yvpDiscount}
             onChange={yvpDiscount => onStayChange(index, { yvpDiscount })}
@@ -504,7 +482,6 @@ class DiscountInput extends Component {
   }
 
   handleTouchTap = (event) => {
-    // This prevents ghost click.
     event.preventDefault()
 
     this.setState({
@@ -543,6 +520,7 @@ class DiscountInput extends Component {
     return (
       <div>
         <RaisedButton
+          disabled={this.props.disabled}
           onTouchTap={this.handleTouchTap}
           label={label}
           fullWidth={true}
@@ -591,6 +569,69 @@ class DiscountInput extends Component {
   }
 }
 
+class TTCStayButton extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      open: false,
+      dateIndex: null
+    };
+  }
+
+  handleTouchTap = (event) => {
+    event.preventDefault();
+    this.setState({
+      open: true,
+      anchorEl: event.currentTarget,
+    });
+  };
+
+  handleRequestClose = () => {
+    this.setState({
+      open: false,
+    });
+  };
+
+  handleItemTouchTap = (event, item, index) => {
+    this.props.onSubmit(index)
+    this.handleRequestClose()
+  }
+
+  render() {
+    const styles = {
+      menuItem: {
+        fontSize: '14px'
+      }
+    }
+    return (
+      <div>
+        <RaisedButton
+          onTouchTap={this.handleTouchTap}
+          label={this.props.label}
+          primary={true}
+          fullWidth={true}
+        />
+        <Popover
+          open={this.state.open}
+          anchorEl={this.state.anchorEl}
+          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+          targetOrigin={{horizontal: 'left', vertical: 'top'}}
+          onRequestClose={this.handleRequestClose}
+        >
+          <Menu menuItemStyle={styles.menuItem} onItemTouchTap={this.handleItemTouchTap}>
+            {_.map(this.props.dates, (date, index) =>
+              <MenuItem
+                key={index}
+                primaryText={`${date.label} - ${getRoomById(date.roomId).label}`}
+              />
+            )}
+          </Menu>
+        </Popover>
+      </div>
+    );
+  }
+}
+
 class PriceTable extends Component {
   constructor(props) {
     super(props)
@@ -599,22 +640,40 @@ class PriceTable extends Component {
     }
   }
 
-  maybeIncludeVAT = (rates) => {
-    if (!this.state.includeVAT) {
-      return rates
+  maybeIncludeVAT = (value) => {
+    if (!this.state.includeVAT || !_.isNumber(value)) {
+      return value
     }
-    return _.cloneDeepWith(rates, value => {
-      if (moment.isMoment(value)) {
-        return value.clone()
-      }
-      if (_.isNumber(value)) {
-        return addVAT(value)
-      }
-    })
+    return value + value * ReservationCalculator.VAT
   }
 
   render() {
-    const rates = this.maybeIncludeVAT(calculator(this.props))
+    const calculator = new ReservationCalculator({
+      adults: this.props.adults,
+      children: this.props.children,
+      stays: _.map(this.props.stays, stay => {
+        if (stay.type === 'RoomStay') {
+          return new RoomStay(stay)
+        }
+        if (stay.type === 'TTCStay') {
+          return new TTCStay(stay)
+        }
+      }),
+      courses: _.map(this.props.courses, course => new Course(course)),
+      grossDiscount: this.props.grossDiscount
+    })
+    const rates = {
+      dailyRoomYVP: _.mapValues(calculator.getDailyRoomYVP(), dailyRate => ({
+        room: this.maybeIncludeVAT(dailyRate.room),
+        yvp: this.maybeIncludeVAT(dailyRate.yvp),
+      })),
+      room: this.maybeIncludeVAT(calculator.getTotalRoom()),
+      yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
+      course: this.maybeIncludeVAT(calculator.getTotalCourse()),
+      subtotal: this.maybeIncludeVAT(calculator.getSubtotal()),
+      discount: this.maybeIncludeVAT(calculator.getGrossDiscount()),
+      total: this.maybeIncludeVAT(calculator.getGrandTotal())
+    }
     const styles = {
       toggleContainer: {
         maxWidth: 250
@@ -665,9 +724,9 @@ class PriceTable extends Component {
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false}>
-              {_.map(rates.dailyRoomYVP, (rate, i) => (
-                <TableRow key={i}>
-                  <TableRowColumn>{rate.date.format('MM/DD/YYYY')}</TableRowColumn>
+              {_.map(rates.dailyRoomYVP, (rate, date) => (
+                <TableRow key={date}>
+                  <TableRowColumn>{date}</TableRowColumn>
                   <TableRowColumn>${rate.room.toFixed(2)}</TableRowColumn>
                   <TableRowColumn>${rate.yvp.toFixed(2)}</TableRowColumn>
                 </TableRow>

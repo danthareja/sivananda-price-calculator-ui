@@ -3,26 +3,21 @@ export const DISCOUNT = {
   FIXED: 'fixed'
 }
 
-export const SEASON = {
-  WINTER: 'winter',
-  SUMMER: 'summer'
-}
-
 export const ROOM_ID = {
-  BEACHFRONT: 0,
-  BEACHFRONT_SHARING: 1,
-  OCEAN_VIEW: 2,
-  OCEAN_VIEW_SHARING: 3,
-  BEACH_HUT: 4,
-  BEACH_HUT_SHARING: 5,
-  GARDEN_BATH: 6,
-  GARDEN_BATH_SHARING: 7,
-  GARDEN_DOUBLE: 8,
-  GARDEN_SINGLE: 9,
-  GARDEN_SHARED: 10,
-  GARDEN_SHARED_SHARING: 11,
-  BED_IN_DORMITORY: 12,
-  TENT_HUT: 13,
-  TENT_SPACE: 14,
-  NULL_ROOM: 15
+  BEACHFRONT: 'beachfront',
+  BEACHFRONT_SHARING: 'beachfront_sharing',
+  OCEAN_VIEW: 'oceanview',
+  OCEAN_VIEW_SHARING: 'oceanview_sharing',
+  BEACH_HUT: 'beach_hut',
+  BEACH_HUT_SHARING: 'beach_hut_sharing',
+  GARDEN_BATH: 'garden_bath',
+  GARDEN_BATH_SHARING: 'garden_bath_sharing',
+  GARDEN_DOUBLE: 'garden_double',
+  GARDEN_SINGLE: 'garden_single',
+  GARDEN_SHARED: 'garden_shared',
+  GARDEN_SHARED_SHARING: 'garden_shared_sharing',
+  BED_IN_DORMITORY: 'bed_in_dormitory',
+  TENT_HUT: 'tent_hut',
+  TENT_SPACE: 'tent_space',
+  NULL_ROOM: 'null_room'
 }
