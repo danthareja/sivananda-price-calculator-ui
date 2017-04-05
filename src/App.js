@@ -42,20 +42,7 @@ export default class App extends Component {
         type: DISCOUNT.PERCENT,
         value: 0
       },
-      stays: [{
-        type: 'RoomStay',
-        roomId: ROOM_ID.BEACHFRONT,
-        checkInDate: today.clone(),
-        checkOutDate: today.clone().add(1, 'days'),
-        roomDiscount: {
-          type: DISCOUNT.PERCENT,
-          value: 0
-        },
-        yvpDiscount: {
-          type: DISCOUNT.PERCENT,
-          value: 0
-        }
-      }],
+      stays: [],
       courses: []
     }
 
