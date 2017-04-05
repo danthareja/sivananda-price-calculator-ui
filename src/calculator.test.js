@@ -605,17 +605,16 @@ describe('discounts', function() {
       stays: [new RoomStay({
         roomId: ROOM_ID.BEACH_HUT_SHARING,
         checkInDate: winter.clone(),
-        checkOutDate: winter.clone().add(14, 'days')
+        checkOutDate: winter.clone().add(14, 'days'),
+        roomDiscount: {type: DISCOUNT.PERCENT, value: 10},
+        yvpDiscount: {type: DISCOUNT.PERCENT, value: 10}
       })],
       courses: [new Course({
         tuition: 295,
         startDate: winter.clone(),
-        endDate: winter.clone().add(4, 'days')
-      })],
-      grossDiscount: {
-        type: DISCOUNT.PERCENT,
-        value: 10
-      }
+        endDate: winter.clone().add(4, 'days'),
+        discount: {type: DISCOUNT.PERCENT, value: 10}
+      })]
     })
     expect(calculator.getGrandTotal()).toEqual(1935.9)
   })

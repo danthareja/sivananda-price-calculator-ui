@@ -38,10 +38,6 @@ export default class App extends Component {
       },
       adults: 1,
       children: 0,
-      grossDiscount: {
-        type: DISCOUNT.PERCENT,
-        value: 0
-      },
       stays: [],
       courses: []
     }
@@ -276,14 +272,6 @@ export default class App extends Component {
               fullWidth={true}
             />
           </Col>
-          <Col xs={6}>
-            <DiscountInput
-              buttonText="Discount Subtotal"
-              discount={this.state.grossDiscount}
-              onChange={grossDiscount => this.setState({ grossDiscount })}
-              allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
-            />
-          </Col>
         </Row>
         <Row middle="xs">
           <Col xs={12}>
@@ -319,7 +307,6 @@ export default class App extends Component {
         children={this.state.children}
         stays={this.state.stays}
         courses={this.state.courses}
-        grossDiscount={this.state.grossDiscount}
       />
       <Snackbar
         open={this.state.error.show}
@@ -650,7 +637,6 @@ class PriceTable extends Component {
         }
       }),
       courses: _.map(this.props.courses, course => new Course(course)),
-      grossDiscount: this.props.grossDiscount
     })
     const rates = {
       dailyRoomYVP: _.mapValues(calculator.getDailyRoomYVP(), dailyRate => ({
@@ -660,8 +646,6 @@ class PriceTable extends Component {
       room: this.maybeIncludeVAT(calculator.getTotalRoom()),
       yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
       course: this.maybeIncludeVAT(calculator.getTotalCourse()),
-      subtotal: this.maybeIncludeVAT(calculator.getSubtotal()),
-      discount: this.maybeIncludeVAT(calculator.getGrossDiscount()),
       total: this.maybeIncludeVAT(calculator.getGrandTotal())
     }
     const styles = {
@@ -696,8 +680,6 @@ class PriceTable extends Component {
                   <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
                   <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
                   <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
-                  <div style={styles.rate}>Subtotal: ${rates.subtotal.toFixed(2)}</div>
-                  <div style={styles.rate}><i>Discount: -${rates.discount.toFixed(2)}</i></div>
                   <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
                 </div>
               </Col>
