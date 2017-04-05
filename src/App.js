@@ -20,8 +20,7 @@ import { DateRangePicker } from 'react-dates'
 import './react-dates.css'
 
 import moment, { createMoment } from './lib/moment'
-import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPriceFactory } from './calculator'
-import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
+import ReservationCalculator, { Course, RoomStay, TTCStay, RoomCategoryFactory, SeasonPriceFactory } from './calculator'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
 const TTC_DATES = TTCStay.getDates()
@@ -58,7 +57,7 @@ export default class App extends Component {
     let totalGuests = adults + children
     
     let invalidRooms = _(this.state.stays)
-      .map(stay => getRoomById(stay.roomId))
+      .map(stay => RoomCategoryFactory.getRoomById(stay.roomId))
       .filter(room => totalGuests > room.maxOccupancy)
       .map(_.property('label'))
       .uniq()
@@ -278,7 +277,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 stay={stay}
-                availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
+                availableRooms={RoomCategoryFactory.filterRoomsByOccupancy(this.state.adults + this.state.children)}
                 isOutsideRange={(date) => !SeasonPriceFactory.getSeasonFromDate(date)}
                 onStayChange={this.updateStay}
               />
@@ -601,7 +600,7 @@ class TTCStayButton extends Component {
             {_.map(this.props.dates, (date, index) =>
               <MenuItem
                 key={index}
-                primaryText={`${date.label} - ${getRoomById(date.roomId).label}`}
+                primaryText={`${date.label} - ${RoomCategoryFactory.getRoomById(date.roomId).label}`}
               />
             )}
           </Menu>

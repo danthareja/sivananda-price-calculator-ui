@@ -23,6 +23,106 @@ class TentHutRoomCategory extends RoomCategory {}
 class TentSpaceRoomCategory extends RoomCategory {}
 
 export class RoomCategoryFactory {
+  static rooms = [
+    {
+      id: ROOM_ID.BEACHFRONT,
+      label: 'Beachfront Deluxe Suite (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.BEACHFRONT_SHARING,
+      label: 'Beachfront Deluxe Suite (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.OCEAN_VIEW,
+      label: 'Ocean View Deluxe (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.OCEAN_VIEW_SHARING,
+      label: 'Ocean View Deluxe (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.BEACH_HUT,
+      label: 'Beach Hut (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.BEACH_HUT_SHARING,
+      label: 'Beach Hut (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.GARDEN_BATH,
+      label: 'Garden Room with Bath (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.GARDEN_BATH_SHARING,
+      label: 'Garden Room with Bath (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.GARDEN_DOUBLE,
+      label: 'Garden Room Double Bed (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.GARDEN_DOUBLE_SHARING,
+      label: 'Garden Room Double Bed (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.GARDEN_SINGLE,
+      label: 'Garden Room Single',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.GARDEN_SHARED,
+      label: 'Garden Room Shared (whole)',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.GARDEN_SHARED_SHARING,
+      label: 'Garden Room Shared (sharing)',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.DORMITORY,
+      label: 'Dormitory',
+      maxOccupancy: 4
+    },
+    {
+      id: ROOM_ID.TENT_HUT,
+      label: 'Tent Hut',
+      maxOccupancy: 2
+    },
+    {
+      id: ROOM_ID.TENT_SPACE,
+      label: 'Tent Space',
+      maxOccupancy: 1
+    },
+    {
+      id: ROOM_ID.NULL_ROOM,
+      label: 'No Room (only yvp)',
+      maxOccupancy: 4
+    }
+  ];
+
+  static getRoomById = (id) => {
+    const room =  _.find(RoomCategoryFactory.rooms, _.matchesProperty('id', id))
+    if (!room) {
+      throw new Error(`Could not find a room with id: ${id}`)
+    }
+    return room
+  };
+
+  static filterRoomsByOccupancy = (occupancy) => {
+    return _.filter(RoomCategoryFactory.rooms, room => occupancy <= room.maxOccupancy)
+  };
+
   static createRoomCategory = (roomId) => {
     switch (roomId) {
       case ROOM_ID.BEACHFRONT: return new BeachFrontRoomCategory(ROOM_ID.BEACHFRONT, false)
@@ -43,7 +143,7 @@ export class RoomCategoryFactory {
       case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(ROOM_ID.TENT_SPACE, false)
       default: throw new Error(`Invalid roomId: "${roomId}"`)
     }
-  }
+  };
 }
 
 
