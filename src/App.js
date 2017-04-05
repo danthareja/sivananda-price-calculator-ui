@@ -19,13 +19,11 @@ import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowCol
 import { DateRangePicker } from 'react-dates'
 import './react-dates.css'
 
-import moment from './lib/moment'
+import moment, { createMoment } from './lib/moment'
 import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPriceFactory } from './calculator'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
-// react-dates formats all dates as noon and consistency is good
-const today = moment().startOf('day').hour(12)
 const TTC_DATES = TTCStay.getDates()
 
 export default class App extends Component {
@@ -107,7 +105,7 @@ export default class App extends Component {
   addStay() {
     const previousCheckOutDate = _.size(this.state.stays) > 0
       ? _.last(this.state.stays).checkOutDate
-      : today
+      : createMoment()
 
     this.setState({
       stays: _.concat(this.state.stays, {

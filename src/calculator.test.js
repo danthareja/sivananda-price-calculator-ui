@@ -1,8 +1,6 @@
-import moment from './lib/moment'
+import { createMoment } from './lib/moment'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 import ReservationCalculator, { Course, RoomStay, TTCStay } from './calculator'
-
-const createMoment = (date) => moment(date, 'YYYY-MM-DD').startOf('day').hour(12)
 
 const winter = createMoment('2016-11-20')
 const summer = createMoment('2017-07-01')
