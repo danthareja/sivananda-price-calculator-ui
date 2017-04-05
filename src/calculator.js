@@ -143,7 +143,8 @@ export class SeasonPrice {
     },
     TentHutRoomCategory: {
       WinterSeasonPrice: {
-        alone: [82, 77, 73, 70]
+        alone: [82, 77, 73, 70],
+        sharing: [82, 77, 73, 70]
       }
     },
     TentSpaceRoomCategory: {

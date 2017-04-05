@@ -83,7 +83,7 @@ const rooms = [
   {
     id: ROOM_ID.TENT_HUT,
     label: 'Tent Hut',
-    maxOccupancy: 1
+    maxOccupancy: 2
   },
   {
     id: ROOM_ID.TENT_SPACE,

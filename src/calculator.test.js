@@ -150,20 +150,6 @@ describe('stays with multiple people', function() {
     expect(calculator.getGrandTotal()).toEqual(1560)
   })
 
-  it('one adult staying 5 nights in a beachfront deluxe during the summer', function() {
-    const calculator = new ReservationCalculator({
-      adults: 1,
-      stays: [new RoomStay({
-        roomId: ROOM_ID.BEACHFRONT,
-        checkInDate: summer.clone(),
-        checkOutDate: summer.clone().add(5, 'days')
-      })]
-    })
-    expect(calculator.getTotalRoom()).toEqual(1156)
-    expect(calculator.getTotalYVP()).toEqual(100)
-    expect(calculator.getGrandTotal()).toEqual(1156 + 100)
-  })
-
   it('a couple staying 15 nights in a garden room double bed during the winter', function() {
     const calculator = new ReservationCalculator({
       adults: 2,
@@ -190,6 +176,34 @@ describe('stays with multiple people', function() {
     expect(calculator.getTotalRoom()).toEqual(2640)
     expect(calculator.getTotalYVP()).toEqual(600)
     expect(calculator.getGrandTotal()).toEqual(3240)
+  })
+
+  it('two friends staying 5 nights in a beachfront deluxe during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 2,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.BEACHFRONT,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(5, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(1590)
+    expect(calculator.getTotalYVP()).toEqual(320)
+    expect(calculator.getGrandTotal()).toEqual(1910)
+  })
+
+  it('two adults staying 5 nights in a tent hut double during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 2,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.TENT_HUT,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(5, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(820)
+    expect(calculator.getTotalYVP()).toEqual(320)
+    expect(calculator.getGrandTotal()).toEqual(1140)
   })
 })
 
