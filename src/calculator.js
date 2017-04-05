@@ -400,7 +400,7 @@ export default class ReservationCalculator {
     return _.sumBy(ReservationCalculator.stays, stay => stay.getNumberOfNights())
   };
 
-  constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount = {} }) {
+  constructor({ adults = 0, children = 0, stays = [], courses = [],  }) {
     ReservationCalculator.adults = adults
     ReservationCalculator.children = children
     ReservationCalculator.stays = stays
@@ -411,8 +411,6 @@ export default class ReservationCalculator {
     if (!moment.isMoment(ReservationCalculator.checkInDate) || !moment.isMoment(ReservationCalculator.checkOutDate)) {
       throw new Error('checkInDate and checkOutDate must be a moment object')
     }
-
-    this.grossDiscount = grossDiscount
   }
 
   getDailyRoomYVP() {
@@ -448,19 +446,8 @@ export default class ReservationCalculator {
     return this.getTotalRoom() + this.getTotalYVP() + this.getTotalCourse()
   }
 
-  getGrossDiscount() {
-    switch (this.grossDiscount.type) {
-      case DISCOUNT.PERCENT:
-        return this.getSubtotal() * ( this.grossDiscount.value / 100 )
-      case DISCOUNT.FIXED:
-        return this.grossDiscount.value
-      default:
-        return 0
-    }
-  }
-
   getGrandTotal() {
-    return  this.getSubtotal() - this.getGrossDiscount()
+    return  this.getSubtotal()
   }
 }
 
