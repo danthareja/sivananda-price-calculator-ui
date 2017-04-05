@@ -75,13 +75,14 @@ export default class App extends Component {
       error.show = true
       adults = this.state.adults
       children = this.state.children
-    }
-
-    if (!_.isEmpty(this.state.courses)) {
+    } else if (!_.isEmpty(this.state.courses)) {
       error.message = 'Courses can only be added for a reservation with one guest. Please remove the courses before increasing guest count.'
       error.show = true
       adults = this.state.adults
       children = this.state.children
+    } else if (adults === 1 && children === 1) {
+      error.message = 'No consistent pricing strategy for 1 adult and 1 child. Please calculate this one manually.'
+      error.show = true
     }
 
     this.setState({ error, adults, children })
@@ -323,7 +324,6 @@ export default class App extends Component {
       <Snackbar
         open={this.state.error.show}
         message={this.state.error.message}
-        autoHideDuration={4000}
         onRequestClose={() => { this.setState({ error: { message: '', show: false } }) } }
         style={styles.snackbar.container}
         bodyStyle={styles.snackbar.body}
