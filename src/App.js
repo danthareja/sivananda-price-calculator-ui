@@ -595,7 +595,11 @@ class TTCStayButton extends Component {
           targetOrigin={{horizontal: 'left', vertical: 'top'}}
           onRequestClose={this.handleRequestClose}
         >
-          <Menu menuItemStyle={styles.menuItem} onItemTouchTap={this.handleItemTouchTap}>
+          <Menu
+            maxHeight="250px"
+            menuItemStyle={styles.menuItem}
+            onItemTouchTap={this.handleItemTouchTap}
+          >
             {_.map(this.props.dates, (date, index) =>
               <MenuItem
                 key={index}
