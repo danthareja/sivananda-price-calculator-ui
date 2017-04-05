@@ -531,6 +531,30 @@ describe('stays with duplicate dates', function() {
 })
 
 describe('stays with discounts', function() {
+  // A TTC graduate stays for 14 nights in a beach hut that they would like to share with another guest (stranger).
+  // This graduate is taking Brahmaswaroop's "Dual path of yoga practice and Code writing" yoga course, which is 295 and 5 days long.
+  // What will their folio balance be?!
+  // Note: TTC graduates get 10% off gross.
+  it('A TTC graduate staying 14 nights sharing a beach hut taking a 4 day course for $295 during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.BEACH_HUT_SHARING,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(14, 'days'),
+        roomDiscount: {type: DISCOUNT.PERCENT, value: 10},
+        yvpDiscount: {type: DISCOUNT.PERCENT, value: 10}
+      })],
+      courses: [new Course({
+        tuition: 295,
+        startDate: winter.clone(),
+        endDate: winter.clone().add(4, 'days'),
+        discount: {type: DISCOUNT.PERCENT, value: 10}
+      })]
+    })
+    expect(calculator.getGrandTotal()).toEqual(1935.9)
+  })
+
   // A burnt out Wall Street worker has decided to vacay on "da islands".
   // She chooses to stay in a beachfront deluxe room for 10 nights,
   // but also signs up for two courses and pays in full upon arrival.
