@@ -481,14 +481,14 @@ export class TTCStay extends RoomStay {
 
   getDailyRoomYVPRate() {
     let packagePrice;
-    switch (this.roomCategory.constructor.name) {
-      case 'TentSpaceRoomCategory':
+    switch (this.roomCategory.id) {
+      case ROOM_ID.TENT_SPACE:
         packagePrice = 2400
         break
-      case 'DormitoryRoomCategory':
+      case ROOM_ID.DORMITORY:
         packagePrice = 3255
         break
-      case 'TentHutRoomCategory':
+      case ROOM_ID.TENT_HUT:
         packagePrice = 3490
         break
     }
