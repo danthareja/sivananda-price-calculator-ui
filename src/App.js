@@ -189,7 +189,6 @@ export default class App extends Component {
       }
     }
 
-
     return (
       <div>
       <Paper>
@@ -593,7 +592,7 @@ class TTCStayButton extends Component {
           onRequestClose={this.handleRequestClose}
         >
           <Menu
-            maxHeight="250px"
+            maxHeight={250}
             menuItemStyle={styles.menuItem}
             onItemTouchTap={this.handleItemTouchTap}
           >
