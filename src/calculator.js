@@ -262,7 +262,7 @@ export class RoomStay {
     ).by('days'))
   }
 
-  getNumberOfNights() {
+  getNightsCountingTowardsTotal() {
     return this._checkOutDate.diff(this._checkInDate, 'days')
   }
 
@@ -367,6 +367,12 @@ export class TTCStay extends RoomStay {
     })
   );
 
+  // A TTC stay will not count towards the price code
+  // of other room stay rates
+  getNightsCountingTowardsTotal() {
+    return 0
+  }
+
   getDailyRoomYVPRate() {
     let packagePrice;
     switch (this.roomCategory.constructor.name) {
@@ -400,7 +406,7 @@ export default class ReservationCalculator {
   static checkOutDate = null;
 
   static getTotalNumberOfNights = () => {
-    return _.sumBy(ReservationCalculator.stays, stay => stay.getNumberOfNights())
+    return _.sumBy(ReservationCalculator.stays, stay => stay.getNightsCountingTowardsTotal())
   };
 
   constructor({ adults = 0, children = 0, stays = [], courses = [], grossDiscount = {} }) {
