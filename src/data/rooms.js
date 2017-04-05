@@ -76,9 +76,9 @@ const rooms = [
     maxOccupancy: 1
   },
   {
-    id: ROOM_ID.BED_IN_DORMITORY,
-    label: 'Bed in Dormitory',
-    maxOccupancy: 1
+    id: ROOM_ID.DORMITORY,
+    label: 'Dormitory',
+    maxOccupancy: 4
   },
   {
     id: ROOM_ID.TENT_HUT,

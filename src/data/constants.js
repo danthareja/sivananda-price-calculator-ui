@@ -16,7 +16,7 @@ export const ROOM_ID = {
   GARDEN_SINGLE: 'garden_single',
   GARDEN_SHARED: 'garden_shared',
   GARDEN_SHARED_SHARING: 'garden_shared_sharing',
-  BED_IN_DORMITORY: 'bed_in_dormitory',
+  DORMITORY: 'dormitory',
   TENT_HUT: 'tent_hut',
   TENT_SPACE: 'tent_space',
   NULL_ROOM: 'null_room'

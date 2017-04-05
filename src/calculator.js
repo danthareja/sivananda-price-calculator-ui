@@ -37,7 +37,7 @@ class RoomCategoryFactory {
       case ROOM_ID.GARDEN_SHARED: return new GardenSharedRoomCategory(false)
       case ROOM_ID.GARDEN_SHARED_SHARING: return new GardenSharedRoomCategory(true)
       case ROOM_ID.GARDEN_SINGLE: return new GardenSingleRoomCategory(false)
-      case ROOM_ID.BED_IN_DORMITORY: return new DormitoryRoomCategory(false)
+      case ROOM_ID.DORMITORY: return new DormitoryRoomCategory(false)
       case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(false)
       case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(false)
       default: throw new Error(`Invalid roomId: "${roomId}"`)
@@ -135,10 +135,12 @@ export class SeasonPrice {
     },
     DormitoryRoomCategory: {
       WinterSeasonPrice: {
-        alone: [80, 75, 71, 69]
+        alone: [80, 75, 71, 69],
+        sharing: [80, 75, 71, 69]
       },
       SummerSeasonPrice: {
-        alone: [83, 77, 73, 70]
+        alone: [83, 77, 73, 70],
+        sharing: [83, 77, 73, 70]
       }
     },
     TentHutRoomCategory: {
@@ -304,7 +306,7 @@ export class TTCStay extends RoomStay {
   static _roomIds = [
     ROOM_ID.TENT_SPACE,
     ROOM_ID.TENT_HUT,
-    ROOM_ID.BED_IN_DORMITORY
+    ROOM_ID.DORMITORY
   ];
 
   // Be sure to include free days
