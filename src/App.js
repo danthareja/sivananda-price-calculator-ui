@@ -20,7 +20,7 @@ import { DateRangePicker } from 'react-dates'
 import './react-dates.css'
 
 import moment from './lib/moment'
-import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPrice } from './calculator'
+import ReservationCalculator, { Course, RoomStay, TTCStay, SeasonPriceFactory } from './calculator'
 import { getRoomById, filterRoomsByOccupancy } from './data/rooms'
 import { ROOM_ID, DISCOUNT } from './data/constants'
 
@@ -281,7 +281,7 @@ export default class App extends Component {
                 index={i}
                 stay={stay}
                 availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                isOutsideRange={(date) => !SeasonPrice.getSeasonFromDate(date)}
+                isOutsideRange={(date) => !SeasonPriceFactory.getSeasonFromDate(date)}
                 onStayChange={this.updateStay}
               />
             )}
@@ -294,7 +294,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 course={course}
-                isOutsideRange={(date) => !SeasonPrice.getSeasonFromDate(date)}
+                isOutsideRange={(date) => !SeasonPriceFactory.getSeasonFromDate(date)}
                 onCourseChange={this.updateCourse}
               />
             )}

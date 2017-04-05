@@ -3,6 +3,11 @@ export const DISCOUNT = {
   FIXED: 'fixed'
 }
 
+export const SEASON = {
+  WINTER: 'winter',
+  SUMMER: 'summer'
+}
+
 export const ROOM_ID = {
   BEACHFRONT: 'beachfront',
   BEACHFRONT_SHARING: 'beachfront_sharing',

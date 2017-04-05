@@ -2,10 +2,11 @@
 import _ from 'lodash'
 import moment from './lib/moment'
 
-import { ROOM_ID, DISCOUNT } from './data/constants'
+import { ROOM_ID, SEASON, DISCOUNT } from './data/constants'
 
 class RoomCategory {
-  constructor(isWillingToShare) {
+  constructor(id, isWillingToShare) {
+    this.id = id
     this.isWillingToShare = isWillingToShare
   }
 }
@@ -21,183 +22,188 @@ class DormitoryRoomCategory extends RoomCategory {}
 class TentHutRoomCategory extends RoomCategory {}
 class TentSpaceRoomCategory extends RoomCategory {}
 
-class RoomCategoryFactory {
-  createRoomCategory(roomId) {
+export class RoomCategoryFactory {
+  static createRoomCategory = (roomId) => {
     switch (roomId) {
-      case ROOM_ID.BEACHFRONT: return new BeachFrontRoomCategory(false)
-      case ROOM_ID.BEACHFRONT_SHARING: return new BeachFrontRoomCategory(true)
-      case ROOM_ID.OCEAN_VIEW: return new OceanViewRoomCategory(false)
-      case ROOM_ID.OCEAN_VIEW_SHARING: return new OceanViewRoomCategory(true)
-      case ROOM_ID.BEACH_HUT: return new BeachHutRoomCategory(false)
-      case ROOM_ID.BEACH_HUT_SHARING: return new BeachHutRoomCategory(true)
-      case ROOM_ID.GARDEN_BATH: return new GardenBathRoomCategory(false)
-      case ROOM_ID.GARDEN_BATH_SHARING: return new GardenBathRoomCategory(true)
-      case ROOM_ID.GARDEN_DOUBLE: return new GardenDoubleRoomCategory(false)
-      case ROOM_ID.GARDEN_DOUBLE_SHARING: return new GardenDoubleRoomCategory(true)
-      case ROOM_ID.GARDEN_SHARED: return new GardenSharedRoomCategory(false)
-      case ROOM_ID.GARDEN_SHARED_SHARING: return new GardenSharedRoomCategory(true)
-      case ROOM_ID.GARDEN_SINGLE: return new GardenSingleRoomCategory(false)
-      case ROOM_ID.DORMITORY: return new DormitoryRoomCategory(false)
-      case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(false)
-      case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(false)
+      case ROOM_ID.BEACHFRONT: return new BeachFrontRoomCategory(ROOM_ID.BEACHFRONT, false)
+      case ROOM_ID.BEACHFRONT_SHARING: return new BeachFrontRoomCategory(ROOM_ID.BEACHFRONT, true)
+      case ROOM_ID.OCEAN_VIEW: return new OceanViewRoomCategory(ROOM_ID.OCEAN_VIEW, false)
+      case ROOM_ID.OCEAN_VIEW_SHARING: return new OceanViewRoomCategory(ROOM_ID.OCEAN_VIEW, true)
+      case ROOM_ID.BEACH_HUT: return new BeachHutRoomCategory(ROOM_ID.BEACH_HUT, false)
+      case ROOM_ID.BEACH_HUT_SHARING: return new BeachHutRoomCategory(ROOM_ID.BEACH_HUT, true)
+      case ROOM_ID.GARDEN_BATH: return new GardenBathRoomCategory(ROOM_ID.GARDEN_BATH, false)
+      case ROOM_ID.GARDEN_BATH_SHARING: return new GardenBathRoomCategory(ROOM_ID.GARDEN_BATH, true)
+      case ROOM_ID.GARDEN_DOUBLE: return new GardenDoubleRoomCategory(ROOM_ID.GARDEN_DOUBLE, false)
+      case ROOM_ID.GARDEN_DOUBLE_SHARING: return new GardenDoubleRoomCategory(ROOM_ID.GARDEN_DOUBLE, true)
+      case ROOM_ID.GARDEN_SHARED: return new GardenSharedRoomCategory(ROOM_ID.GARDEN_SHARED, false)
+      case ROOM_ID.GARDEN_SHARED_SHARING: return new GardenSharedRoomCategory(ROOM_ID.GARDEN_SHARED, true)
+      case ROOM_ID.GARDEN_SINGLE: return new GardenSingleRoomCategory(ROOM_ID.GARDEN_SINGLE, false)
+      case ROOM_ID.DORMITORY: return new DormitoryRoomCategory(ROOM_ID.DORMITORY, false)
+      case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(ROOM_ID.TENT_HUT, false)
+      case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(ROOM_ID.TENT_SPACE, false)
       default: throw new Error(`Invalid roomId: "${roomId}"`)
     }
   }
 }
 
-export class SeasonPrice {
-  static seasonList = [
-    {
-      type: 'winter',
-      startDate: moment('2016-11-20', 'YYYY-MM-DD').startOf('day').hour(12),
-      endDate: moment('2017-06-30', 'YYYY-MM-DD').startOf('day').hour(12)
-    },
-    {
-      type: 'summer',
-      startDate: moment('2017-07-01', 'YYYY-MM-DD').startOf('day').hour(12),
-      endDate: moment('2017-10-31', 'YYYY-MM-DD').startOf('day').hour(12)
-    }
-  ];
+
+class SeasonPrice {
+  constructor(type) {
+    this.type = type
+  }
 
   static yvpRates = {
-    WinterSeasonPrice: 32,
-    SummerSeasonPrice: 20
+    [SEASON.WINTER]: 32,
+    [SEASON.SUMMER]: 20
   };
 
   static roomRates = {
-    BeachFrontRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.BEACHFRONT]: {
+      [SEASON.WINTER]: {
         alone: [318, 296, 282, 272],
         sharing: [159, 148, 141, 136],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [272, 256, 242, 232],
         sharing: [136, 128, 121, 116],
       }
     },
-    OceanViewRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.OCEAN_VIEW]: {
+      [SEASON.WINTER]: {
         alone: [294, 274, 260, 250],
         sharing: [147, 137, 130, 125],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [258, 242, 228, 218],
         sharing: [129, 121, 114, 109],
       }
     },
-    BeachHutRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.BEACH_HUT]: {
+      [SEASON.WINTER]: {
         alone: [254, 238, 224, 216],
         sharing: [127, 119, 112, 108],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [218, 204, 194, 186],
         sharing: [109, 102, 97, 93],
       }
     },
-    GardenBathRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.GARDEN_BATH]: {
+      [SEASON.WINTER]: {
         alone: [276, 258, 244, 234],
         sharing: [138, 129, 122, 117],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [242, 226, 214, 206],
         sharing: [121, 113, 107, 103],
       }
     },
-    GardenDoubleRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.GARDEN_DOUBLE]: {
+      [SEASON.WINTER]: {
         alone: [138, 130, 124, 118],
         sharing: [112, 106, 101, 97],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [116, 108, 103, 99],
         sharing: [99, 93, 88, 84],
       }
     },
-    GardenSharedRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.GARDEN_SHARED]: {
+      [SEASON.WINTER]: {
         alone: [224, 212, 202, 194],
         sharing: [112, 106, 101, 97],
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [198, 186, 176, 168],
         sharing: [99, 93, 88, 84],
       }
     },
-    GardenSingleRoomCategory:  {
-      WinterSeasonPrice: {
+    [ROOM_ID.GARDEN_SINGLE]:  {
+      [SEASON.WINTER]: {
         alone: [133, 125, 119, 113]
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [116, 108, 103, 99]
       }
     },
-    DormitoryRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.DORMITORY]: {
+      [SEASON.WINTER]: {
         alone: [80, 75, 71, 69],
         sharing: [80, 75, 71, 69]
       },
-      SummerSeasonPrice: {
+      [SEASON.SUMMER]: {
         alone: [83, 77, 73, 70],
         sharing: [83, 77, 73, 70]
       }
     },
-    TentHutRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.TENT_HUT]: {
+      [SEASON.WINTER]: {
         alone: [82, 77, 73, 70],
         sharing: [82, 77, 73, 70]
       }
     },
-    TentSpaceRoomCategory: {
-      WinterSeasonPrice: {
+    [ROOM_ID.TENT_SPACE]: {
+      [SEASON.WINTER]: {
         alone: [69, 64, 61, 58]
       }
     }
   };
 
+  getRoomBaseRate(roomCategory, isSharing, nights){
+    if (nights <= 6) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][0] }
+    if (nights <= 13) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][1] }
+    if (nights <= 20) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][2] }
+    if (nights >= 21) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][3] }
+  }
+
+  getYVPRate(date){
+    return SeasonPrice.yvpRates[this.type]
+  }
+}
+
+class WinterSeasonPrice extends SeasonPrice {}
+class SummerSeasonPrice extends SeasonPrice {
+  getRoomBaseRate(roomCategory, isSharing, nights) {
+    if (!isSharing) {
+      return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
+    }
+    return super.getRoomBaseRate(roomCategory, isSharing, nights)
+  }
+}
+
+export class SeasonPriceFactory {
+  static seasons = [
+    {
+      type: SEASON.WINTER,
+      startDate: moment('2016-11-20', 'YYYY-MM-DD').startOf('day').hour(12),
+      endDate: moment('2017-06-30', 'YYYY-MM-DD').startOf('day').hour(12)
+    },
+    {
+      type: SEASON.SUMMER,
+      startDate: moment('2017-07-01', 'YYYY-MM-DD').startOf('day').hour(12),
+      endDate: moment('2017-10-31', 'YYYY-MM-DD').startOf('day').hour(12)
+    }
+  ];
+
   static getSeasonFromDate = (date) => {
-    return _.find(SeasonPrice.seasonList, ({ startDate, endDate }) =>
+    return _.find(SeasonPriceFactory.seasons, ({ startDate, endDate }) =>
       date.within(moment.range(startDate, endDate))
     )
   };
 
-  static createSeasonPriceFromDate = (date) => {
-    const season = SeasonPrice.getSeasonFromDate(date)
+  static createSeasonPrice = (date) => {
+    const season = SeasonPriceFactory.getSeasonFromDate(date)
 
     if (!season) {
       throw new Error(`Could not find season for date: ${date.format('YYYY-MM-DD')}`)
     }
 
     switch (season.type) {
-      case 'summer':
-        return new SummerSeasonPrice()
-      case 'winter':
-        return new WinterSeasonPrice()
+      case SEASON.WINTER: return new WinterSeasonPrice(SEASON.WINTER)
+      case SEASON.SUMMER:  return new SummerSeasonPrice(SEASON.SUMMER)
       default:
         throw new Error(`Unexpected season type: "${season.type}"`)
     }
-  };
-
-  getRoomBaseRate(roomCategory, isSharing, nights){
-    if (nights <= 6) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][0] }
-    if (nights <= 13) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][1] }
-    if (nights <= 20) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][2] }
-    if (nights >= 21) { return SeasonPrice.roomRates[roomCategory.constructor.name][this.constructor.name][isSharing ? 'sharing' : 'alone'][3] }
-  }
-
-  getYVPRate(date){
-    return SeasonPrice.yvpRates[this.constructor.name]
-  }
-}
-
-export class WinterSeasonPrice extends SeasonPrice {}
-export class SummerSeasonPrice extends SeasonPrice {
-  getRoomBaseRate(roomCategory, isSharing, nights) {
-    if (!isSharing) {
-      return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
-    }
-    return super.getRoomBaseRate(roomCategory, isSharing, nights)
   }
 }
 
@@ -244,7 +250,7 @@ export class RoomStay {
     this._checkOutDate = checkOutDate
     this.roomDiscount = roomDiscount
     this.yvpDiscount = yvpDiscount
-    this.roomCategory = new RoomCategoryFactory().createRoomCategory(roomId)
+    this.roomCategory = RoomCategoryFactory.createRoomCategory(roomId)
   }
 
   checkInDate() {
@@ -282,13 +288,13 @@ export class RoomStay {
   }
 
   getRoomRate(date) {
-    var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
+    var seasonPrice = SeasonPriceFactory.createSeasonPrice(date)
     var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
     return seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, ReservationCalculator.getTotalNumberOfNights()) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
   }
 
   getYVPRate(date) {
-    var seasonPrice = SeasonPrice.createSeasonPriceFromDate(date)
+    var seasonPrice = SeasonPriceFactory.createSeasonPrice(date)
     var isDuringCourse = _.some(ReservationCalculator.courses, course => course.doesYVPApply(date))
     return isDuringCourse ? 0 : seasonPrice.getYVPRate() * ReservationCalculator.adults;
   }
