@@ -460,12 +460,6 @@ export class TTCStay extends RoomStay {
     })
   );
 
-  // A TTC stay will not count towards the price code
-  // of other room stay rates
-  getNightsCountingTowardsTotal() {
-    return 0
-  }
-
   getDailyRoomYVPRate() {
     let packagePrice;
     switch (this.roomCategory.id) {
@@ -542,6 +536,10 @@ export default class ReservationCalculator {
 
   getTotalCourse() {
     return _.round(_.sumBy(ReservationCalculator.courses, course => course.totalCost()), 2)
+  }
+
+  getTotalNumberOfNights() {
+    return ReservationCalculator.getTotalNumberOfNights()
   }
 
   getSubtotal() {

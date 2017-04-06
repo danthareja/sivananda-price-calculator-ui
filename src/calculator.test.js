@@ -18,6 +18,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(882)
     expect(calculator.getTotalYVP()).toEqual(96)
     expect(calculator.getGrandTotal()).toEqual(978)
+    expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
 
 
@@ -33,6 +34,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(774 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(60)
     expect(calculator.getGrandTotal()).toEqual(774 * 0.85 + 60)
+    expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
 
   it('one adult staying 4 nights in a garden room single during the winter', function() {
@@ -47,6 +49,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(532)
     expect(calculator.getTotalYVP()).toEqual(128)
     expect(calculator.getGrandTotal()).toEqual(660)
+    expect(calculator.getTotalNumberOfNights()).toEqual(4)
   })
 
 
@@ -62,6 +65,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(116 * 4)
     expect(calculator.getTotalYVP()).toEqual(80)
     expect(calculator.getGrandTotal()).toEqual(116 * 4 + 80)
+    expect(calculator.getTotalNumberOfNights()).toEqual(4)
   })
 
   it('one adult staying 8 nights in a garden room double bed during the winter', function() {
@@ -76,6 +80,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(1040)
     expect(calculator.getTotalYVP()).toEqual(256)
     expect(calculator.getGrandTotal()).toEqual(1296)
+    expect(calculator.getTotalNumberOfNights()).toEqual(8)
   })
 
   it('one adult staying 8 nights in a garden room double bed during the summer', function() {
@@ -90,6 +95,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(112 * 8)
     expect(calculator.getTotalYVP()).toEqual(160)
     expect(calculator.getGrandTotal()).toEqual(112*8+ 160)
+    expect(calculator.getTotalNumberOfNights()).toEqual(8)
   })
 
   it('one adult staying 12 nights in beachfront deluxe during the winter', function() {
@@ -104,6 +110,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(3552)
     expect(calculator.getTotalYVP()).toEqual(384)
     expect(calculator.getGrandTotal()).toEqual(3936)
+    expect(calculator.getTotalNumberOfNights()).toEqual(12)
   })
 
   it('one adult staying 12 nights in beachfront deluxe during the summer', function() {
@@ -118,6 +125,7 @@ describe('one adult', function() {
     expect(calculator.getTotalRoom()).toEqual(3072 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(240)
     expect(calculator.getGrandTotal()).toEqual(3072 * 0.85 + 240)
+    expect(calculator.getTotalNumberOfNights()).toEqual(12)
   })
 })
 
@@ -134,6 +142,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(1590)
     expect(calculator.getTotalYVP()).toEqual(320)
     expect(calculator.getGrandTotal()).toEqual(1910)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('two adults staying 5 nights in a beachfront deluxe during the summer', function() {
@@ -148,6 +157,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(1360)
     expect(calculator.getTotalYVP()).toEqual(200)
     expect(calculator.getGrandTotal()).toEqual(1560)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('two adults staying 15 nights in a garden room double bed during the winter', function() {
@@ -162,6 +172,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(3030)
     expect(calculator.getTotalYVP()).toEqual(960)
     expect(calculator.getGrandTotal()).toEqual(3990)
+    expect(calculator.getTotalNumberOfNights()).toEqual(15)
   })
 
   it('two adults staying 15 nights in a garden room double bed during the summer', function() {
@@ -176,6 +187,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(2640)
     expect(calculator.getTotalYVP()).toEqual(600)
     expect(calculator.getGrandTotal()).toEqual(3240)
+    expect(calculator.getTotalNumberOfNights()).toEqual(15)
   })
 
   it('two adults staying 5 nights in a tent hut double during the winter', function() {
@@ -190,6 +202,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(820)
     expect(calculator.getTotalYVP()).toEqual(320)
     expect(calculator.getGrandTotal()).toEqual(1140)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('four adults staying 5 nights in a dormitory during the winter', function() {
@@ -204,6 +217,7 @@ describe('multiple adults', function() {
     expect(calculator.getTotalRoom()).toEqual(4 * 5 * 80)
     expect(calculator.getTotalYVP()).toEqual(4 * 5 * 32)
     expect(calculator.getGrandTotal()).toEqual(4 * 5 * 80 + 4 * 5 * 32)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 })
 
@@ -221,6 +235,7 @@ describe('adults and children', function() {
     expect(calculator.getTotalRoom()).toEqual(661.5)
     expect(calculator.getTotalYVP()).toEqual(96)
     expect(calculator.getGrandTotal()).toEqual(757.5)
+    expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
 
   it('two adults and one child staying in an oceanview room for three nights in winter', function() {
@@ -236,6 +251,7 @@ describe('adults and children', function() {
     expect(calculator.getTotalRoom()).toEqual(1102.5)
     expect(calculator.getTotalYVP()).toEqual(192)
     expect(calculator.getGrandTotal()).toEqual(1294.50)
+    expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
   it('two adults and two children staying in a beachfront deluxe suite for three nights in winter', function() {
     const calculator = new ReservationCalculator({
@@ -250,6 +266,7 @@ describe('adults and children', function() {
     expect(calculator.getTotalRoom()).toEqual(1431)
     expect(calculator.getTotalYVP()).toEqual(192)
     expect(calculator.getGrandTotal()).toEqual(1623)
+    expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
 })
 
@@ -273,6 +290,7 @@ describe('courses', function() {
     expect(calculator.getTotalYVP()).toEqual(128)
     expect(calculator.getTotalCourse()).toEqual(250)
     expect(calculator.getGrandTotal()).toEqual(3338)
+    expect(calculator.getTotalNumberOfNights()).toEqual(10)
   })
 
   it('one adult staying 10 nights in a beachfront deluxe, registered for a course from day 3-7 that has a tuition of $250 during the summer', function() {
@@ -293,6 +311,7 @@ describe('courses', function() {
     expect(calculator.getTotalYVP()).toEqual(80)
     expect(calculator.getTotalCourse()).toEqual(250)
     expect(calculator.getGrandTotal()).toEqual(2560 * 0.85 + 80 + 250)
+    expect(calculator.getTotalNumberOfNights()).toEqual(10)
   })
 
   // Story provided by Anne Voors:
@@ -314,6 +333,7 @@ describe('courses', function() {
       })]
     })
     expect(calculator.getGrandTotal()).toEqual(1326)
+    expect(calculator.getTotalNumberOfNights()).toEqual(7)
   })
 })
 
@@ -344,6 +364,7 @@ describe('room sharing', function() {
     expect(calculator.getTotalRoom()).toEqual(1536)
     expect(calculator.getTotalYVP()).toEqual(240)
     expect(calculator.getGrandTotal()).toEqual(1776)
+    expect(calculator.getTotalNumberOfNights()).toEqual(12)
   })
 })
 
@@ -364,6 +385,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1158)
     expect(calculator.getTotalYVP()).toEqual(160)
     expect(calculator.getGrandTotal()).toEqual(1318)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
@@ -382,6 +404,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(120 * 2 + 258 * 3 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(100)
     expect(calculator.getGrandTotal()).toEqual(120 * 2 + 258 * 3 * 0.85 + 100)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -400,6 +423,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1890)
     expect(calculator.getTotalYVP()).toEqual(288)
     expect(calculator.getGrandTotal()).toEqual(2178)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -418,6 +442,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(112 * 4 + 242 * 5 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(180)
     expect(calculator.getGrandTotal()).toEqual(112 * 4 + 242 * 5 * 0.85 + 180)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -436,6 +461,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1794)
     expect(calculator.getTotalYVP()).toEqual(288)
     expect(calculator.getGrandTotal()).toEqual(2082)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -454,6 +480,7 @@ describe('room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(93 * 4 + 242 * 5 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(180)
     expect(calculator.getGrandTotal()).toEqual(93 * 4 + 242 * 5 * 0.85 + 180)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 })
 
@@ -474,6 +501,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1158)
     expect(calculator.getTotalYVP()).toEqual(160)
     expect(calculator.getGrandTotal()).toEqual(1318)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('one adult staying 2 nights alone in a garden room double bed and 3 nights alone in a oceanview deluxe during the summer', function() {
@@ -492,6 +520,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(120 * 2 + 258 * 3 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(100)
     expect(calculator.getGrandTotal()).toEqual(120 * 2 + 258 * 3 * 0.85 + 100)
+    expect(calculator.getTotalNumberOfNights()).toEqual(5)
   })
 
   it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -510,6 +539,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1890)
     expect(calculator.getTotalYVP()).toEqual(288)
     expect(calculator.getGrandTotal()).toEqual(2178)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights alone in a garden room double bed and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -528,6 +558,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(112 * 4 + 242 * 5 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(180)
     expect(calculator.getGrandTotal()).toEqual(112 * 4 + 242 * 5 * 0.85 + 180)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the winter', function() {
@@ -546,6 +577,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(1794)
     expect(calculator.getTotalYVP()).toEqual(288)
     expect(calculator.getGrandTotal()).toEqual(2082)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 
   it('one adult staying 4 nights sharing a garden room shared and 5 nights alone in a oceanview deluxe during the summer', function() {
@@ -564,6 +596,7 @@ describe('non-continuous room moves', function() {
     expect(calculator.getTotalRoom()).toEqual(93 * 4 + 242 * 5 * 0.85)
     expect(calculator.getTotalYVP()).toEqual(180)
     expect(calculator.getGrandTotal()).toEqual(93 * 4 + 242 * 5 * 0.85 + 180)
+    expect(calculator.getTotalNumberOfNights()).toEqual(9)
   })
 })
 
@@ -694,6 +727,7 @@ describe('discounts', function() {
       })]
     })
     expect(calculator.getGrandTotal()).toEqual(2539)
+    expect(calculator.getTotalNumberOfNights()).toEqual(25)
   })
 })
 
@@ -708,6 +742,7 @@ describe('TTC', function() {
       })]
     })
     expect(calculator.getGrandTotal()).toEqual(2400)
+    expect(calculator.getTotalNumberOfNights()).toEqual(30)
   })
 
   it('one adult comes for April 2017 TTC in a Dormitory', function() {
@@ -720,6 +755,7 @@ describe('TTC', function() {
       })]
     })
     expect(calculator.getGrandTotal()).toEqual(3255)
+    expect(calculator.getTotalNumberOfNights()).toEqual(30)
   })
 
   it('one adult comes for April 2017 TTC in a Tent Hut', function() {
@@ -732,6 +768,7 @@ describe('TTC', function() {
       })]
     })
     expect(calculator.getGrandTotal()).toEqual(3490)
+    expect(calculator.getTotalNumberOfNights()).toEqual(30)
   })
 
   // Story provided by Anne Voors:
@@ -752,7 +789,8 @@ describe('TTC', function() {
         checkOutDate: createMoment('2017-05-03')
       })]
     })
-    expect(calculator.getGrandTotal()).toEqual(4362)
+    expect(calculator.getGrandTotal()).toEqual(4362-7*8)
+    expect(calculator.getTotalNumberOfNights()).toEqual(38)
   })
 })
 
