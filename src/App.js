@@ -55,7 +55,25 @@ export default class App extends Component {
   updateGuests(adults, children) {
     let error = { message: '', show: false }
     let totalGuests = adults + children
-    
+
+    if (!_.isEmpty(this.state.courses)) {
+      error.message = 'Courses can only be added for a reservation with one adult. Please remove the courses before increasing guest count.'
+      error.show = true
+      adults = this.state.adults
+      children = this.state.children
+      return this.setState({ error, adults, children })
+    }
+
+    let ttcStays = _.filter(this.state.stays, stay => stay.type === 'TTCStay')
+
+    if (!_.isEmpty(ttcStays) && adults + children > 1) {
+      error.message = 'TTC stays can only be added for a reservation with one adult. Please remove the TTC stay before increasing guest count'
+      error.show = true
+      adults = this.state.adults
+      children = this.state.children
+      return this.setState({ error, adults, children })
+    }
+
     let invalidRooms = _(this.state.stays)
       .map(stay => RoomCategoryFactory.getRoomById(stay.roomId))
       .filter(room => totalGuests > room.maxOccupancy)
@@ -68,17 +86,16 @@ export default class App extends Component {
       error.show = true
       adults = this.state.adults
       children = this.state.children
-    } else if (!_.isEmpty(this.state.courses)) {
-      error.message = 'Courses can only be added for a reservation with one guest. Please remove the courses before increasing guest count.'
-      error.show = true
-      adults = this.state.adults
-      children = this.state.children
-    } else if (adults === 1 && children === 1) {
-      error.message = 'No consistent pricing strategy for 1 adult and 1 child. Please calculate this one manually.'
-      error.show = true
+      return this.setState({ error, adults, children })
     }
 
-    this.setState({ error, adults, children })
+    if (adults === 1 && children === 1) {
+      error.message = 'No consistent pricing strategy for 1 adult and 1 child. Please calculate this one manually.'
+      error.show = true
+      return this.setState({ error, adults, children })
+    }
+
+    return this.setState({ error, adults, children })
   }
 
   addTTC(index) {
@@ -201,6 +218,7 @@ export default class App extends Component {
             <TTCStayButton
               label="Add TTC Stay"
               dates={TTC_DATES}
+              disabled={this.state.adults + this.state.children > 1}
               onSubmit={this.addTTC} />
           </Col>
           <Col xs={2}>
@@ -581,6 +599,7 @@ class TTCStayButton extends Component {
         <RaisedButton
           onTouchTap={this.handleTouchTap}
           label={this.props.label}
+          disabled={this.props.disabled}
           primary={true}
           fullWidth={true}
         />
