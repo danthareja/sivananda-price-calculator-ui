@@ -204,7 +204,7 @@ class SeasonPrice {
         sharing: [112, 106, 101, 97],
       },
       [SEASON.SUMMER]: {
-        alone: [116, 108, 103, 99],
+        alone: [120, 112, 106, 102],
         sharing: [99, 93, 88, 84],
       }
     },
