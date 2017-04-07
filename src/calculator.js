@@ -10,8 +10,39 @@ class RoomCategory {
     this.isWillingToShare = isWillingToShare
   }
 
-  getBedsCount() {
+  bedCount() {
     return 2
+  }
+
+  getSingleInDoubleOccupancyRoomDiscount(seasonPrice) {
+    return seasonPrice.getSingleInDoubleOccupancyRoomDiscount()
+  }
+
+  getRoomBaseRate(date, nights){
+      var seasonPrice = SeasonPriceFactory.createSeasonPrice(date)
+      var isSharing = this.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
+      var dailyBaseRate = seasonPrice.getRoomBaseRate(isSharing ? this.getRoomCategoryForShared() : this, nights)
+      
+      if (isSharing) {
+          return dailyBaseRate
+      } else {
+          return dailyBaseRate * this.bedCount() * (100 - this.getSingleInDoubleOccupancyRoomDiscount(seasonPrice)) / 100
+      }
+  }
+  
+  // in some room categories such as GardenDoubleRoomCategory the price is taken from another room category, namely: GardenSharedRoomCategory, when the room is shared.
+  getRoomCategoryForShared() {
+      return this 
+  }
+}
+
+class AbstractSingleBedRoomCategory extends RoomCategory {
+  getSingleInDoubleOccupancyRoomDiscount(seasonPrice) {
+      return 0 //This is not a double occupancy room. Single occupancy discount never applies here.
+  }
+
+  bedCount() {
+      return 1
   }
 }
 
@@ -19,19 +50,23 @@ class BeachFrontRoomCategory extends RoomCategory {}
 class OceanViewRoomCategory extends RoomCategory {}
 class BeachHutRoomCategory extends RoomCategory {}
 class GardenBathRoomCategory extends RoomCategory {}
-class GardenDoubleRoomCategory extends RoomCategory { getBedsCount() { return 1 } }
+class GardenDoubleRoomCategory extends AbstractSingleBedRoomCategory {
+    getRoomCategoryForShared() {
+      return RoomCategoryFactory.createRoomCategory(ROOM_ID.GARDEN_SHARED_SHARING)
+    }
+}
 class GardenSharedRoomCategory extends RoomCategory {}
-class GardenSingleRoomCategory extends RoomCategory { getBedsCount() { return 1 } }
+class GardenSingleRoomCategory extends AbstractSingleBedRoomCategory {}
 class DormitoryRoomCategory extends RoomCategory {}
-class TentHutRoomCategory extends RoomCategory {}
-class TentSpaceRoomCategory extends RoomCategory {}
+class TentHutRoomCategory extends AbstractSingleBedRoomCategory {}
+class TentSpaceRoomCategory extends AbstractSingleBedRoomCategory {}
 
 export class RoomCategoryFactory {
   static rooms = [
     {
       id: ROOM_ID.BEACHFRONT,
       label: 'Beachfront Deluxe Suite (whole)',
-      maxOccupancy: 4
+      maxOccupancy: 6
     },
     {
       id: ROOM_ID.BEACHFRONT_SHARING,
@@ -86,7 +121,7 @@ export class RoomCategoryFactory {
     {
       id: ROOM_ID.GARDEN_SHARED,
       label: 'Garden Room Shared (whole)',
-      maxOccupancy: 4
+      maxOccupancy: 3
     },
     {
       id: ROOM_ID.GARDEN_SHARED_SHARING,
@@ -110,8 +145,8 @@ export class RoomCategoryFactory {
     },
     {
       id: ROOM_ID.NULL_ROOM,
-      label: 'No Room (only yvp)',
-      maxOccupancy: 4
+      label: 'No Room (only course)',
+      maxOccupancy: 1
     }
   ];
 
@@ -154,6 +189,7 @@ export class RoomCategoryFactory {
 class SeasonPrice {
   constructor(type) {
     this.type = type
+    this.discountPercent = 0
   }
 
   static yvpRates = {
@@ -163,115 +199,64 @@ class SeasonPrice {
 
   static roomRates = {
     [ROOM_ID.BEACHFRONT]: {
-      [SEASON.WINTER]: {
-        alone: [318, 296, 282, 272],
-        sharing: [159, 148, 141, 136],
-      },
-      [SEASON.SUMMER]: {
-        alone: [272, 256, 242, 232],
-        sharing: [136, 128, 121, 116],
-      }
+      [SEASON.WINTER]: [ 159, 148, 141, 136 ],
+      [SEASON.SUMMER]: [ 136, 128, 121, 116 ]
     },
     [ROOM_ID.OCEAN_VIEW]: {
-      [SEASON.WINTER]: {
-        alone: [294, 274, 260, 250],
-        sharing: [147, 137, 130, 125],
-      },
-      [SEASON.SUMMER]: {
-        alone: [258, 242, 228, 218],
-        sharing: [129, 121, 114, 109],
-      }
+      [SEASON.WINTER]: [147, 137, 130, 125],
+      [SEASON.SUMMER]: [129, 121, 114, 109]
     },
     [ROOM_ID.BEACH_HUT]: {
-      [SEASON.WINTER]: {
-        alone: [254, 238, 224, 216],
-        sharing: [127, 119, 112, 108],
-      },
-      [SEASON.SUMMER]: {
-        alone: [218, 204, 194, 186],
-        sharing: [109, 102, 97, 93],
-      }
+      [SEASON.WINTER]: [127, 119, 112, 108],
+      [SEASON.SUMMER]:  [109, 102, 97, 93]
     },
     [ROOM_ID.GARDEN_BATH]: {
-      [SEASON.WINTER]: {
-        alone: [276, 258, 244, 234],
-        sharing: [138, 129, 122, 117],
-      },
-      [SEASON.SUMMER]: {
-        alone: [242, 226, 214, 206],
-        sharing: [121, 113, 107, 103],
-      }
+      [SEASON.WINTER]: [138, 129, 122, 117],
+      [SEASON.SUMMER]: [121, 113, 107, 103]
     },
     [ROOM_ID.GARDEN_DOUBLE]: {
-      [SEASON.WINTER]: {
-        alone: [138, 130, 124, 118],
-        sharing: [112, 106, 101, 97],
-      },
-      [SEASON.SUMMER]: {
-        alone: [120, 112, 106, 102],
-        sharing: [99, 93, 88, 84],
-      }
+      [SEASON.WINTER]: [138, 130, 124, 118],
+      [SEASON.SUMMER]: [120, 112, 106, 102]
     },
     [ROOM_ID.GARDEN_SHARED]: {
-      [SEASON.WINTER]: {
-        alone: [224, 212, 202, 194],
-        sharing: [112, 106, 101, 97],
-      },
-      [SEASON.SUMMER]: {
-        alone: [198, 186, 176, 168],
-        sharing: [99, 93, 88, 84],
-      }
+      [SEASON.WINTER]: [112, 106, 101, 97],
+      [SEASON.SUMMER]: [99, 93, 88, 84]
     },
     [ROOM_ID.GARDEN_SINGLE]:  {
-      [SEASON.WINTER]: {
-        alone: [133, 125, 119, 113]
-      },
-      [SEASON.SUMMER]: {
-        alone: [116, 108, 103, 99]
-      }
+      [SEASON.WINTER]: [133, 125, 119, 113],
+      [SEASON.SUMMER]: [116, 108, 103, 99]
     },
     [ROOM_ID.DORMITORY]: {
-      [SEASON.WINTER]: {
-        alone: [80, 75, 71, 69],
-        sharing: [80, 75, 71, 69]
-      },
-      [SEASON.SUMMER]: {
-        alone: [83, 77, 73, 70],
-        sharing: [83, 77, 73, 70]
-      }
+      [SEASON.WINTER]: [80, 75, 71, 69]
     },
     [ROOM_ID.TENT_HUT]: {
-      [SEASON.WINTER]: {
-        alone: [82, 77, 73, 70],
-        sharing: [82, 77, 73, 70]
-      }
+      [SEASON.WINTER]: [82, 77, 73, 70]
     },
     [ROOM_ID.TENT_SPACE]: {
-      [SEASON.WINTER]: {
-        alone: [69, 64, 61, 58]
-      }
+      [SEASON.WINTER]: [69, 64, 61, 58]
     }
   };
 
-  getRoomBaseRate(roomCategory, isSharing, nights){
-    if (nights <= 6) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][0] }
-    if (nights <= 13) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][1] }
-    if (nights <= 20) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][2] }
-    if (nights >= 21) { return SeasonPrice.roomRates[roomCategory.id][this.type][isSharing ? 'sharing' : 'alone'][3] }
+  getRoomBaseRate(roomCategory, nights){
+    if (nights <= 6) { return SeasonPrice.roomRates[roomCategory.id][this.type][0] }
+    if (nights <= 13) { return SeasonPrice.roomRates[roomCategory.id][this.type][1] }
+    if (nights <= 20) { return  SeasonPrice.roomRates[roomCategory.id][this.type][2] }
+    if (nights >= 21) { return  SeasonPrice.roomRates[roomCategory.id][this.type][3] }
   }
 
   getYVPRate(date){
     return SeasonPrice.yvpRates[this.type]
   }
+
+  getSingleInDoubleOccupancyRoomDiscount() {
+     return 0
+  }
 }
 
 class WinterSeasonPrice extends SeasonPrice {}
 class SummerSeasonPrice extends SeasonPrice {
-  getRoomBaseRate(roomCategory, isSharing, nights) {
-    if (!isSharing && roomCategory.getBedsCount() > 1) {
-      return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
-    }
-    return super.getRoomBaseRate(roomCategory, isSharing, nights)
+  getSingleInDoubleOccupancyRoomDiscount() {
+      return 15
   }
 }
 
@@ -392,9 +377,7 @@ export class RoomStay {
   }
 
   getRoomRate(date) {
-    var seasonPrice = SeasonPriceFactory.createSeasonPrice(date)
-    var isSharing = this.roomCategory.isWillingToShare || ReservationCalculator.adults + ReservationCalculator.children > 1
-    return seasonPrice.getRoomBaseRate(this.roomCategory, isSharing, ReservationCalculator.getTotalNumberOfNights()) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
+    return this.roomCategory.getRoomBaseRate(date, ReservationCalculator.getTotalNumberOfNights()) * (ReservationCalculator.adults + ReservationCalculator.children / 2)
   }
 
   getYVPRate(date) {
