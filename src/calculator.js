@@ -9,15 +9,19 @@ class RoomCategory {
     this.id = id
     this.isWillingToShare = isWillingToShare
   }
+
+  getBedsNumber() {
+    return 2
+  }
 }
 
 class BeachFrontRoomCategory extends RoomCategory {}
 class OceanViewRoomCategory extends RoomCategory {}
 class BeachHutRoomCategory extends RoomCategory {}
 class GardenBathRoomCategory extends RoomCategory {}
-class GardenDoubleRoomCategory extends RoomCategory {}
+class GardenDoubleRoomCategory extends RoomCategory { getBedsNumber() { return 1 } }
 class GardenSharedRoomCategory extends RoomCategory {}
-class GardenSingleRoomCategory extends RoomCategory {}
+class GardenSingleRoomCategory extends RoomCategory { getBedsNumber() { return 1 } }
 class DormitoryRoomCategory extends RoomCategory {}
 class TentHutRoomCategory extends RoomCategory {}
 class TentSpaceRoomCategory extends RoomCategory {}
@@ -264,7 +268,7 @@ class SeasonPrice {
 class WinterSeasonPrice extends SeasonPrice {}
 class SummerSeasonPrice extends SeasonPrice {
   getRoomBaseRate(roomCategory, isSharing, nights) {
-    if (!isSharing) {
+    if (!isSharing && roomCategory.getBedsNumber() > 1) {
       return super.getRoomBaseRate(roomCategory, isSharing, nights) * 0.85  
     }
     return super.getRoomBaseRate(roomCategory, isSharing, nights)
