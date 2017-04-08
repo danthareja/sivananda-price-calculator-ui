@@ -665,7 +665,8 @@ class PriceTable extends Component {
       room: this.maybeIncludeVAT(calculator.getTotalRoom()),
       yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
       course: this.maybeIncludeVAT(calculator.getTotalCourse()),
-      total: this.maybeIncludeVAT(calculator.getGrandTotal())
+      total: this.maybeIncludeVAT(calculator.getGrandTotal()),
+      totalNights: calculator.getTotalNumberOfNights()
     }
     const styles = {
       toggleContainer: {
@@ -699,6 +700,7 @@ class PriceTable extends Component {
                   <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
                   <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
                   <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
+                  <div style={styles.rate}>Total Nights: {rates.totalNights}</div>
                   <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
                 </div>
               </Col>
