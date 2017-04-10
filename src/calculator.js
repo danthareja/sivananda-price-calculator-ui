@@ -4,7 +4,7 @@ import moment, { createMoment } from './lib/moment'
 
 import { ROOM_ID, SEASON, DISCOUNT } from './data/constants'
 
-class RoomCategory {
+class AbstractRoomCategory {
   constructor(id, isWillingToShare) {
     this.id = id
     this.isWillingToShare = isWillingToShare
@@ -36,7 +36,7 @@ class RoomCategory {
   }
 }
 
-class AbstractSingleBedRoomCategory extends RoomCategory {
+class AbstractSingleBedRoomCategory extends AbstractRoomCategory {
   getSingleInDoubleOccupancyRoomDiscount(seasonPrice) {
       return 0 //This is not a double occupancy room. Single occupancy discount never applies here.
   }
@@ -46,18 +46,18 @@ class AbstractSingleBedRoomCategory extends RoomCategory {
   }
 }
 
-class BeachFrontRoomCategory extends RoomCategory {}
-class OceanViewRoomCategory extends RoomCategory {}
-class BeachHutRoomCategory extends RoomCategory {}
-class GardenBathRoomCategory extends RoomCategory {}
+class BeachFrontRoomCategory extends AbstractRoomCategory {}
+class OceanViewRoomCategory extends AbstractRoomCategory {}
+class BeachHutRoomCategory extends AbstractRoomCategory {}
+class GardenBathRoomCategory extends AbstractRoomCategory {}
 class GardenDoubleRoomCategory extends AbstractSingleBedRoomCategory {
-    getRoomCategoryForShared() {
-      return RoomCategoryFactory.createRoomCategory(ROOM_ID.GARDEN_SHARED_SHARING)
-    }
+  getRoomCategoryForShared() {
+    return RoomCategoryFactory.createRoomCategory(ROOM_ID.GARDEN_SHARED_SHARING)
+  }
 }
-class GardenSharedRoomCategory extends RoomCategory {}
+class GardenSharedRoomCategory extends AbstractRoomCategory {}
 class GardenSingleRoomCategory extends AbstractSingleBedRoomCategory {}
-class DormitoryRoomCategory extends RoomCategory {}
+class DormitoryRoomCategory extends AbstractSingleBedRoomCategory {}
 class TentHutRoomCategory extends AbstractSingleBedRoomCategory {}
 class TentSpaceRoomCategory extends AbstractSingleBedRoomCategory {}
 

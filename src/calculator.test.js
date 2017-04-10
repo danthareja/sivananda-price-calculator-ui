@@ -21,7 +21,6 @@ describe('one adult', function() {
     expect(calculator.getTotalNumberOfNights()).toEqual(3)
   })
 
-
   it('one adult staying 3 nights in a ocean view deluxe during the summer', function() {
     const calculator = new ReservationCalculator({
       adults: 1,
@@ -51,7 +50,6 @@ describe('one adult', function() {
     expect(calculator.getGrandTotal()).toEqual(660)
     expect(calculator.getTotalNumberOfNights()).toEqual(4)
   })
-
 
   it('one adult staying 4 nights in a garden room single during the summer', function() {
     const calculator = new ReservationCalculator({
@@ -126,6 +124,20 @@ describe('one adult', function() {
     expect(calculator.getTotalYVP()).toEqual(240)
     expect(calculator.getGrandTotal()).toEqual(3072 * 0.85 + 240)
     expect(calculator.getTotalNumberOfNights()).toEqual(12)
+  })
+
+  it('one adult staying 3 nights in a dormitory during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.DORMITORY,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(3, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(80 * 3)
+    expect(calculator.getTotalYVP()).toEqual(32 * 3)
+    expect(calculator.getGrandTotal()).toEqual(80 * 3 + 32 * 3)
   })
 })
 
