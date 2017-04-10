@@ -28,8 +28,7 @@
     "start": "npm-run-all -p watch-css start-js",
     "build": "npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "predeploy": "cross-env CI=true npm test && npm run build",
-    "deploy": "npm run predeploy && scp -r build/. sivananda@sivananda.webfactional.com:/home/sivananda/webapps/local_sivananda/price_calculator",
+    "deploy": "cross-env CI=true npm test && npm run build && scp -r build/. sivananda@sivananda.webfactional.com:/home/sivananda/webapps/local_sivananda/price_calculator",
     "eject": "react-scripts eject"
   }
 }
