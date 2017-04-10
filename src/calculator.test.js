@@ -139,6 +139,34 @@ describe('one adult', function() {
     expect(calculator.getTotalYVP()).toEqual(32 * 3)
     expect(calculator.getGrandTotal()).toEqual(80 * 3 + 32 * 3)
   })
+
+  it('one adult staying offsite for 3 nights during the winter', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.NULL_ROOM,
+        checkInDate: winter.clone(),
+        checkOutDate: winter.clone().add(3, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(0)
+    expect(calculator.getTotalYVP()).toEqual(32 * 3)
+    expect(calculator.getGrandTotal()).toEqual(32 * 3)
+  })
+
+  it('one adult staying offsite for 3 nights during the summer', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new RoomStay({
+        roomId: ROOM_ID.NULL_ROOM,
+        checkInDate: summer.clone(),
+        checkOutDate: summer.clone().add(3, 'days')
+      })]
+    })
+    expect(calculator.getTotalRoom()).toEqual(0)
+    expect(calculator.getTotalYVP()).toEqual(20 * 3)
+    expect(calculator.getGrandTotal()).toEqual(20 * 3)
+  })
 })
 
 describe('multiple adults', function() {

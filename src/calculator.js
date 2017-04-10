@@ -180,6 +180,7 @@ export class RoomCategoryFactory {
       case ROOM_ID.DORMITORY: return new DormitoryRoomCategory(ROOM_ID.DORMITORY, false)
       case ROOM_ID.TENT_HUT: return new TentHutRoomCategory(ROOM_ID.TENT_HUT, false)
       case ROOM_ID.TENT_SPACE: return new TentSpaceRoomCategory(ROOM_ID.TENT_SPACE, false)
+      case ROOM_ID.NULL_ROOM: return new TentSpaceRoomCategory(ROOM_ID.NULL_ROOM, false)
       default: throw new Error(`Invalid roomId: "${roomId}"`)
     }
   };
@@ -234,6 +235,10 @@ class SeasonPrice {
     },
     [ROOM_ID.TENT_SPACE]: {
       [SEASON.WINTER]: [69, 64, 61, 58]
+    },
+    [ROOM_ID.NULL_ROOM]: {
+      [SEASON.WINTER]: [0, 0, 0, 0],
+      [SEASON.SUMMER]: [0, 0, 0, 0]
     }
   };
 
