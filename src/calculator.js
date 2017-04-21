@@ -228,11 +228,11 @@ class SeasonPrice {
       [SEASON.SUMMER]: [116, 108, 103, 99]
     },
     [ROOM_ID.DORMITORY]: {
-      [SEASON.WINTER]: [80, 75, 71, 69]
+      [SEASON.WINTER]: [80, 75, 71, 69],
       [SEASON.SUMMER]: [80, 75, 71, 69]
     },
     [ROOM_ID.TENT_HUT]: {
-      [SEASON.WINTER]: [82, 77, 73, 70]
+      [SEASON.WINTER]: [82, 77, 73, 70],
       [SEASON.SUMMER]: [82, 77, 73, 70]
     },
     [ROOM_ID.TENT_SPACE]: {
