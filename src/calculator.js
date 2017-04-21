@@ -340,13 +340,14 @@ export class Course {
 }
 
 export class RoomStay {
-  constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {} }) {
+  constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {}, grossDiscountPercent = 0 }) {
     this.roomId = roomId
     this._checkInDate = checkInDate
     this._checkOutDate = checkOutDate
     this.roomDiscount = roomDiscount
     this.yvpDiscount = yvpDiscount
     this.roomCategory = RoomCategoryFactory.createRoomCategory(roomId)
+    this.grossDiscountPercent = grossDiscountPercent
   }
 
   checkInDate() {
@@ -482,7 +483,7 @@ export class TTCStay extends RoomStay {
     }
     return [{
       date: this.checkInDate(),
-      room: packagePrice,
+      room: packagePrice * (100 - this.grossDiscountPercent)/100,
       yvp: 0
     }]
   }
