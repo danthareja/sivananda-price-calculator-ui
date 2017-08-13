@@ -338,16 +338,17 @@ export class Course {
     return _.round(this.tuition - this.calculateDiscount(), 2)
   }
 }
+/*
+*/
 
 export class RoomStay {
-  constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {}, grossDiscountPercent = 0 }) {
+  constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {} }) {
     this.roomId = roomId
     this._checkInDate = checkInDate
     this._checkOutDate = checkOutDate
     this.roomDiscount = roomDiscount
     this.yvpDiscount = yvpDiscount
     this.roomCategory = RoomCategoryFactory.createRoomCategory(roomId)
-    this.grossDiscountPercent = grossDiscountPercent
   }
 
   checkInDate() {
@@ -483,7 +484,7 @@ export class TTCStay extends RoomStay {
     }
     return [{
       date: this.checkInDate(),
-      room: packagePrice * (100 - this.grossDiscountPercent)/100,
+      room: packagePrice,
       yvp: 0
     }]
   }
