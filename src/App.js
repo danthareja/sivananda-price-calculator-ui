@@ -21,7 +21,7 @@ import './react-dates.css'
 
 import moment, { createMoment } from './lib/moment'
 import ReservationCalculator, { Course, RoomStay, TTCStay, RoomCategoryFactory, SeasonPriceFactory } from './calculator'
-import { ROOM_ID, DISCOUNT } from './data/constants'
+import { ROOM_ID, DISCOUNT } from './constants'
 
 const TTC_DATES = TTCStay.getDates()
 
