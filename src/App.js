@@ -382,7 +382,7 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
-            disabled={stay.type==='TTCStay'}
+            //disabled={stay.type==='TTCStay'}
             buttonText="Discount Room"
             discount={stay.roomDiscount}
             onChange={roomDiscount => onStayChange(index, { roomDiscount })}

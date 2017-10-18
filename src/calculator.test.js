@@ -922,6 +922,33 @@ describe('user stories', function() {
     expect(calculator.getTotalNumberOfNights()).toEqual(30)
   })
 
+  it('one adult comes for April 2017 TTC in a Tent Hut with a %10 discount', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new TTCStay({
+        roomId: ROOM_ID.TENT_HUT,
+        checkInDate: createMoment('2017-04-03'),
+        checkOutDate: createMoment('2017-05-03'),
+	grossDiscountPercent: 10
+      })]
+    })
+    expect(calculator.getGrandTotal()).toEqual(3490 * 0.9)
+    expect(calculator.getTotalNumberOfNights()).toEqual(30)
+  })
+
+  it('one adult comes for April 2017 TTC in a Tent Hut', function() {
+    const calculator = new ReservationCalculator({
+      adults: 1,
+      stays: [new TTCStay({
+        roomId: ROOM_ID.TENT_HUT,
+        checkInDate: createMoment('2017-04-03'),
+        checkOutDate: createMoment('2017-05-03'),
+      })]
+    })
+    expect(calculator.getGrandTotal()).toEqual(3490)
+    expect(calculator.getTotalNumberOfNights()).toEqual(30)
+  })
+
   // Story provided by Anne Voors:
   // A guest arrives on March 26th and is planning on departing April 3rd 2017, staying in a beloved north tent hut.
   // While at the ashram, for obvious reasons, they fall in love with Sivananda yoga

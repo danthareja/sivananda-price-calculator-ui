@@ -402,6 +402,8 @@ export class Course {
     return _.round(this.tuition - this.calculateDiscount(), 2)
   }
 }
+/*
+*/
 
 export class RoomStay {
   constructor({ roomId, checkInDate, checkOutDate, roomDiscount = {}, yvpDiscount = {} }) {
