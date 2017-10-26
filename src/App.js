@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import moment from 'moment'
 import React, { Component } from 'react'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
@@ -19,11 +20,43 @@ import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowCol
 import { DateRangePicker } from 'react-dates'
 import './react-dates.css'
 
-import moment, { createMoment } from './lib/moment'
-import ReservationCalculator, { Course, RoomStay, TTCStay, RoomCategoryFactory, SeasonPriceFactory } from './calculator'
-import { ROOM_ID, DISCOUNT } from './constants'
+import SivanandaPriceCalculator from 'sivananda-price-calculator'
 
-const TTC_DATES = TTCStay.getDates()
+const VAT_RATE = 0.075
+const ROOMS = SivanandaPriceCalculator.getRooms()
+const SEASONS = _.map(SivanandaPriceCalculator.getSeasons(), season => {
+  return _.defaults({
+    startDate: moment(season.startDate),
+    endDate: moment(season.endDate)
+  }, season)
+})
+const TTC_DATES = _.flatMap(SivanandaPriceCalculator.getTTC(), session =>
+  _.map(session.prices.rooms, (price, room) => {
+    return {
+      roomId: room,
+      label: session.label,
+      checkInDate: moment(session.checkInDate),
+      checkOutDate: moment(session.checkOutDate)
+    }
+  })
+)
+
+const isWithinKnownSeasonDates = (date) => {
+  return date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
+}
+
+const filterRoomsByOccupancy = (occupancy) => {
+  return ROOMS.filter(room => occupancy <= room.maxOccupancy)
+};
+
+const getRoomById = (id) => {
+  const room =  _.find(ROOMS, _.matchesProperty('id', id))
+  if (!room) {
+    throw new Error(`Could not find a room with id: ${id}`)
+  }
+  return room
+};
+
 
 export default class App extends Component {
   constructor(props) {
@@ -64,7 +97,7 @@ export default class App extends Component {
       return this.setState({ error, adults, children })
     }
 
-    let ttcStays = _.filter(this.state.stays, stay => stay.type === 'TTCStay')
+    let ttcStays = _.filter(this.state.stays, stay => stay.type === 'TTC')
 
     if (!_.isEmpty(ttcStays) && adults + children > 1) {
       error.message = 'TTC stays can only be added for a reservation with one adult. Please remove the TTC stay before increasing guest count'
@@ -75,7 +108,7 @@ export default class App extends Component {
     }
 
     let invalidRooms = _(this.state.stays)
-      .map(stay => RoomCategoryFactory.getRoomById(stay.roomId))
+      .map(stay => getRoomById(stay.roomId))
       .filter(room => totalGuests > room.maxOccupancy)
       .map(_.property('label'))
       .uniq()
@@ -102,16 +135,16 @@ export default class App extends Component {
     const stay = TTC_DATES[index]
     this.setState({
       stays: _.concat(this.state.stays, {
-        type: 'TTCStay',
+        type: 'TTC',
         roomId: stay.roomId,
         checkInDate: stay.checkInDate,
         checkOutDate: stay.checkOutDate,
         roomDiscount: {
-          type: DISCOUNT.PERCENT,
+          type: 'PERCENT',
           value: 0
         },
         yvpDiscount: {
-          type: DISCOUNT.PERCENT,
+          type: 'PERCENT',
           value: 0
         }
       })
@@ -121,20 +154,20 @@ export default class App extends Component {
   addStay() {
     const previousCheckOutDate = _.size(this.state.stays) > 0
       ? _.last(this.state.stays).checkOutDate
-      : createMoment()
+      : moment().startOf('day')
 
     this.setState({
       stays: _.concat(this.state.stays, {
-        type: 'RoomStay',
-        roomId: ROOM_ID.BEACHFRONT,
-        checkInDate: previousCheckOutDate.clone(),
+        type: 'ROOM',
+        roomId: 'BEACHFRONT',
+        checkInDate: previousCheckOutDate,
         checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
         roomDiscount: {
-          type: DISCOUNT.PERCENT,
+          type: 'PERCENT',
           value: 0
         },
         yvpDiscount: {
-          type: DISCOUNT.PERCENT,
+          type: 'PERCENT',
           value: 0
         }
       })
@@ -160,7 +193,7 @@ export default class App extends Component {
   addCourse() {
     let firstCheckInDate = _.size(this.state.stays) > 0
       ? _.first(this.state.stays).checkInDate
-      : moment().startOf('day').hour(12)
+      : moment().startOf('day')
 
     this.setState({
       courses: _.concat(this.state.courses, {
@@ -168,7 +201,7 @@ export default class App extends Component {
         startDate: firstCheckInDate.clone(),
         endDate: firstCheckInDate.clone().add(1, 'days'),
         discount: {
-          type: DISCOUNT.PERCENT,
+          type: 'PERCENT',
           value: 0
         }
       })
@@ -215,7 +248,7 @@ export default class App extends Component {
         </Row>
         <Row middle="xs">
           <Col xs={2}>
-            <TTCStayButton
+            <TTCButton
               label="Add TTC Stay"
               dates={TTC_DATES}
               disabled={this.state.adults + this.state.children > 1}
@@ -294,8 +327,8 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 stay={stay}
-                availableRooms={RoomCategoryFactory.filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                isOutsideRange={(date) => !SeasonPriceFactory.getSeasonFromDate(date)}
+                availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
+                isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
                 onStayChange={this.updateStay}
               />
             )}
@@ -308,7 +341,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 course={course}
-                isOutsideRange={(date) => !SeasonPriceFactory.getSeasonFromDate(date)}
+                isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
                 onCourseChange={this.updateCourse}
               />
             )}
@@ -356,20 +389,20 @@ class StayInput extends Component {
       <Row middle="xs">
         <Col xs={3}>
           <DateRangePicker
-            disabled={stay.type==='TTCStay'}
+            disabled={stay.type==='TTC'}
             startDate={stay.checkInDate}
             endDate={stay.checkOutDate}
             startDatePlaceholderText="Check in"
             endDatePlaceholderText="Check out"
             focusedInput={this.state.focused}
             isOutsideRange={isOutsideRange}
-            onDatesChange={({ startDate, endDate }) => onStayChange(index, { checkInDate: startDate, checkOutDate: endDate })}
+            onDatesChange={({ startDate, endDate }) => onStayChange(index, { checkInDate: startDate.startOf('day'), checkOutDate: endDate.startOf('day') })}
             onFocusChange={focused => this.setState({ focused })}
           />
         </Col>
         <Col xs={3}>
           <SelectField
-            disabled={stay.type==='TTCStay'}
+            disabled={stay.type==='TTC'}
             value={stay.roomId}
             style={styles.selectField}
             floatingLabelText="Room"
@@ -382,20 +415,20 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
-            disabled={stay.type==='TTCStay'}
+            disabled={stay.type==='TTC'}
             buttonText="Discount Room"
             discount={stay.roomDiscount}
             onChange={roomDiscount => onStayChange(index, { roomDiscount })}
-            allowedTypes={[DISCOUNT.PERCENT]}
+            allowedTypes={['PERCENT']}
           />
         </Col>
         <Col xs={3}>
           <DiscountInput
-            disabled={stay.type==='TTCStay'}
+            disabled={stay.type==='TTC'}
             buttonText="Discount YVP"
             discount={stay.yvpDiscount}
             onChange={yvpDiscount => onStayChange(index, { yvpDiscount })}
-            allowedTypes={[DISCOUNT.PERCENT]}
+            allowedTypes={['PERCENT']}
           />
         </Col>
       </Row>
@@ -435,7 +468,7 @@ class CourseInput extends Component {
             endDatePlaceholderText={'Course end'}
             focusedInput={this.state.focused}
             isOutsideRange={isOutsideRange}
-            onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate, endDate })}
+            onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate: startDate.startOf('day'), endDate: endDate.startOf('day') })}
             onFocusChange={( focused ) => { this.setState({ focused }) }}
           />
         </Col>
@@ -456,7 +489,7 @@ class CourseInput extends Component {
             buttonText="Discount Course"
             discount={course.discount}
             onChange={discount => onCourseChange(index, { discount })}
-            allowedTypes={[DISCOUNT.PERCENT, DISCOUNT.FIXED]}
+            allowedTypes={['PERCENT', 'FIXED']}
           />
         </Col>
       </Row>
@@ -502,9 +535,9 @@ class DiscountInput extends Component {
     let label = _.join([
       this.props.buttonText ? this.props.buttonText : 'Discount',
       ' (',
-      this.props.discount.type === DISCOUNT.FIXED ? '$' : null,
+      this.props.discount.type === 'FIXED' ? '$' : null,
       this.props.discount.value,
-      this.props.discount.type === DISCOUNT.PERCENT ? '%' : null,
+      this.props.discount.type === 'PERCENT' ? '%' : null,
       ')'
     ], '')
 
@@ -560,7 +593,7 @@ class DiscountInput extends Component {
   }
 }
 
-class TTCStayButton extends Component {
+class TTCButton extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -618,7 +651,7 @@ class TTCStayButton extends Component {
             {_.map(this.props.dates, (date, index) =>
               <MenuItem
                 key={index}
-                primaryText={`${date.label} - ${RoomCategoryFactory.getRoomById(date.roomId).label}`}
+                primaryText={`${date.label} - ${getRoomById(date.roomId).label}`}
               />
             )}
           </Menu>
@@ -640,22 +673,23 @@ class PriceTable extends Component {
     if (!this.state.includeVAT || !_.isNumber(value)) {
       return value
     }
-    return value + value * ReservationCalculator.VAT
+    return value + value * VAT_RATE
   }
 
   render() {
-    const calculator = new ReservationCalculator({
+    console.log('this.state', this.state)
+    console.log('this.props', this.props)
+    const calculator = new SivanandaPriceCalculator({
       adults: this.props.adults,
       children: this.props.children,
-      stays: _.map(this.props.stays, stay => {
-        if (stay.type === 'RoomStay') {
-          return new RoomStay(stay)
-        }
-        if (stay.type === 'TTCStay') {
-          return new TTCStay(stay)
-        }
-      }),
-      courses: _.map(this.props.courses, course => new Course(course)),
+      stays: this.props.stays.map(stay => _.defaults({
+        checkInDate: stay.checkInDate.format('YYYY-MM-DD'),
+        checkOutDate: stay.checkOutDate.format('YYYY-MM-DD')
+      }, stay)),
+      courses: this.props.courses.map(course => _.defaults({
+        startDate: course.startDate.format('YYYY-MM-DD'),
+        endDate: course.endDate.format('YYYY-MM-DD'),
+      }, course))
     })
     const rates = {
       dailyRoomYVP: _.mapValues(calculator.getDailyRoomYVP(), dailyRate => ({
