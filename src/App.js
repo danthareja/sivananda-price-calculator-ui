@@ -122,12 +122,6 @@ export default class App extends Component {
       return this.setState({ error, adults, children })
     }
 
-    if (adults === 1 && children === 1) {
-      error.message = 'No consistent pricing strategy for 1 adult and 1 child. Please calculate this one manually.'
-      error.show = true
-      return this.setState({ error, adults, children })
-    }
-
     return this.setState({ error, adults, children })
   }
 
