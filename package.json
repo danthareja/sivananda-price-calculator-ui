@@ -13,10 +13,7 @@
     "react-dates": "^8.2.1",
     "react-dom": "^15.4.2",
     "react-flexbox-grid": "^1.1.5",
-    "react-redux": "^5.0.6",
     "react-tap-event-plugin": "^2.0.1",
-    "redux": "^3.7.2",
-    "redux-logger": "^3.0.6",
     "sivananda-price-calculator": "github:danthareja/sivananda-price-calculator"
   },
   "devDependencies": {
