@@ -663,7 +663,7 @@ class PriceTable extends Component {
     }
   }
 
-  maybeIncludeVAT = (value) => {
+  maybeAddVAT = (value) => {
     if (!this.state.includeVAT || !_.isNumber(value)) {
       return value
     }
@@ -671,8 +671,6 @@ class PriceTable extends Component {
   }
 
   render() {
-    console.log('this.state', this.state)
-    console.log('this.props', this.props)
     const calculator = new SivanandaPriceCalculator({
       adults: this.props.adults,
       children: this.props.children,
@@ -685,17 +683,6 @@ class PriceTable extends Component {
         endDate: course.endDate.format('YYYY-MM-DD'),
       }, course))
     })
-    const rates = {
-      dailyRoomYVP: _.mapValues(calculator.getDailyRoomYVP(), dailyRate => ({
-        room: this.maybeIncludeVAT(dailyRate.room),
-        yvp: this.maybeIncludeVAT(dailyRate.yvp),
-      })),
-      room: this.maybeIncludeVAT(calculator.getTotalRoom()),
-      yvp: this.maybeIncludeVAT(calculator.getTotalYVP()),
-      course: this.maybeIncludeVAT(calculator.getTotalCourse()),
-      total: this.maybeIncludeVAT(calculator.getGrandTotal())
-    }
-    const nights = calculator.getTotalNumberOfNights()
     const styles = {
       toggleContainer: {
         maxWidth: 250
@@ -704,12 +691,10 @@ class PriceTable extends Component {
         margin: '5px 0px'
       }
     }
-    
     return (
       <Card>
         <CardHeader
-          title={`Price Breakdown (total of ${nights} night${nights === 1 ? '' : 's'})`}
-          subtitle={'(daily rates do not include subtotal discount)'}
+          title={`Price Breakdown for ${calculator.getTotalNumberOfNights()} night(s)`}
           actAsExpander={true}
           showExpandableButton={true}
         />
@@ -719,16 +704,16 @@ class PriceTable extends Component {
               <Col xs={12}>
                 <div style={styles.toggleContainer}>
                   <Toggle
-                    label="Include VAT"
+                    label="Toggle to include VAT"
                     defaultToggled={this.state.includeVAT}
                     onToggle={(e, includeVAT) => this.setState({ includeVAT })}
                   />
                 </div>
                 <div>
-                  <div style={styles.rate}>Room: ${rates.room.toFixed(2)}</div>
-                  <div style={styles.rate}>YVP: ${rates.yvp.toFixed(2)}</div>
-                  <div style={styles.rate}>Course: ${rates.course.toFixed(2)}</div>
-                  <div style={styles.rate}><strong>Total: ${rates.total.toFixed(2)}</strong></div>
+                  <div style={styles.rate}>Room: ${this.maybeAddVAT(calculator.getTotalRoom()).toFixed(2)}</div>
+                  <div style={styles.rate}>YVP: ${this.maybeAddVAT(calculator.getTotalYVP()).toFixed(2)}</div>
+                  <div style={styles.rate}>Course: ${this.maybeAddVAT(calculator.getTotalCourse()).toFixed(2)}</div>
+                  <div style={styles.rate}><strong>Total: ${this.maybeAddVAT(calculator.getGrandTotal()).toFixed(2)}</strong></div>
                 </div>
               </Col>
             </Row>
@@ -741,14 +726,24 @@ class PriceTable extends Component {
                 <TableHeaderColumn>Date</TableHeaderColumn>
                 <TableHeaderColumn>Room</TableHeaderColumn>
                 <TableHeaderColumn>YVP</TableHeaderColumn>
+                <TableHeaderColumn>Total</TableHeaderColumn>
               </TableRow>
             </TableHeader>
             <TableBody displayRowCheckbox={false}>
-              {_.map(rates.dailyRoomYVP, (rate, date) => (
-                <TableRow key={date}>
-                  <TableRowColumn>{date}</TableRowColumn>
-                  <TableRowColumn>${rate.room.toFixed(2)}</TableRowColumn>
-                  <TableRowColumn>${rate.yvp.toFixed(2)}</TableRowColumn>
+              {_.map(calculator.getDailyRoomYVP(), (day) => (
+                <TableRow key={day.date}>
+                  <TableRowColumn>{day.date}</TableRowColumn>
+                  <DiscountedTableRowColumn
+                    subtotal={this.maybeAddVAT(day.room.subtotal)}
+                    discount={this.maybeAddVAT(day.room.discount)}
+                    total={this.maybeAddVAT(day.room.total)}
+                  />
+                  <DiscountedTableRowColumn
+                    subtotal={this.maybeAddVAT(day.yvp.subtotal)}
+                    discount={this.maybeAddVAT(day.yvp.discount)}
+                    total={this.maybeAddVAT(day.yvp.total)}
+                  />
+                  <TableRowColumn>${this.maybeAddVAT(day.total).toFixed(2)}</TableRowColumn>
                 </TableRow>
               ))}
             </TableBody>
@@ -758,3 +753,19 @@ class PriceTable extends Component {
     )
   } 
 }
+
+function DiscountedTableRowColumn({ subtotal, discount, total }) {
+  if (!discount) {
+    return <TableRowColumn>${total.toFixed(2)}</TableRowColumn>
+  }
+  return (
+    <TableRowColumn>
+      <span style={{ textDecoration: 'line-through' }}>${subtotal.toFixed(2)}</span>
+      <span> </span>
+      <span style={{ fontStyle: 'italic' }}>(-${discount.toFixed(2)})</span>
+      <span> </span>
+      <span>${total.toFixed(2)}</span>
+    </TableRowColumn>
+  )
+}
+

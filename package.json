@@ -25,9 +25,9 @@
   "scripts": {
     "build-css": "node-sass src/ -o src/",
     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch",
-    "start-js": "react-scripts start",
+    "start-js": "npm update && react-scripts start",
     "start": "npm-run-all -p watch-css start-js",
-    "build": "npm run build-css && react-scripts build",
+    "build": "npm update && npm run build-css && react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "deploy": "cross-env CI=true npm test && npm run build && scp -r build/. sivananda@sivananda.webfactional.com:/home/sivananda/webapps/local_sivananda/price_calculator",
     "eject": "react-scripts eject"
