@@ -24,25 +24,31 @@ import SivanandaPriceCalculator from 'sivananda-price-calculator'
 
 const VAT_RATE = 0.075
 const ROOMS = SivanandaPriceCalculator.getRooms()
+const TTC = _.map(SivanandaPriceCalculator.getTTC(), session => {
+  return _.defaults({
+    checkInDate: moment(session.checkInDate),
+    checkOutDate: moment(session.checkOutDate)
+  }, session)
+})
 const SEASONS = _.map(SivanandaPriceCalculator.getSeasons(), season => {
   return _.defaults({
     startDate: moment(season.startDate),
     endDate: moment(season.endDate)
   }, season)
 })
-const TTC_DATES = _.flatMap(SivanandaPriceCalculator.getTTC(), session =>
-  _.map(session.prices.rooms, (price, room) => {
-    return {
-      roomId: room,
-      label: session.label,
-      checkInDate: moment(session.checkInDate),
-      checkOutDate: moment(session.checkOutDate)
-    }
-  })
-)
+
 
 const isWithinKnownSeasonDates = (date) => {
   return date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
+}
+
+const getTTCSession = (id) => {
+  return TTC.find(session => session.id === id)
+}
+
+const getTTCRooms = (stay) => {
+  const session = getTTCSession(stay.ttcId)
+  return Object.keys(session.prices.rooms).map(id => ROOMS.find(room => room.id === id))
 }
 
 const filterRoomsByOccupancy = (occupancy) => {
@@ -73,8 +79,6 @@ export default class App extends Component {
     }
 
     this.updateGuests = this.updateGuests.bind(this)
-
-    this.addTTC = this.addTTC.bind(this)
 
     this.addStay = this.addStay.bind(this)
     this.updateStay = this.updateStay.bind(this)
@@ -125,47 +129,59 @@ export default class App extends Component {
     return this.setState({ error, adults, children })
   }
 
-  addTTC(index) {
-    const stay = TTC_DATES[index]
-    this.setState({
-      stays: _.concat(this.state.stays, {
-        type: 'TTC',
-        roomId: stay.roomId,
-        checkInDate: stay.checkInDate,
-        checkOutDate: stay.checkOutDate,
-        roomDiscount: {
-          type: 'PERCENT',
-          value: 0
-        },
-        yvpDiscount: {
-          type: 'PERCENT',
-          value: 0
-        }
-      })
-    })
-  }
+  addStay(type) {
+    if (type === 'ROOM') {
+      const previousCheckOutDate = _.size(this.state.stays) > 0
+        ? _.last(this.state.stays).checkOutDate
+        : moment().startOf('day')
 
-  addStay() {
-    const previousCheckOutDate = _.size(this.state.stays) > 0
-      ? _.last(this.state.stays).checkOutDate
-      : moment().startOf('day')
-
-    this.setState({
-      stays: _.concat(this.state.stays, {
-        type: 'ROOM',
-        roomId: 'BEACHFRONT',
-        checkInDate: previousCheckOutDate,
-        checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
-        roomDiscount: {
-          type: 'PERCENT',
-          value: 0
-        },
-        yvpDiscount: {
-          type: 'PERCENT',
-          value: 0
-        }
+      return this.setState({
+        stays: _.concat(this.state.stays, {
+          type: type,
+          roomId: 'BEACHFRONT',
+          checkInDate: previousCheckOutDate,
+          checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
+          roomDiscount: {
+            type: 'PERCENT',
+            value: 0
+          },
+          yvpDiscount: {
+            type: 'PERCENT',
+            value: 0
+          }
+        })
       })
-    })
+    }
+    if (type === 'TTC') {
+      let session = TTC[0]
+
+      // Try to find the closest session
+      if (_.size(this.state.stays) > 0) {
+        const nextSession = _.find(TTC, session => session.checkInDate.isAfter(_.last(this.state.stays).checkOutDate))
+        if (nextSession) {
+          session = nextSession
+        }
+      }
+
+
+      return this.setState({
+        stays: _.concat(this.state.stays, {
+          type: type,
+          ttcId: session.id,
+          roomId: 'TENT_SPACE',
+          checkInDate: session.checkInDate,
+          checkOutDate: session.checkOutDate,
+          roomDiscount: {
+            type: 'PERCENT',
+            value: 0
+          },
+          yvpDiscount: {
+            type: 'PERCENT',
+            value: 0
+          }
+        })
+      })
+    }
   }
 
   updateStay(index, diff) {
@@ -242,16 +258,18 @@ export default class App extends Component {
         </Row>
         <Row middle="xs">
           <Col xs={2}>
-            <TTCButton
+            <RaisedButton
               label="Add TTC Stay"
-              dates={TTC_DATES}
+              primary={true}
+              fullWidth={true}
+              onClick={() => this.addStay('TTC')}
               disabled={this.state.adults + this.state.children > 1}
-              onSubmit={this.addTTC} />
+            />
           </Col>
           <Col xs={2}>
             <RaisedButton
               label="Add YVP Stay"
-              onClick={this.addStay}
+              onClick={() => this.addStay('ROOM')}
               primary={true}
               fullWidth={true}
             />
@@ -317,14 +335,22 @@ export default class App extends Component {
         <Row middle="xs">
           <Col xs={12}>
             {this.state.stays.map((stay, i, stays) =>
-              <StayInput
-                key={i}
-                index={i}
-                stay={stay}
-                availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
-                onStayChange={this.updateStay}
-              />
+              stay.type === 'ROOM'
+                ? <RoomStayInput
+                    key={i}
+                    index={i}
+                    stay={stay}
+                    availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
+                    isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
+                    onStayChange={this.updateStay}
+                  />
+                : <TTCStayInput
+                    key={i}
+                    index={i}
+                    stay={stay}
+                    availableRooms={getTTCRooms(stay)}
+                    onStayChange={this.updateStay}
+                  />
             )}
           </Col>
         </Row>
@@ -362,7 +388,7 @@ export default class App extends Component {
   }
 }
 
-class StayInput extends Component {
+class RoomStayInput extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -396,7 +422,6 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <SelectField
-            disabled={stay.type==='TTC'}
             value={stay.roomId}
             style={styles.selectField}
             floatingLabelText="Room"
@@ -409,7 +434,6 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
-            disabled={stay.type==='TTC'}
             buttonText="Discount Room"
             discount={stay.roomDiscount}
             onChange={roomDiscount => onStayChange(index, { roomDiscount })}
@@ -418,7 +442,79 @@ class StayInput extends Component {
         </Col>
         <Col xs={3}>
           <DiscountInput
-            disabled={stay.type==='TTC'}
+            buttonText="Discount YVP"
+            discount={stay.yvpDiscount}
+            onChange={yvpDiscount => onStayChange(index, { yvpDiscount })}
+            allowedTypes={['PERCENT']}
+          />
+        </Col>
+      </Row>
+    )
+  }
+}
+
+class TTCStayInput extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      focused: null
+    }
+  }
+
+  render() {
+    const { index, stay, availableRooms, onStayChange } = this.props
+    const session = getTTCSession(stay.ttcId)
+
+    const styles = {
+      selectField: {
+        fontSize: '14px'
+      }
+    }
+
+    return (
+      <Row middle="xs">
+        <Col xs={3}>
+        <SelectField
+          value={session.label}
+          style={styles.selectField}
+          floatingLabelText="Session"
+          underlineShow={true}
+          fullWidth={true}
+          onChange={(e, i, label) => {
+            const session = TTC.find(session => session.label === label)
+            onStayChange(index, {
+              ttcId: session.id,
+              roomId: session.prices.rooms[stay.roomId] ? stay.roomId : 'TENT_SPACE',
+              checkInDate: session.checkInDate,
+              checkOutDate: session.checkInDate,
+            })
+          }}
+        >
+          {_.map(TTC, (session) => <MenuItem key={session.id} value={session.label} primaryText={session.label} />)}
+        </SelectField>
+        </Col>
+        <Col xs={3}>
+          <SelectField
+            value={stay.roomId}
+            style={styles.selectField}
+            floatingLabelText="Room"
+            underlineShow={true}
+            fullWidth={true}
+            onChange={(e, i, roomId) => onStayChange(index, { roomId: roomId })}
+          >
+            {_.map(availableRooms, (room) => <MenuItem key={room.id} value={room.id} primaryText={room.label} />)}
+          </SelectField>
+        </Col>
+        <Col xs={3}>
+          <DiscountInput
+            buttonText="Discount Room"
+            discount={stay.roomDiscount}
+            onChange={roomDiscount => onStayChange(index, { roomDiscount })}
+            allowedTypes={['PERCENT']}
+          />
+        </Col>
+        <Col xs={3}>
+          <DiscountInput
             buttonText="Discount YVP"
             discount={stay.yvpDiscount}
             onChange={yvpDiscount => onStayChange(index, { yvpDiscount })}
@@ -587,74 +683,6 @@ class DiscountInput extends Component {
   }
 }
 
-class TTCButton extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      open: false,
-      dateIndex: null
-    };
-  }
-
-  handleTouchTap = (event) => {
-    event.preventDefault();
-    this.setState({
-      open: true,
-      anchorEl: event.currentTarget,
-    });
-  };
-
-  handleRequestClose = () => {
-    this.setState({
-      open: false,
-    });
-  };
-
-  handleItemTouchTap = (event, item, index) => {
-    this.props.onSubmit(index)
-    this.handleRequestClose()
-  }
-
-  render() {
-    const styles = {
-      menuItem: {
-        fontSize: '14px'
-      }
-    }
-    return (
-      <div>
-        <RaisedButton
-          onTouchTap={this.handleTouchTap}
-          label={this.props.label}
-          disabled={this.props.disabled}
-          primary={true}
-          fullWidth={true}
-        />
-        <Popover
-          open={this.state.open}
-          anchorEl={this.state.anchorEl}
-          anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-          targetOrigin={{horizontal: 'left', vertical: 'top'}}
-          onRequestClose={this.handleRequestClose}
-        >
-          <Menu
-            maxHeight={250}
-            menuItemStyle={styles.menuItem}
-            onItemTouchTap={this.handleItemTouchTap}
-          >
-            {_.map(this.props.dates, (date, index) =>
-              <MenuItem
-                key={index}
-                primaryText={`${date.label} - ${getRoomById(date.roomId).label}`}
-              />
-            )}
-          </Menu>
-        </Popover>
-      </div>
-    );
-  }
-}
-
 class PriceTable extends Component {
   constructor(props) {
     super(props)
@@ -675,8 +703,8 @@ class PriceTable extends Component {
       adults: this.props.adults,
       children: this.props.children,
       stays: this.props.stays.map(stay => _.defaults({
-        checkInDate: stay.checkInDate.format('YYYY-MM-DD'),
-        checkOutDate: stay.checkOutDate.format('YYYY-MM-DD')
+        checkInDate: moment.isMoment(stay.checkInDate) ? stay.checkInDate.format('YYYY-MM-DD') : stay.checkInDate,
+        checkOutDate: moment.isMoment(stay.checkOutDate) ? stay.checkOutDate.format('YYYY-MM-DD') : stay.checkOutDate
       }, stay)),
       courses: this.props.courses.map(course => _.defaults({
         startDate: course.startDate.format('YYYY-MM-DD'),
