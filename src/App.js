@@ -692,7 +692,7 @@ class PriceTable extends Component {
       }
     }
     return (
-      <Card>
+      <Card initiallyExpanded={true}>
         <CardHeader
           title={`Price Breakdown for ${calculator.getTotalNumberOfNights()} night(s)`}
           actAsExpander={true}
