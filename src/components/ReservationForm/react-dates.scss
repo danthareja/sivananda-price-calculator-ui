@@ -16,8 +16,8 @@ $react-dates-color-gray-lighter: #e0e0e0 !default;
 $react-dates-font-size: 14px !default;
 $react-dates-line-height: 24px !default;
 
-@import '../../node_modules/react-dates/css/variables.scss';
-@import '../../node_modules/react-dates/css/styles.scss';
+@import '../../../node_modules/react-dates/css/variables.scss';
+@import '../../../node_modules/react-dates/css/styles.scss';
 
 .DateInput {
   // font

@@ -15,16 +15,12 @@ const INITIAL_STATE = {
         endDate: moment(season.endDate).startOf('day')
       })
     }),
-    ttc: SivanandaPriceCalculator.getTTC().reduce((sessions, session) => {
-      return sessions.concat(Object.keys(session.prices.rooms).map(roomId => {
-        return {
-          roomId,
-          label: session.label,
-          checkInDate: moment(session.checkInDate).startOf('day'),
-          checkOutDate: moment(session.checkOutDate).startOf('day'),
-        }
-      }))
-    }, [])
+    ttc: SivanandaPriceCalculator.getTTC().map(session => {
+      return Object.assign(session, {
+        checkInDate: moment(session.checkInDate).startOf('day'),
+        checkOutDate: moment(session.checkOutDate).startOf('day'),
+      })
+    })
   }
 }
 
@@ -177,7 +173,7 @@ function removeStay(state, payload) {
 
 function addCourse(state, payload) {
   const previousEndDate = state.courses.length > 0
-    ? state.courses[state.course.length - 1].endDate
+    ? state.courses[state.courses.length - 1].endDate
     : state.stays.length > 0
       ? state.stays[0].checkInDate
       : moment().startOf('day')
