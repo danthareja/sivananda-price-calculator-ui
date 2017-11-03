@@ -26,21 +26,16 @@ const VAT_RATE = 0.075
 const ROOMS = SivanandaPriceCalculator.getRooms()
 const TTC = _.map(SivanandaPriceCalculator.getTTC(), session => {
   return _.defaults({
-    checkInDate: moment(session.checkInDate),
-    checkOutDate: moment(session.checkOutDate)
+    checkInDate: moment(session.checkInDate).startOf('day'),
+    checkOutDate: moment(session.checkOutDate).startOf('day')
   }, session)
 })
 const SEASONS = _.map(SivanandaPriceCalculator.getSeasons(), season => {
   return _.defaults({
-    startDate: moment(season.startDate),
-    endDate: moment(season.endDate)
+    startDate: moment(season.startDate).startOf('day'),
+    endDate: moment(season.endDate).startOf('day')
   }, season)
 })
-
-
-const isWithinKnownSeasonDates = (date) => {
-  return date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
-}
 
 const getTTCSession = (id) => {
   return TTC.find(session => session.id === id)
@@ -201,15 +196,17 @@ export default class App extends Component {
   }
 
   addCourse() {
-    let firstCheckInDate = _.size(this.state.stays) > 0
-      ? _.first(this.state.stays).checkInDate
-      : moment().startOf('day')
+    const previousEndDate = !_.isEmpty(this.state.courses)
+      ? _.last(this.state.courses).endDate
+      : !_.isEmpty(this.state.stays)
+        ? _.first(this.state.stays).checkInDate
+        : moment().startOf('day')
 
     this.setState({
       courses: _.concat(this.state.courses, {
         tuition: 0,
-        startDate: firstCheckInDate.clone(),
-        endDate: firstCheckInDate.clone().add(1, 'days'),
+        startDate: previousEndDate.clone(),
+        endDate: previousEndDate.clone().add(1, 'days'),
         discount: {
           type: 'PERCENT',
           value: 0
@@ -247,6 +244,28 @@ export default class App extends Component {
       children: {
         textField: { fontSize: '14px' }
       }
+    }
+
+    const isInvalidStayDate = (date, i) => {
+      const { stays } = this.state
+      if (i === 0) {
+        if (stays[i+1]) {
+          return date.isBefore(_.first(SEASONS).startDate, 'days') || date.isAfter(stays[i+1].checkInDate, 'days')
+        }
+        return !date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
+      }
+      return date.isBefore(stays[i-1].checkOutDate, 'days') || date.isAfter(_.last(SEASONS).endDate, 'days')
+    }
+
+    const isInvalidCourseDate = (date, i) => {
+      const { courses } = this.state
+      if (i === 0) {
+        if (courses[i+1]) {
+          return date.isBefore(_.first(SEASONS).startDate, 'days') || date.isAfter(courses[i+1].startDate, 'days')
+        }
+        return !date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
+      }
+      return date.isBefore(courses[i-1].endDate, 'days') || date.isAfter(_.last(SEASONS).endDate, 'days')
     }
 
     return (
@@ -341,7 +360,7 @@ export default class App extends Component {
                     index={i}
                     stay={stay}
                     availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
-                    isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
+                    isOutsideRange={(date) => isInvalidStayDate(date, i)}
                     onStayChange={this.updateStay}
                   />
                 : <TTCStayInput
@@ -361,7 +380,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 course={course}
-                isOutsideRange={(date) => !isWithinKnownSeasonDates(date)}
+                isOutsideRange={(date) => isInvalidCourseDate(date, i)}
                 onCourseChange={this.updateCourse}
               />
             )}
