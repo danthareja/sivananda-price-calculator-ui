@@ -416,7 +416,10 @@ class RoomStayInput extends Component {
             endDatePlaceholderText="Check out"
             focusedInput={this.state.focused}
             isOutsideRange={isOutsideRange}
-            onDatesChange={({ startDate, endDate }) => onStayChange(index, { checkInDate: startDate.startOf('day'), checkOutDate: endDate.startOf('day') })}
+            onDatesChange={({ startDate, endDate }) => onStayChange(index, {
+              checkInDate: startDate ? startDate.startOf('day') : null,
+              checkOutDate: endDate ? endDate.startOf('day') : null
+            })}
             onFocusChange={focused => this.setState({ focused })}
           />
         </Col>
@@ -558,7 +561,10 @@ class CourseInput extends Component {
             endDatePlaceholderText={'Course end'}
             focusedInput={this.state.focused}
             isOutsideRange={isOutsideRange}
-            onDatesChange={({startDate, endDate}) => onCourseChange(index, { startDate: startDate.startOf('day'), endDate: endDate.startOf('day') })}
+            onDatesChange={({startDate, endDate}) => onCourseChange(index, {
+              startDate: startDate ? startDate.startOf('day') : null,
+              endDate: endDate ? endDate.startOf('day') : null,
+            })}
             onFocusChange={( focused ) => { this.setState({ focused }) }}
           />
         </Col>
