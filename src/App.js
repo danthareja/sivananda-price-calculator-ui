@@ -254,6 +254,9 @@ export default class App extends Component {
         }
         return !date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
       }
+      if (stays[i+1]) {
+        return date.isBefore(stays[i-1].checkOutDate, 'days') || date.isAfter(stays[i+1].checkInDate, 'days')
+      }
       return date.isBefore(stays[i-1].checkOutDate, 'days') || date.isAfter(_.last(SEASONS).endDate, 'days')
     }
 
@@ -264,6 +267,9 @@ export default class App extends Component {
           return date.isBefore(_.first(SEASONS).startDate, 'days') || date.isAfter(courses[i+1].startDate, 'days')
         }
         return !date.isBetween(_.first(SEASONS).startDate, _.last(SEASONS).endDate, 'days', '[]')
+      }
+      if (courses[i+1]) {
+        return date.isBefore(courses[i-1].endDate, 'days') || date.isAfter(courses[i+1].startDate, 'days')
       }
       return date.isBefore(courses[i-1].endDate, 'days') || date.isAfter(_.last(SEASONS).endDate, 'days')
     }
