@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import moment from 'moment'
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
 import { Grid, Row, Col } from 'react-flexbox-grid'
 
@@ -59,19 +60,9 @@ const getRoomById = (id) => {
 };
 
 
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      error: {
-        message: '',
-        show: false
-      },
-      adults: 1,
-      children: 0,
-      stays: [],
-      courses: []
-    }
 
     this.updateGuests = this.updateGuests.bind(this)
 
@@ -85,149 +76,54 @@ export default class App extends Component {
   }
 
   updateGuests(adults, children) {
-    let error = { message: '', show: false }
-    let totalGuests = adults + children
-
-    if (!_.isEmpty(this.state.courses)) {
-      error.message = 'Courses can only be added for a reservation with one adult. Please remove the courses before increasing guest count.'
-      error.show = true
-      adults = this.state.adults
-      children = this.state.children
-      return this.setState({ error, adults, children })
-    }
-
-    let ttcStays = _.filter(this.state.stays, stay => stay.type === 'TTC')
-
-    if (!_.isEmpty(ttcStays) && adults + children > 1) {
-      error.message = 'TTC stays can only be added for a reservation with one adult. Please remove the TTC stay before increasing guest count'
-      error.show = true
-      adults = this.state.adults
-      children = this.state.children
-      return this.setState({ error, adults, children })
-    }
-
-    let invalidRooms = _(this.state.stays)
-      .map(stay => getRoomById(stay.roomId))
-      .filter(room => totalGuests > room.maxOccupancy)
-      .map(_.property('label'))
-      .uniq()
-      .value()
-
-    if (!_.isEmpty(invalidRooms)) {
-      error.message = `${_.join(invalidRooms, ', and ')} cannot have more than ${totalGuests - 1} guests. Please change the room type or remove the stay before increasing guest count.`
-      error.show = true
-      adults = this.state.adults
-      children = this.state.children
-      return this.setState({ error, adults, children })
-    }
-
-    return this.setState({ error, adults, children })
+    this.props.dispatch({
+      type: 'UPDATE_GUESTS',
+      payload: { adults, children }
+    })
   }
 
   addStay(type) {
-    if (type === 'ROOM') {
-      const previousCheckOutDate = _.size(this.state.stays) > 0
-        ? _.last(this.state.stays).checkOutDate
-        : moment().startOf('day')
-
-      return this.setState({
-        stays: _.concat(this.state.stays, {
-          type: type,
-          roomId: 'BEACHFRONT',
-          checkInDate: previousCheckOutDate,
-          checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
-          roomDiscount: {
-            type: 'PERCENT',
-            value: 0
-          },
-          yvpDiscount: {
-            type: 'PERCENT',
-            value: 0
-          }
-        })
-      })
-    }
-    if (type === 'TTC') {
-      let session = TTC[0]
-
-      // Try to find the closest session
-      if (_.size(this.state.stays) > 0) {
-        const nextSession = _.find(TTC, session => session.checkInDate.isAfter(_.last(this.state.stays).checkOutDate))
-        if (nextSession) {
-          session = nextSession
-        }
-      }
-
-
-      return this.setState({
-        stays: _.concat(this.state.stays, {
-          type: type,
-          ttcId: session.id,
-          roomId: 'TENT_SPACE',
-          checkInDate: session.checkInDate,
-          checkOutDate: session.checkOutDate,
-          roomDiscount: {
-            type: 'PERCENT',
-            value: 0
-          },
-          yvpDiscount: {
-            type: 'PERCENT',
-            value: 0
-          }
-        })
-      })
-    }
+    this.props.dispatch({
+      type: 'ADD_STAY',
+      payload: { type }
+    })
   }
 
   updateStay(index, diff) {
-    let stays = [
-      ...this.state.stays.slice(0, index),
-      _.assign({}, this.state.stays[index], diff),
-      ...this.state.stays.slice(index + 1)
-    ]
-    
-    this.setState({ stays })
+    this.props.dispatch({
+      type: 'UPDATE_STAY',
+      payload: { index, diff }
+    })
   }
 
-  removeStay(index) {
-    this.setState({
-      stays: _.initial(this.state.stays)
+  removeStay() {
+    this.props.dispatch({
+      type: 'REMOVE_STAY'
     })
   }
 
   addCourse() {
-    const previousEndDate = !_.isEmpty(this.state.courses)
-      ? _.last(this.state.courses).endDate
-      : !_.isEmpty(this.state.stays)
-        ? _.first(this.state.stays).checkInDate
-        : moment().startOf('day')
-
-    this.setState({
-      courses: _.concat(this.state.courses, {
-        tuition: 0,
-        startDate: previousEndDate.clone(),
-        endDate: previousEndDate.clone().add(1, 'days'),
-        discount: {
-          type: 'PERCENT',
-          value: 0
-        }
-      })
+    this.props.dispatch({
+      type: 'ADD_COURSE'
     })
   }
 
   updateCourse(index, diff) {
-    this.setState({
-      courses: [
-        ...this.state.courses.slice(0, index),
-        _.assign({}, this.state.courses[index], diff),
-        ...this.state.courses.slice(index + 1)
-      ]
+    this.props.dispatch({
+      type: 'UPDATE_COURSE',
+      payload: { index, diff }
     })
   }
 
-  removeCourse(index) {
-    this.setState({
-      courses: _.initial(this.state.courses)
+  removeCourse() {
+    this.props.dispatch({
+      type: 'REMOVE_COURSE'
+    })
+  }
+
+  resetError(){
+    this.props.dispatch({
+      type: 'RESET_ERROR'
     })
   }
 
@@ -247,7 +143,7 @@ export default class App extends Component {
     }
 
     const isInvalidStayDate = (date, i) => {
-      const { stays } = this.state
+      const { stays } = this.props
       if (i === 0) {
         if (stays[i+1]) {
           return date.isBefore(_.first(SEASONS).startDate, 'days') || date.isAfter(stays[i+1].checkInDate, 'days')
@@ -261,7 +157,7 @@ export default class App extends Component {
     }
 
     const isInvalidCourseDate = (date, i) => {
-      const { courses } = this.state
+      const { courses } = this.props
       if (i === 0) {
         if (courses[i+1]) {
           return date.isBefore(_.first(SEASONS).startDate, 'days') || date.isAfter(courses[i+1].startDate, 'days')
@@ -288,7 +184,7 @@ export default class App extends Component {
               primary={true}
               fullWidth={true}
               onClick={() => this.addStay('TTC')}
-              disabled={this.state.adults + this.state.children > 1}
+              disabled={this.props.adults + this.props.children > 1}
             />
           </Col>
           <Col xs={2}>
@@ -303,7 +199,7 @@ export default class App extends Component {
             <RaisedButton
               label="Remove Stay"
               onClick={this.removeStay}
-              disabled={_.isEmpty(this.state.stays)}
+              disabled={_.isEmpty(this.props.stays)}
               secondary={true}
               fullWidth={true}
             />
@@ -312,7 +208,7 @@ export default class App extends Component {
             <RaisedButton
               label="Add Course"
               onClick={this.addCourse}
-              disabled={this.state.adults + this.state.children > 1}
+              disabled={this.props.adults + this.props.children > 1}
               primary={true}
               fullWidth={true}
             />
@@ -321,7 +217,7 @@ export default class App extends Component {
             <RaisedButton
               label="Remove Course"
               onClick={this.removeCourse}
-              disabled={_.isEmpty(this.state.courses)}
+              disabled={_.isEmpty(this.props.courses)}
               secondary={true}
               fullWidth={true}
             />
@@ -334,10 +230,10 @@ export default class App extends Component {
               style={styles.adults.textField}
               floatingLabelText="Number of adults"
               type="Number"
-              value={this.state.adults}
+              value={this.props.adults}
               onChange={e => this.updateGuests(
                 _.max([1, Number(e.target.value)]),
-                this.state.children
+                this.props.children
               )}
               fullWidth={true}
             />
@@ -348,9 +244,9 @@ export default class App extends Component {
               style={styles.children.textField}
               floatingLabelText="Number of children"
               type="Number"
-              value={this.state.children}
+              value={this.props.children}
               onChange={e => this.updateGuests(
-                this.state.adults,
+                this.props.adults,
                 _.max([0, Number(e.target.value)])
               )}
               fullWidth={true}
@@ -359,13 +255,13 @@ export default class App extends Component {
         </Row>
         <Row middle="xs">
           <Col xs={12}>
-            {this.state.stays.map((stay, i, stays) =>
+            {this.props.stays.map((stay, i, stays) =>
               stay.type === 'ROOM'
                 ? <RoomStayInput
                     key={i}
                     index={i}
                     stay={stay}
-                    availableRooms={filterRoomsByOccupancy(this.state.adults + this.state.children)}
+                    availableRooms={filterRoomsByOccupancy(this.props.adults + this.props.children)}
                     isOutsideRange={(date) => isInvalidStayDate(date, i)}
                     onStayChange={this.updateStay}
                   />
@@ -381,7 +277,7 @@ export default class App extends Component {
         </Row>
         <Row middle="xs">
           <Col xs={12}>
-            {this.state.courses.map((course, i) =>
+            {this.props.courses.map((course, i) =>
               <CourseInput
                 key={i}
                 index={i}
@@ -395,15 +291,15 @@ export default class App extends Component {
       </Grid>
       </Paper>
       <PriceTable
-        adults={this.state.adults}
-        children={this.state.children}
-        stays={this.state.stays}
-        courses={this.state.courses}
+        adults={this.props.adults}
+        children={this.props.children}
+        stays={this.props.stays}
+        courses={this.props.courses}
       />
       <Snackbar
-        open={this.state.error.show}
-        message={this.state.error.message}
-        onRequestClose={() => { this.setState({ error: { message: '', show: false } }) } }
+        open={Boolean(this.props.error)}
+        message={this.props.error}
+        onRequestClose={this.resetError}
         style={styles.snackbar.container}
         bodyStyle={styles.snackbar.body}
         contentStyle={styles.snackbar.content}
@@ -412,6 +308,8 @@ export default class App extends Component {
     )
   }
 }
+
+export default connect(state => ({ ...state }))(App)
 
 class RoomStayInput extends Component {
   constructor(props) {
