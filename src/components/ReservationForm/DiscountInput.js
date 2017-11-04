@@ -36,13 +36,13 @@ class DiscountInput extends Component {
   }
 
   handleTextFieldChange(e) {
-    let value = e.target.value
+    let value = Number(e.target.value)
     let type = this.props.discount.type
     this.props.onChange({ value, type })
   }
 
   handleRadioButtonChange(e, type) {
-    let value = this.props.discount.value
+    let value = Number(this.props.discount.value)
     this.props.onChange({ value, type })    
   }
 

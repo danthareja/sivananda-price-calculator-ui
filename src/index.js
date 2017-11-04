@@ -5,7 +5,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
 import App from './components/App'
-import createStore from './store'
+import store from './store'
 import './index.css'
 
 // Needed for Materialize UI's onTouchTap
@@ -13,7 +13,7 @@ import './index.css'
 injectTapEventPlugin()
 
 ReactDOM.render(
-  <Provider store={createStore()}>
+  <Provider store={store}>
     <MuiThemeProvider>
       <App/>
     </MuiThemeProvider>

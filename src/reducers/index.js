@@ -1,30 +1,6 @@
 import moment from 'moment'
-import SivanandaPriceCalculator from 'sivananda-price-calculator'
 
-const INITIAL_STATE = {
-  error: '',
-  adults: 1,
-  children: 0,
-  stays: [],
-  courses: [],
-  data: {
-    rooms: SivanandaPriceCalculator.getRooms(),
-    seasons: SivanandaPriceCalculator.getSeasons().map(season => {
-      return Object.assign(season, {
-        startDate: moment(season.startDate).startOf('day'),
-        endDate: moment(season.endDate).startOf('day')
-      })
-    }),
-    ttc: SivanandaPriceCalculator.getTTC().map(session => {
-      return Object.assign(session, {
-        checkInDate: moment(session.checkInDate).startOf('day'),
-        checkOutDate: moment(session.checkOutDate).startOf('day'),
-      })
-    })
-  }
-}
-
-export default function rootReducer(state = INITIAL_STATE, { type, payload }) {
+export default function rootReducer(state, { type, payload }) {
   switch (type) {
     case 'UPDATE_GUESTS':
       return updateGuests(state, payload)
@@ -93,16 +69,16 @@ function addStay(state, payload) {
 
   if (type === 'ROOM') {
     const previousCheckOutDate = previousStay
-      ? previousStay.checkOutDate
-      : moment().startOf('day')
+      ? moment(previousStay.checkOutDate)
+      : moment()
 
     return {
       ...state,
       stays: state.stays.concat({
         type: type,
         roomId: 'BEACHFRONT',
-        checkInDate: previousCheckOutDate,
-        checkOutDate: previousCheckOutDate.clone().add(1, 'days'),
+        checkInDate: previousCheckOutDate.format('YYYY-MM-DD'),
+        checkOutDate: previousCheckOutDate.add(1, 'days').format('YYYY-MM-DD'),
         roomDiscount: {
           type: 'PERCENT',
           value: 0
@@ -121,7 +97,7 @@ function addStay(state, payload) {
     // Try to find the closest session
     if (previousStay) {
       const nextSession = state.data.ttc.find(session => {
-        return session.checkInDate.isAfter(previousStay.checkOutDate)
+        return moment(session.checkInDate).isAfter(previousStay.checkOutDate)
       })
       if (nextSession) {
         session = nextSession
@@ -177,17 +153,17 @@ function removeStay(state, payload) {
 
 function addCourse(state, payload) {
   const previousEndDate = state.courses.length > 0
-    ? state.courses[state.courses.length - 1].endDate
+    ? moment(state.courses[state.courses.length - 1].endDate)
     : state.stays.length > 0
-      ? state.stays[0].checkInDate
-      : moment().startOf('day')
+      ? moment(state.stays[0].checkInDate)
+      : moment()
 
   return {
     ...state,
     courses: state.courses.concat({
       tuition: 0,
-      startDate: previousEndDate.clone(),
-      endDate: previousEndDate.clone().add(1, 'days'),
+      startDate: previousEndDate.format('YYYY-MM-DD'),
+      endDate: previousEndDate.add(1, 'days').format('YYYY-MM-DD'),
       discount: {
         type: 'PERCENT',
         value: 0

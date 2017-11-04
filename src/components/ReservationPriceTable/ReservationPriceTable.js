@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import moment from 'moment'
 
 import Paper from 'material-ui/Paper'
 import Toggle from 'material-ui/Toggle'
