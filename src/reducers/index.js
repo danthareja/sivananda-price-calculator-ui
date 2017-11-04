@@ -165,9 +165,13 @@ function updateStay(state, payload) {
 }
 
 function removeStay(state, payload) {
+  const { index } = payload
   return {
     ...state,
-    stays: state.stays.slice(0, state.stays.length - 1)
+    stays: [
+      ...state.stays.slice(0, index),
+      ...state.stays.slice(index + 1)
+    ]
   }
 }
 
@@ -205,9 +209,13 @@ function updateCourse(state, payload) {
 }
 
 function removeCourse(state, payload) {
+  const { index } = payload
   return {
     ...state,
-    courses: state.courses.slice(0, state.courses.length - 1)
+    courses: [
+      ...state.courses.slice(0, index),
+      ...state.courses.slice(index + 1)
+    ]
   }
 }
 

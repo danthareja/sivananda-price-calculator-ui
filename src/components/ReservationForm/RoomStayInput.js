@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import ClearIcon from 'material-ui/svg-icons/content/clear'
+import IconButton from 'material-ui/IconButton'
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
 import { Row, Col } from 'react-flexbox-grid'
@@ -22,6 +24,7 @@ class RoomStayInput extends Component {
     this.handleRoomDiscountChange = this.handleRoomDiscountChange.bind(this)
     this.handleYVPDiscountChange = this.handleYVPDiscountChange.bind(this)
     this.handleFocusChange = this.handleFocusChange.bind(this)
+    this.handleRemoveClick = this.handleRemoveClick.bind(this)
   }
 
   getAvailableRooms() {
@@ -65,6 +68,10 @@ class RoomStayInput extends Component {
 
   handleYVPDiscountChange(yvpDiscount) {
     this.props.updateStay({ yvpDiscount })
+  }
+
+  handleRemoveClick() {
+    this.props.removeStay()
   }
 
   handleFocusChange(focused) {
@@ -117,13 +124,18 @@ class RoomStayInput extends Component {
             allowedTypes={['PERCENT']}
           />
         </Col>
-        <Col xs={3}>
+        <Col xs={2}>
           <DiscountInput
             buttonText="Discount YVP"
             discount={stay.yvpDiscount}
             onChange={this.handleYVPDiscountChange}
             allowedTypes={['PERCENT']}
           />
+        </Col>
+        <Col xs={1}>
+          <IconButton onClick={this.handleRemoveClick} tooltip="Remove">
+            <ClearIcon />
+          </IconButton>
         </Col>
       </Row>
     )
@@ -145,6 +157,14 @@ function mapDispatchToProps(dispatch, ownProps) {
         payload: {
           index: ownProps.index,
           diff
+        }
+      })
+    },
+    removeStay() {
+      dispatch({
+        type: 'REMOVE_STAY',
+        payload: {
+          index: ownProps.index,
         }
       })
     }

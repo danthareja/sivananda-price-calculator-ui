@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import ClearIcon from 'material-ui/svg-icons/content/clear'
+import IconButton from 'material-ui/IconButton'
 import TextField from 'material-ui/TextField'
 import { Row, Col } from 'react-flexbox-grid'
 import { DateRangePicker } from 'react-dates'
@@ -16,6 +18,7 @@ class CourseInput extends Component {
 
     this.isOutsideRange = this.isOutsideRange.bind(this)
     this.handleDatesChange = this.handleDatesChange.bind(this)
+    this.handleRemoveClick = this.handleRemoveClick.bind(this)
     this.handleTuitionChange = this.handleTuitionChange.bind(this)
     this.handleDiscountChange = this.handleDiscountChange.bind(this)
     this.handleFocusChange = this.handleFocusChange.bind(this)
@@ -43,6 +46,10 @@ class CourseInput extends Component {
       startDate: startDate ? startDate.startOf('day') : null,
       endDate: endDate ? endDate.startOf('day') : null,
     })
+  }
+
+  handleRemoveClick() {
+    this.props.removeCourse()
   }
 
   handleTuitionChange(e) {
@@ -100,13 +107,18 @@ class CourseInput extends Component {
             onChange={this.handleTuitionChange}
           />
         </Col>
-        <Col xs={6}>
+        <Col xs={5}>
           <DiscountInput
-            buttonText="Discount Course"
             discount={course.discount}
             onChange={this.handleDiscountChange}
             allowedTypes={['PERCENT', 'FIXED']}
+            buttonText="Discount Tuition"
           />
+        </Col>
+        <Col xs={1}>
+          <IconButton onClick={this.handleRemoveClick} tooltip="Remove">
+            <ClearIcon />
+          </IconButton>
         </Col>
       </Row>
     )
@@ -128,6 +140,14 @@ function mapDispatchToProps(dispatch, ownProps) {
         payload: {
           index: ownProps.index,
           diff
+        }
+      })
+    },
+    removeCourse() {
+      dispatch({
+        type: 'REMOVE_COURSE',
+        payload: {
+          index: ownProps.index,
         }
       })
     }
