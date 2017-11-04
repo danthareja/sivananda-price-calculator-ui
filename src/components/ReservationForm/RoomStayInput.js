@@ -31,7 +31,7 @@ class RoomStayInput extends Component {
 
   getAvailableRooms() {
     return this.props.data.rooms.filter(room => {
-      return this.props.adults + this.props.children < room.maxOccupancy
+      return this.props.adults + this.props.children <= room.maxOccupancy
     })
   }
 
