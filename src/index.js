@@ -1,9 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import injectTapEventPlugin from 'react-tap-event-plugin'
 
-import App from './App'
+import App from './components/App'
+import createStore from './store'
 import './index.css'
 
 // Needed for Materialize UI's onTouchTap
@@ -11,8 +13,10 @@ import './index.css'
 injectTapEventPlugin()
 
 ReactDOM.render(
-  <MuiThemeProvider>
-    <App/>
-  </MuiThemeProvider>,
+  <Provider store={createStore()}>
+    <MuiThemeProvider>
+      <App/>
+    </MuiThemeProvider>
+  </Provider>,
   document.getElementById('root')
 )

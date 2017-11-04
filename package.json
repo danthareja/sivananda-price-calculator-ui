@@ -4,21 +4,23 @@
   "private": true,
   "homepage": "http://local.sivanandabahamas.org/price_calculator",
   "dependencies": {
-    "lodash": "^4.17.4",
     "material-ui": "^0.17.1",
     "moment": "^2.19.1",
     "prop-types": "^15.6.0",
     "react": "^15.4.2",
     "react-addons-shallow-compare": "^15.4.2",
-    "react-dates": "8.2.1",
+    "react-dates": "^8.2.1",
     "react-dom": "^15.4.2",
     "react-flexbox-grid": "^1.1.5",
+    "react-redux": "^5.0.6",
     "react-tap-event-plugin": "^2.0.1",
+    "redux": "^3.7.2",
+    "redux-logger": "^3.0.6",
     "sivananda-price-calculator": "github:danthareja/sivananda-price-calculator"
   },
   "devDependencies": {
     "cross-env": "^3.2.4",
-    "node-sass": "4.5.0",
+    "node-sass": "^4.5.0",
     "npm-run-all": "^4.0.2",
     "react-scripts": "0.9.5"
   },
