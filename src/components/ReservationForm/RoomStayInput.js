@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import moment from 'moment'
+import { DateRangePicker } from 'react-dates'
+
 import ClearIcon from 'material-ui/svg-icons/content/clear'
 import IconButton from 'material-ui/IconButton'
 import MenuItem from 'material-ui/MenuItem'
 import SelectField from 'material-ui/SelectField'
 import { Row, Col } from 'react-flexbox-grid'
-import { DateRangePicker } from 'react-dates'
 
 import DiscountInput from './DiscountInput'
 
@@ -52,8 +54,8 @@ class RoomStayInput extends Component {
 
   handleDatesChange({ startDate, endDate }) {
     this.props.updateStay({
-      checkInDate: startDate ? startDate.startOf('day') : null,
-      checkOutDate: endDate ? endDate.startOf('day') : null
+      checkInDate: startDate ? startDate.format('YYYY-MM-DD') : null,
+      checkOutDate: endDate ? endDate.format('YYYY-MM-DD') : null
     })
   }
 
@@ -92,8 +94,8 @@ class RoomStayInput extends Component {
       <Row middle="xs">
         <Col xs={3}>
           <DateRangePicker
-            startDate={stay.checkInDate}
-            endDate={stay.checkOutDate}
+            startDate={moment(stay.checkInDate)}
+            endDate={moment(stay.checkOutDate)}
             startDatePlaceholderText="Check in"
             endDatePlaceholderText="Check out"
             focusedInput={focused}

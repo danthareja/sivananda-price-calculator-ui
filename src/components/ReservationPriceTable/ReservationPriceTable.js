@@ -120,14 +120,8 @@ function mapStateToProps(state) {
   return {
     adults: state.adults,
     children: state.children,
-    stays: state.stays.map(stay => Object.assign({}, stay, {
-      checkInDate: moment.isMoment(stay.checkInDate) ? stay.checkInDate.format('YYYY-MM-DD') : stay.checkInDate,
-      checkOutDate: moment.isMoment(stay.checkOutDate) ? stay.checkOutDate.format('YYYY-MM-DD') : stay.checkOutDate
-    })),
-    courses: state.courses.map(course => Object.assign({}, course, {
-      startDate: course.startDate.format('YYYY-MM-DD'),
-      endDate: course.endDate.format('YYYY-MM-DD'),
-    }, course))
+    stays: state.stays,
+    courses: state.courses
   }
 }
 

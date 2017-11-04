@@ -63,8 +63,6 @@ class TTCStayInput extends Component {
     const { stay } = this.props
     const session = this.getTTCSession()
 
-    console.log(this.getAvailableRooms())
-
     const styles = {
       selectField: {
         fontSize: '14px'

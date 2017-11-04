@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
+import moment from 'moment'
+import { DateRangePicker } from 'react-dates'
+
 import ClearIcon from 'material-ui/svg-icons/content/clear'
 import IconButton from 'material-ui/IconButton'
 import TextField from 'material-ui/TextField'
 import { Row, Col } from 'react-flexbox-grid'
-import { DateRangePicker } from 'react-dates'
 
 import DiscountInput from './DiscountInput'
 
@@ -41,10 +43,10 @@ class CourseInput extends Component {
     return date.isBefore(courses[index - 1].endDate, 'days') || date.isAfter(seasons[seasons.length - 1].endDate, 'days')
   }
 
-  handleDatesChange({startDate, endDate}) {
+  handleDatesChange({ startDate, endDate }) {
     this.props.updateCourse({
-      startDate: startDate ? startDate.startOf('day') : null,
-      endDate: endDate ? endDate.startOf('day') : null,
+      startDate: moment.isMoment(startDate) ? startDate.format('YYYY-MM-DD') : null,
+      endDate: moment.isMoment(endDate) ? endDate.format('YYYY-MM-DD') : null,
     })
   }
 
@@ -84,8 +86,8 @@ class CourseInput extends Component {
       <Row middle="xs">
         <Col xs={3}>
           <DateRangePicker
-            startDate={course.startDate}
-            endDate={course.endDate}
+            startDate={moment(course.startDate)}
+            endDate={moment(course.endDate)}
             startDatePlaceholderText={'Course start'}
             endDatePlaceholderText={'Course end'}
             focusedInput={focused}
