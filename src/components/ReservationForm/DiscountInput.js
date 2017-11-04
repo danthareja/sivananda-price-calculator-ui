@@ -74,7 +74,7 @@ class DiscountInput extends Component {
             <Row>
               <Col xs={6}>
                 <TextField
-                  id={"discount"}
+                  id="discount"
                   type="Number"
                   value={this.props.discount.value}
                   onChange={this.handleTextFieldChange}
