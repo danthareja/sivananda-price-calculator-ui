@@ -123,7 +123,7 @@ class RoomStayInput extends Component {
             buttonText="Discount Room"
             discount={stay.roomDiscount}
             onChange={this.handleRoomDiscountChange}
-            allowedTypes={['PERCENT']}
+            allowedTypes={['PERCENT', 'FIXED']}
           />
         </Col>
         <Col xs={2}>
@@ -131,7 +131,7 @@ class RoomStayInput extends Component {
             buttonText="Discount YVP"
             discount={stay.yvpDiscount}
             onChange={this.handleYVPDiscountChange}
-            allowedTypes={['PERCENT']}
+            allowedTypes={['PERCENT', 'FIXED']}
           />
         </Col>
         <Col xs={1}>
