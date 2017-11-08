@@ -38,7 +38,7 @@ class TTCStayInput extends Component {
       ttcId: session.id,
       roomId: this.props.stay.roomId ? this.props.stay.roomId : 'TENT_SPACE',
       checkInDate: session.checkInDate,
-      checkOutDate: session.checkInDate,
+      checkOutDate: session.checkOutDate,
     })
   }
 
